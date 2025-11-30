@@ -1,0 +1,12 @@
+[core]
+    hooksPath = .githooks
+
+[merge]
+    ff = no
+
+[pull]
+    rebase = true
+
+[alias]
+    pf = push --force-with-lease
+    rb = pull origin dev --rebase

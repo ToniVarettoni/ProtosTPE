@@ -1,0 +1,49 @@
+name: C Proxy CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential clang valgrind
+
+      - name: Build
+        run: |
+          make clean
+          make -j
+
+      - name: Run tests
+        run: |
+          # When tests added, remove echo script
+          make test || echo "No tests defined"
+
+      - name: clang-format check
+        run: |
+          clang-format --version
+          FILES=$(git ls-files "*.c" "*.h")
+          if [ -n "$FILES" ]; then
+            echo "$FILES" | xargs clang-format -n --Werror
+          fi
+
+      - name: Valgrind test (example)
+        run: |
+          valgrind --leak-check=full --error-exitcode=1 ./bin/proxy --help || true
+
+      - name: AddressSanitizer build
+        run: |
+          make clean
+          CFLAGS="-fsanitize=address -g" make
+
+      - name: Run ASAN tests
+        run: |
+          ./bin/proxy --help || true

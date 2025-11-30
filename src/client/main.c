@@ -1,9 +1,9 @@
 #include <stdio.h>
 
-#include "protocol.h"
 #include "logs.h"
+#include "protocol.h"
 
 int main() {
-    LOG("Hello Client!\n");
-    return test();
+  LOG("Hello Client!\n");
+  return test();
 }

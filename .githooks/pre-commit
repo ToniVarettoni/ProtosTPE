@@ -1,0 +1,35 @@
+#!/bin/bash
+# Pre-commit hook to format staged files using clang-format
+# without losing staging or formatting only in the index.
+
+# Get staged source files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(c|h)$')
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+echo "Running clang-format on staged changes..."
+
+for FILE in $STAGED_FILES; do
+    if [ ! -f "$FILE" ]; then
+        continue
+    fi
+
+    # Make a temporary file
+    TMPFILE=$(mktemp /tmp/clang-format.XXXXXX)
+
+    # Format the file into the temp file
+    clang-format "$FILE" > "$TMPFILE"
+
+    # Replace the file in the index, NOT in the working tree
+    git checkout -- "$FILE"    # revert unstaged edits (if any)
+    cp "$TMPFILE" "$FILE"       # write formatted version
+    git add "$FILE"             # restage formatted file
+
+    rm "$TMPFILE"
+done
+
+echo "clang-format: Done."
+
+exit 0

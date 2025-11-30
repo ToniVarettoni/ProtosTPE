@@ -3,6 +3,6 @@
 #include <http.h>
 
 int main() {
-    printf("Hello Server!\n");
-    return test();
+  printf("Hello Server!\n");
+  return test();
 }

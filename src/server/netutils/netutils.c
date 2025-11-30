@@ -1,5 +1,3 @@
 #include <http.h>
 
-int hi() {
-    return test();
-}
+int hi() { return test(); }
