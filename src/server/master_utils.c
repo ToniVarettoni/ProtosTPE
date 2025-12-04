@@ -37,9 +37,9 @@ void handle_read_master(struct selector_key *key) {
 
   // add new socket to array of sockets
   selector_register(key->s, new_socket,
-                    get_client_handler(), // handler
-                    CLIENT_INTERESTS,     // interest
-                    NULL);                // data
+                    get_client_handler(),   // handler
+                    get_client_interests(), // interest
+                    NULL);                  // data
 }
 
 static const fd_handler MASTER_HANDLER = {.handle_read = handle_read_master};

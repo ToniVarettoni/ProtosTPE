@@ -3,7 +3,7 @@
 
 #include "selector.h"
 
-const int CLIENT_INTERESTS = OP_READ;
+const fd_interest get_client_interests();
 
 const fd_handler *get_client_handler();
 

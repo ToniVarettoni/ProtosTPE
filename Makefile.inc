@@ -1,5 +1,5 @@
 CC =gcc
-CFLAGS =-std=c99 -Wall -pthread
+CFLAGS =-std=c11 -Wall -pthread
 
 BIN_PATH = ../../bin
 
