@@ -11,12 +11,10 @@
 #include <sys/types.h>
 #include <unistd.h> //close
 
-// TODO: handle errors!! GAY(mer)
-
 void handle_read_master(struct selector_key *key) {
   selector_status error;
-  int new_socket, addr_len;
   struct sockaddr_in address;
+  int new_socket, addr_len = 0;
   char *message = "ECHO Daemon v1.0 \r\n";
 
   if ((new_socket = accept(key->fd, (struct sockaddr *)&address,
@@ -25,8 +23,8 @@ void handle_read_master(struct selector_key *key) {
     exit(EXIT_FAILURE);
   }
 
-  // int flags = fcntl(new_socket, F_GETFL, 0);
-  // fcntl(new_socket, F_SETFL, flags | O_NONBLOCK);
+  int flags = fcntl(new_socket, F_GETFL, 0);
+  fcntl(new_socket, F_SETFL, flags | O_NONBLOCK);
 
   // inform user of socket number - used in send and receive commands
   printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
