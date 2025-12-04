@@ -14,6 +14,7 @@
 // TODO: handle errors!! GAY(mer)
 
 void handle_read_master(struct selector_key *key) {
+  selector_status error;
   int new_socket, addr_len;
   struct sockaddr_in address;
   char *message = "ECHO Daemon v1.0 \r\n";
@@ -24,8 +25,8 @@ void handle_read_master(struct selector_key *key) {
     exit(EXIT_FAILURE);
   }
 
-  int flags = fcntl(new_socket, F_GETFL, 0);
-  fcntl(new_socket, F_SETFL, flags | O_NONBLOCK);
+  // int flags = fcntl(new_socket, F_GETFL, 0);
+  // fcntl(new_socket, F_SETFL, flags | O_NONBLOCK);
 
   // inform user of socket number - used in send and receive commands
   printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
@@ -39,10 +40,12 @@ void handle_read_master(struct selector_key *key) {
   puts("Welcome message sent successfully");
 
   // add new socket to array of sockets
-  selector_register(key->s, new_socket,
-                    get_client_handler(),   // handler
-                    get_client_interests(), // interest
-                    NULL);                  // data
+  if ((error = selector_register(key->s, new_socket,
+                                 get_client_handler(),   // handler
+                                 get_client_interests(), // interest
+                                 NULL)) != SELECTOR_SUCCESS) {
+    printf("%s\n", selector_error(error));
+  } // data
 }
 
 static const fd_handler MASTER_HANDLER = {.handle_read = handle_read_master};

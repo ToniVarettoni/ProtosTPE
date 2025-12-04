@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
   selector_init(&sel_init);
 
   fd_selector fds = selector_new(MAX_CLIENTS);
+  selector_status error;
 
   int opt = TRUE;
   int master_socket;
@@ -40,8 +41,8 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-    int flags = fcntl(master_socket, F_GETFL, 0);
-    fcntl(master_socket, F_SETFL, flags | O_NONBLOCK);
+  // int flags = fcntl(master_socket, F_GETFL, 0);
+  // fcntl(master_socket, F_SETFL, flags | O_NONBLOCK);
 
   // set master socket to allow multiple connections , this is just a good
   // habit, it will work without this
@@ -69,8 +70,10 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  selector_register(fds, master_socket, get_master_handler(), MASTER_INTERESTS,
-                    NULL);
+  if ((error = selector_register(fds, master_socket, get_master_handler(),
+                                 MASTER_INTERESTS, NULL)) != SELECTOR_SUCCESS) {
+    printf("%s\n", selector_error(error));
+  }
 
   while (TRUE) {
     selector_select(fds);

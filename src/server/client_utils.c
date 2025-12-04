@@ -17,6 +17,7 @@ void handle_read_client(struct selector_key *key) {
   struct sockaddr_in address;
 
   char buffer[1025]; // data buffer of 1K
+  selector_status error;
 
   if ((valread = read(key->fd, buffer, 1024)) == 0) {
     // Somebody disconnected , get his details and print
@@ -26,7 +27,9 @@ void handle_read_client(struct selector_key *key) {
 
     // Close the socket and mark as 0 in list for reuse
     close(key->fd);
-    selector_unregister_fd(key->s, key->fd);
+    if ((error = selector_unregister_fd(key->s, key->fd)) != SELECTOR_SUCCESS) {
+      printf("%s\n", selector_error(error));
+    }
   }
 
   // Echo back the message that came in
