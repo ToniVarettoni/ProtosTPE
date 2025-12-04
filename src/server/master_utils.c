@@ -1,5 +1,6 @@
 #include "include/client_utils.h"
 #include "include/selector.h"
+#include "io_utils.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <netinet/in.h>
@@ -17,11 +18,18 @@ void handle_read_master(struct selector_key *key) {
   int new_socket, addr_len = 0;
   char *message = "ECHO Daemon v1.0 \r\n";
 
-  if ((new_socket = accept(key->fd, (struct sockaddr *)&address,
-                           (socklen_t *)&addr_len)) < 0) {
-    perror("accept");
-    exit(EXIT_FAILURE);
-  }
+  do {
+    new_socket =
+        accept(key->fd, (struct sockaddr *)&address, (socklen_t *)&addr_len);
+    if (new_socket < 0) {
+      if (errno == EINTR)
+        continue;
+      if (errno == EAGAIN || errno EWOULDBLOCK)
+        return;
+      perror("accept");
+      exit(EXIT_FAILURE);
+    }
+  } while (new_socket < 0);
 
   int flags = fcntl(new_socket, F_GETFL, 0);
   fcntl(new_socket, F_SETFL, flags | O_NONBLOCK);
@@ -31,8 +39,10 @@ void handle_read_master(struct selector_key *key) {
          new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
   // send new connection greeting message
-  if (send(new_socket, message, strlen(message), 0) != strlen(message)) {
-    perror("send");
+  int left = strlen(message);
+  left = send_all(new_socket, message, left);
+  if (left != strlen(message)) {
+    signal();
   }
 
   puts("Welcome message sent successfully");
