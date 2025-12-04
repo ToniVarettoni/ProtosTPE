@@ -1,5 +1,5 @@
-#include "../client_utils.h"
-#include "../selector/selector.h"
+#include "include/client_utils.h"
+#include "include/selector.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <netinet/in.h>
@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <unistd.h> //close
 
-// TODO: handle errors!! GAYmer
+// TODO: handle errors!! GAY(mer)
 
 void handle_read_master(struct selector_key *key) {
   int new_socket, addr_len;
@@ -41,3 +41,7 @@ void handle_read_master(struct selector_key *key) {
                     CLIENT_INTERESTS,     // interest
                     NULL);                // data
 }
+
+static const fd_handler MASTER_HANDLER = {.handle_read = handle_read_master};
+
+const fd_handler *get_master_handler() { return &MASTER_HANDLER; }

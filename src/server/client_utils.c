@@ -1,5 +1,5 @@
-#include "client_utils.h"
-#include "../selector/selector.h"
+#include "include/client_utils.h"
+#include "include/selector.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <netinet/in.h>
@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <unistd.h> //close
 
-void handle_read(struct selector_key *key) {
+void handle_read_client(struct selector_key *key) {
   // Check if it was for closing , and also read the incoming message
   int addr_len, valread;
   struct sockaddr_in address;
@@ -37,9 +37,11 @@ void handle_read(struct selector_key *key) {
   }
 }
 
+void handle_write(struct selector_key *key) {}
+
 void handle_close(struct selector_key *key) { return; }
 
-static fd_handler CLIENT_HANDLER = {.handle_read = handle_read,
-                                    .handle_close = handle_close};
+static const fd_handler CLIENT_HANDLER = {.handle_read = handle_read_client,
+                                          .handle_close = handle_close};
 
 const fd_handler *get_client_handler() { return &CLIENT_HANDLER; }
