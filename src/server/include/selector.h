@@ -1,8 +1,20 @@
 #ifndef SELECTOR_H_W50GNLODsARolpHbsDsrvYvMsbT
 #define SELECTOR_H_W50GNLODsARolpHbsDsrvYvMsbT
 
+#include <arpa/inet.h> //close
+#include <errno.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <signal.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h> //strlen
+#include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
+#include <sys/types.h>
+#include <unistd.h> //close
 
 /**
  * selector.c - un muliplexor de entrada salida

@@ -41,7 +41,10 @@ struct parser *parser_init(const unsigned *classes,
 
 void parser_reset(struct parser *p) { p->state = p->def->start_state; }
 
-const struct parser_event *parser_feed(struct parser *p, const uint8_t c) {
+const struct parser_event *
+parser_feed(struct parser *p,
+            const uint8_t c) { // c entonces seria la clase del caracter
+                               // consumido (se tiene que definir creo)
   const unsigned type = p->classes[c];
 
   p->e1.next = p->e2.next = 0;

@@ -1,6 +1,6 @@
 include ../../Makefile.inc
 
-SRCS = $(wildcard *.c) $(wildcard http/*.c) $(wildcard netutils/*.c)
+SRCS = $(wildcard *.c) $(wildcard selector/*.c)
 OBJECTS = $(SRCS:.c=.o)
 EXEC = $(BIN_PATH)/server
 HDRS = ./include

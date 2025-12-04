@@ -61,7 +61,7 @@
  * +---+---+---+---+---+---+
  *                         ↑
  *                         limit=6
- *                         W=4
+ *                         W=6
  * Compactación a demanda
  * R=0
  * ↓
