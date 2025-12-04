@@ -24,6 +24,9 @@ void handle_read_master(struct selector_key *key) {
     exit(EXIT_FAILURE);
   }
 
+  int flags = fcntl(new_socket, F_GETFL, 0);
+  fcntl(new_socket, F_SETFL, flags | O_NONBLOCK);
+
   // inform user of socket number - used in send and receive commands
   printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
          new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));

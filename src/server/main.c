@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  //   int flags = fcntl(master_socket, F_GETFL, 0);
-  //   fcntl(master_socket, F_SETFL, flags | O_NONBLOCK);
+    int flags = fcntl(master_socket, F_GETFL, 0);
+    fcntl(master_socket, F_SETFL, flags | O_NONBLOCK);
 
   // set master socket to allow multiple connections , this is just a good
   // habit, it will work without this
