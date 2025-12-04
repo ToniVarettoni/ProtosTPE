@@ -20,7 +20,7 @@ for FILE in $STAGED_FILES; do
     TMPFILE=$(mktemp /tmp/clang-format.XXXXXX)
 
     # Format the file into the temp file
-    clang-format "$FILE" > "$TMPFILE"
+    clang-format-17 "$FILE" > "$TMPFILE"
 
     # Replace the file in the index, NOT in the working tree
     git checkout -- "$FILE"    # revert unstaged edits (if any)
