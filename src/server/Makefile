@@ -1,6 +1,6 @@
 include ../../Makefile.inc
 
-SRCS = $(wildcard *.c) $(wildcard selector/*.c) $(wildcard logger/*.c)
+SRCS = $(wildcard *.c) $(wildcard selector/*.c) $(wildcard logger/*.c) $(wildcard forwarding/*.c) $(wildcard closing/*.c) $(wildcard setup/*.c) $(wildcard request/*.c)
 OBJECTS = $(SRCS:.c=.o)
 EXEC = $(BIN_PATH)/server
 HDRS = ./include

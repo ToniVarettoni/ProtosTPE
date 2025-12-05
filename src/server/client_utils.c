@@ -50,20 +50,6 @@ static const struct state_definition client_states[] = {
     {.state = DONE, .on_arrival = end_connection},
     {.state = ERROR, .on_arrival = error_handler}};
 
-static enum states {
-  HELLO_READ = 0,
-  HELLO_WRITE,
-  AUTH_READ,
-  AUTH_WRITE,
-  REQUEST_READ,
-  DNS_LOOKUP,
-  DEST_CONNECT,
-  REQUEST_WRITE,
-  FORWARDING,
-  DONE,
-  ERROR
-};
-
 void handle_read_client(struct selector_key *key) {
   // Check if it was for closing , and also read the incoming message
   int addr_len, valread;
