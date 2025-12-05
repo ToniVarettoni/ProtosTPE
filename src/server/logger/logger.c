@@ -11,6 +11,7 @@
 
 static char * buffer = NULL;
 static size_t size = 0;
+static fd_selector selector = NULL;
 
 static int log_fd = -1;
 
@@ -55,7 +56,7 @@ static fd_handler logger_handler = {
     .handle_block = NULL,
 };
 
-void logger_initialize(fd_selector selector) {
+void logger_initialize(fd_selector s) {
     // duplico stdout para poder registrar y despues desregistrar una copia del FD en vez de usarlo directamente
     int fd = dup(STDOUT_FILENO);
 
@@ -64,11 +65,12 @@ void logger_initialize(fd_selector selector) {
     fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 
     log_fd = fd;
+    selector = s;
 
     selector_register(selector, fd, &logger_handler, OP_NOOP, NULL);
 }
 
-void log_to_stdout(fd_selector selector, char * format, ...) {
+void log_to_stdout(char * format, ...) {
     va_list args;
 
     va_start(args, format);
@@ -87,7 +89,7 @@ void log_to_stdout(fd_selector selector, char * format, ...) {
     selector_set_interest(selector, log_fd, OP_WRITE);
 }
 
-void logger_destroy(fd_selector selector) {
+void logger_destroy() {
     if(log_fd != -1) {
         close(log_fd);
         selector_unregister_fd(selector, log_fd);
