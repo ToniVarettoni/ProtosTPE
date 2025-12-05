@@ -1,5 +1,4 @@
 #include "include/client_utils.h"
-#include "include/selector.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <netinet/in.h>
