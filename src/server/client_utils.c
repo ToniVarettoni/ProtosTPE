@@ -1,5 +1,6 @@
 #include "include/client_utils.h"
 #include "include/selector.h"
+#include "stm.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <netinet/in.h>
@@ -76,6 +77,37 @@ static const struct state_definition client_states[] = {
     .on_arrival = error_handler
   }
 };
+
+static enum states {
+  HELLO_READ = 0,
+  HELLO_WRITE,
+  AUTH_READ,
+  AUTH_WRITE,
+  REQUEST_READ,
+  DNS_LOOKUP,
+  DEST_CONNECT,
+  REQUEST_WRITE,
+  FORWARDING,
+  DONE,
+  ERROR
+};
+
+static const struct state_definition client_states[] = {
+    {.state = HELLO_READ, .on_read_ready = read_hello},
+    {.state = HELLO_WRITE, .on_write_ready = write_hello},
+    {.state = AUTH_READ, .on_read_ready = read_auth},
+    {.state = AUTH_WRITE, .on_write_ready = write_auth},
+    {.state = REQUEST_READ, .on_read_ready = read_request},
+    {.state = DNS_LOOKUP, .on_arrival = dns_lookup, .on_block_ready = NOSE},
+    {.state = DEST_CONNECT, .on_arrival = try_connect},
+    {.state = REQUEST_WRITE, .on_write_ready = write_request},
+    {.state = FORWARDING,
+     .on_write_ready = write_forward,
+     .on_read_ready = read_forward,
+     .on_arrival = setup_forward,
+     .on_departure = close_forward},
+    {.state = DONE, .on_arrival = end_connection},
+    {.state = ERROR, .on_arrival = error_handler}};
 
 void handle_read_client(struct selector_key *key) {
   // Check if it was for closing , and also read the incoming message
