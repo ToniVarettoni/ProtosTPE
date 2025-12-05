@@ -1,4 +1,8 @@
+#include <sys/socket.h>
+#include <errno.h>
+#include <sys/types.h>
 #include "io_utils.h"
+#include <stddef.h>
 
 int send_all(int fd, const void *buf, size_t len) {
 

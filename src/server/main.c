@@ -4,6 +4,7 @@
 
 #include "include/master_utils.h"
 #include "include/selector.h"
+#include "include/logger.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <fcntl.h>
@@ -62,7 +63,6 @@ int main(int argc, char *argv[]) {
     perror("bind failed");
     exit(EXIT_FAILURE);
   }
-  printf("Listener on port %d \n", PORT);
 
   // try to specify maximum of 3 pending connections for the master socket
   if (listen(master_socket, 3) < 0) {
@@ -74,6 +74,13 @@ int main(int argc, char *argv[]) {
                                  MASTER_INTERESTS, NULL)) != SELECTOR_SUCCESS) {
     printf("%s\n", selector_error(error));
   }
+
+  // initialize my logger with my selector
+  logger_initialize(fds);
+
+  // printf("Listener on port %d \n", PORT);
+  log_to_stdout(fds, "Listener on port %d \n", PORT);
+  selector_select(fds);
 
   while (TRUE) {
     selector_select(fds);

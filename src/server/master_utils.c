@@ -1,3 +1,4 @@
+#include "include/logger.h"
 #include "include/client_utils.h"
 #include "include/selector.h"
 #include "io_utils.h"
@@ -24,7 +25,7 @@ void handle_read_master(struct selector_key *key) {
     if (new_socket < 0) {
       if (errno == EINTR)
         continue;
-      if (errno == EAGAIN || errno EWOULDBLOCK)
+      if (errno == EAGAIN || errno == EWOULDBLOCK)
         return;
       perror("accept");
       exit(EXIT_FAILURE);
@@ -35,17 +36,21 @@ void handle_read_master(struct selector_key *key) {
   fcntl(new_socket, F_SETFL, flags | O_NONBLOCK);
 
   // inform user of socket number - used in send and receive commands
-  printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
-         new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+  // printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
+  //        new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+  log_to_stdout(key->s, "New connection , socket fd is %d , ip is : %s , port : %d \n",
+              new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+  selector_select(key->s);
 
   // send new connection greeting message
   int left = strlen(message);
   left = send_all(new_socket, message, left);
-  if (left != strlen(message)) {
-    signal();
-  }
+  // if (left != strlen(message)) {
+  //   signal();
+  // }
 
-  puts("Welcome message sent successfully");
+  log_to_stdout(key->s, "Welcome message sent successfully");
+  selector_select(key->s);
 
   // add new socket to array of sockets
   if ((error = selector_register(key->s, new_socket,
