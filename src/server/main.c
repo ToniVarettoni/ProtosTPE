@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
   logger_initialize(fds);
 
   // printf("Listener on port %d \n", PORT);
-  log_to_stdout(fds, "Listener on port %d \n", PORT);
+  log_to_stdout("Listener on port %d \n", PORT);
   selector_select(fds);
 
   while (TRUE) {

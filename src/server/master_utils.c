@@ -35,12 +35,47 @@ void handle_read_master(struct selector_key *key) {
   int flags = fcntl(new_socket, F_GETFL, 0);
   fcntl(new_socket, F_SETFL, flags | O_NONBLOCK);
 
+  client_t *client = calloc(1, sizeof(client_t));
+  if (client == NULL) {
+    log_to_stdout(
+        "Failed to load client with ip: %s, in port: %d: Calloc failed\n",
+        inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+    close(new_socket);
+    return;
+  }
+
+  client->stm.initial = HELLO_READ;
+  client->stm.max_state = ERROR;
+  client->stm.states = client_states;
+  client->destination_fd = -1;
+  buffer_init(&client->reading_buffer, MAX_BUFFER,
+              client->reading_buffer_storage);
+  buffer_init(&client->writing_buffer, MAX_BUFFER,
+              client->writing_buffer_storage);
+  stm_init(&client->stm);
+
+  // add new socket to array of sockets
+  selector_status status = selector_register(key->s, new_socket,
+                                             get_client_handler(),   // handler
+                                             get_client_interests(), // interest
+                                             client                  // data
+  );
+
+  if (status != SELECTOR_SUCCESS) {
+    log_to_stdout("Failed to load client with ip: %s, in port: %d: Selector "
+                  "register failed\n",
+                  inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+    close(new_socket);
+    free(client);
+    return;
+  }
+
   // inform user of socket number - used in send and receive commands
   // printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
   //        new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-  log_to_stdout(key->s, "New connection , socket fd is %d , ip is : %s , port : %d \n",
-              new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-  selector_select(key->s);
+  log_to_stdout(
+      "New connection , socket fd is %d , ip is : %s , port : %d \n",
+      new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
   // send new connection greeting message
   int left = strlen(message);
@@ -49,16 +84,7 @@ void handle_read_master(struct selector_key *key) {
   //   signal();
   // }
 
-  log_to_stdout(key->s, "Welcome message sent successfully");
-  selector_select(key->s);
-
-  // add new socket to array of sockets
-  if ((error = selector_register(key->s, new_socket,
-                                 get_client_handler(),   // handler
-                                 get_client_interests(), // interest
-                                 NULL)) != SELECTOR_SUCCESS) {
-    printf("%s\n", selector_error(error));
-  } // data
+  log_to_stdout("Welcome message sent successfully");
 }
 
 static const fd_handler MASTER_HANDLER = {.handle_read = handle_read_master};
