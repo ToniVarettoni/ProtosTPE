@@ -39,7 +39,6 @@ void handle_read_master(struct selector_key *key) {
   client_t *client = calloc(1, sizeof(client_t));
   if (client == NULL) {
     log_to_stdout(
-        key->s,
         "Failed to load client with ip: %s, in port: %d: Calloc failed\n",
         inet_ntoa(address.sin_addr), ntohs(address.sin_port));
     close(new_socket);
@@ -65,8 +64,7 @@ void handle_read_master(struct selector_key *key) {
 
   if (status != SELECTOR_SUCCESS) {
     printf("%s\n", selector_error(status));
-    log_to_stdout(key->s,
-                  "Failed to load client with ip: %s, in port: %d: Selector "
+    log_to_stdout("Failed to load client with ip: %s, in port: %d: Selector "
                   "register failed\n",
                   inet_ntoa(address.sin_addr), ntohs(address.sin_port));
     close(new_socket);
@@ -77,9 +75,9 @@ void handle_read_master(struct selector_key *key) {
   // inform user of socket number - used in send and receive commands
   // printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
   //        new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-  log_to_stdout(
-      key->s, "New connection , socket fd is %d , ip is : %s , port : %d \n",
-      new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+  log_to_stdout("New connection , socket fd is %d , ip is : %s , port : %d \n",
+                new_socket, inet_ntoa(address.sin_addr),
+                ntohs(address.sin_port));
 
   // send new connection greeting message
   int left = strlen(message);
@@ -88,7 +86,7 @@ void handle_read_master(struct selector_key *key) {
   //   signal();
   // }
 
-  log_to_stdout(key->s, "Welcome message sent successfully");
+  log_to_stdout("Welcome message sent successfully");
 }
 
 static const fd_handler MASTER_HANDLER = {.handle_read = handle_read_master};

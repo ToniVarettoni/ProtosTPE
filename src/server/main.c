@@ -2,9 +2,9 @@
     Handle multiple socket connections with select and fd_set on Linux
 */
 
+#include "include/logger.h"
 #include "include/master_utils.h"
 #include "include/selector.h"
-#include "include/logger.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <fcntl.h>
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
   logger_initialize(fds);
 
   // printf("Listener on port %d \n", PORT);
-  log_to_stdout(fds, "Listener on port %d \n", PORT);
+  log_to_stdout("Listener on port %d \n", PORT);
   selector_select(fds);
 
   while (TRUE) {
