@@ -1,7 +1,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include "selector.h"
+#include "../selector/selector.h"
 
 // Crea el logger a usar, cerando un FD nuevo (copia de STDOUT) no bloqueante
 // para poder escribir.

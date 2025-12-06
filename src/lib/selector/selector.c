@@ -10,7 +10,7 @@
 #include <stdlib.h> // malloc
 #include <string.h> // memset
 
-#include "../include/selector.h"
+#include "selector.h"
 #include <fcntl.h>
 #include <stdint.h> // SIZE_MAX
 #include <sys/select.h>

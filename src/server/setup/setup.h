@@ -1,7 +1,7 @@
 #ifndef _SETUP_H_
 #define _SETUP_H_
 
-#include "../include/selector.h"
+#include "../../lib/selector/selector.h"
 
 unsigned read_hello(struct selector_key *key);
 unsigned write_hello(struct selector_key *key);

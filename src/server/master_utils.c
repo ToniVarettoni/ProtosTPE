@@ -1,8 +1,9 @@
 #include "../lib/buffer/buffer.h"
 #include "../lib/stm/stm.h"
 #include "include/client_utils.h"
-#include "include/logger.h"
-#include "include/selector.h"
+#include "../lib/logger/logger.h"
+#include "../lib/selector/selector.h"
+#include "../lib/stats/stats.h"
 #include "io_utils.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
@@ -37,6 +38,7 @@ void handle_read_master(struct selector_key *key) {
   fcntl(new_socket, F_SETFL, flags | O_NONBLOCK);
 
   client_t *client = calloc(1, sizeof(client_t));
+  increment_current_connections();
   if (client == NULL) {
     log_to_stdout(
         "Failed to load client with ip: %s, in port: %d: Calloc failed\n",

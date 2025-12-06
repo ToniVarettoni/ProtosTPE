@@ -13,6 +13,8 @@ void increment_current_connections(); // tambien incrementa historic connections
 void decrement_current_connections();
 void add_transferred_bytes(size_t bytes_amount);
 
-stats get_stats();
+stats * get_stats();
+
+void cleanup_stats();
 
 #endif

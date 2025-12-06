@@ -7,7 +7,7 @@
 #include "../forwarding/forwarding.h"
 #include "../request/request.h"
 #include "../setup/setup.h"
-#include "selector.h"
+#include "../../lib/selector/selector.h"
 
 #define MAX_BUFFER 4096
 

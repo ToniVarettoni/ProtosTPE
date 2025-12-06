@@ -6,8 +6,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "../include/logger.h"
-#include "../include/selector.h"
+#include "logger.h"
+#include "../selector/selector.h"
 
 static char *buffer = NULL;
 static size_t size = 0;

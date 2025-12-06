@@ -2,9 +2,10 @@
     Handle multiple socket connections with select and fd_set on Linux
 */
 
-#include "include/logger.h"
+#include "../lib/logger/logger.h"
 #include "include/master_utils.h"
-#include "include/selector.h"
+#include "../lib/selector/selector.h"
+#include "../lib/stats/stats.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <fcntl.h>
@@ -17,6 +18,7 @@
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 #include <sys/types.h>
 #include <unistd.h> //close
+#include <stdbool.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -24,7 +26,16 @@
 
 #define MAX_CLIENTS 30
 
+static int running = true;
+
+void signal_handler(int signal) {
+  running = false;
+}
+
 int main(int argc, char *argv[]) {
+  signal(SIGINT, signal_handler);
+  signal(SIGTERM, signal_handler);
+
   const struct selector_init sel_init = {.signal = 0};
 
   selector_init(&sel_init);
@@ -82,9 +93,17 @@ int main(int argc, char *argv[]) {
   log_to_stdout("Listener on port %d \n", PORT);
   selector_select(fds);
 
-  while (TRUE) {
+  while (running) {
     selector_select(fds);
   }
+
+  log_to_stdout("\nShutting down server...\n");
+  selector_select(fds);
+  
+  close(master_socket);
+  selector_destroy(fds);
+  selector_close();
+  cleanup_stats(); 
 
   return 0;
 }

@@ -1,7 +1,7 @@
 #ifndef STM_H_wL7YxN65ZHqKGvCPrNbPtMJgL8B
 #define STM_H_wL7YxN65ZHqKGvCPrNbPtMJgL8B
 
-#include "../../server/include/selector.h"
+#include "../selector/selector.h"
 
 /**
  * stm.c - pequeño motor de maquina de estados donde los eventos son los

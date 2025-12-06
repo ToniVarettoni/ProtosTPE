@@ -1,4 +1,6 @@
 #include "include/client_utils.h"
+#include "../lib/selector/selector.h"
+#include "../lib/stats/stats.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <netinet/in.h>
@@ -35,13 +37,18 @@ void handle_read_client(struct selector_key *key) {
   else {
     // set the string terminating NULL byte on the end of the data read
     buffer[valread] = '\0';
-    send(key->fd, buffer, strlen(buffer), 0);
+    size_t buffer_size = strlen(buffer);
+    send(key->fd, buffer, buffer_size, 0);
+    add_transferred_bytes(buffer_size);
   }
 }
 
 void handle_write(struct selector_key *key) {}
 
-void handle_close(struct selector_key *key) { return; }
+void handle_close(struct selector_key *key) { 
+  decrement_current_connections();
+  return; 
+}
 
 static const fd_handler CLIENT_HANDLER = {.handle_read = handle_read_client,
                                           .handle_close = handle_close};
@@ -51,5 +58,3 @@ const fd_handler *get_client_handler() { return &CLIENT_HANDLER; }
 const fd_interest CLIENT_INTERESTS = OP_READ;
 
 const fd_interest get_client_interests() { return CLIENT_INTERESTS; }
-
-void puto() {int a; int b;}
