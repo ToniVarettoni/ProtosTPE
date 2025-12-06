@@ -1,5 +1,4 @@
 #include "include/client_utils.h"
-#include "include/selector.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <netinet/in.h>
@@ -52,3 +51,5 @@ const fd_handler *get_client_handler() { return &CLIENT_HANDLER; }
 const fd_interest CLIENT_INTERESTS = OP_READ;
 
 const fd_interest get_client_interests() { return CLIENT_INTERESTS; }
+
+void puto() {int a; int b;}

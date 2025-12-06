@@ -13,6 +13,11 @@ all: $(OBJECTS)
 	$(CC) $(CFLAGS) -I $(HDRS) -c $< -o $@
 
 clean:
-	rm -f $(EXEC) $(OBJECTS)
+	rm -rf $(EXEC) \
+	       $(OBJECTS) \
+	       **/*.o \
+	       **/*.d \
+	       *.o \
+	       *.d
 
 .PHONY: clean all

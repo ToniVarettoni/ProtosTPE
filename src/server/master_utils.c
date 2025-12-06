@@ -1,5 +1,7 @@
-#include "include/logger.h"
+#include "../lib/buffer/buffer.h"
+#include "../lib/stm/stm.h"
 #include "include/client_utils.h"
+#include "include/logger.h"
 #include "include/selector.h"
 #include "io_utils.h"
 #include <arpa/inet.h> //close
@@ -14,7 +16,6 @@
 #include <unistd.h> //close
 
 void handle_read_master(struct selector_key *key) {
-  selector_status error;
   struct sockaddr_in address;
   int new_socket, addr_len = 0;
   char *message = "ECHO Daemon v1.0 \r\n";
@@ -73,9 +74,9 @@ void handle_read_master(struct selector_key *key) {
   // inform user of socket number - used in send and receive commands
   // printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
   //        new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-  log_to_stdout(
-      "New connection , socket fd is %d , ip is : %s , port : %d \n",
-      new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+  log_to_stdout("New connection , socket fd is %d , ip is : %s , port : %d \n",
+                new_socket, inet_ntoa(address.sin_addr),
+                ntohs(address.sin_port));
 
   // send new connection greeting message
   int left = strlen(message);
