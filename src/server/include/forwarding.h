@@ -3,9 +3,9 @@
 
 #include "../../lib/selector/selector.h"
 
-unsigned write_forward(struct selector_key *key);
-unsigned read_forward(struct selector_key *key);
-void setup_forward(const unsigned state, struct selector_key *key);
-void close_forward(const unsigned state, struct selector_key *key);
+unsigned forward_write(struct selector_key *key);
+unsigned forward_read(struct selector_key *key);
+void forward_setup(const unsigned state, struct selector_key *key);
+void forward_close(const unsigned state, struct selector_key *key);
 
 #endif

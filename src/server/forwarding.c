@@ -1,9 +1,9 @@
 #include "forwarding.h"
 
-unsigned write_forward(struct selector_key *key) { return 0; }
+unsigned forward_write(struct selector_key *key) { return 0; }
 
-unsigned read_forward(struct selector_key *key) { return 0; }
+unsigned forward_read(struct selector_key *key) { return 0; }
 
-void setup_forward(const unsigned state, struct selector_key *key) {}
+void forward_setup(const unsigned state, struct selector_key *key) {}
 
-void close_forward(const unsigned state, struct selector_key *key) {}
+void forward_close(const unsigned state, struct selector_key *key) {}

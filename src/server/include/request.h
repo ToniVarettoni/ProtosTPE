@@ -3,9 +3,9 @@
 
 #include "../../lib/selector/selector.h"
 
-unsigned read_request(struct selector_key *key);
+unsigned request_read(struct selector_key *key);
 void dns_lookup(const unsigned state, struct selector_key *key);
 void try_connect(const unsigned state, struct selector_key *key);
-unsigned write_request(struct selector_key *key);
+unsigned request_write(struct selector_key *key);
 
 #endif

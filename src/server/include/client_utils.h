@@ -2,12 +2,13 @@
 #define _CLIENT_UTILS_
 
 #include "../../lib/buffer/buffer.h"
-#include "../../lib/stm/stm.h"
-#include "../closing/closing.h"
-#include "../forwarding/forwarding.h"
-#include "../request/request.h"
-#include "../setup/setup.h"
 #include "../../lib/selector/selector.h"
+#include "../../lib/stm/stm.h"
+#include "auth.h"
+#include "closing.h"
+#include "forwarding.h"
+#include "hello.h"
+#include "request.h"
 
 #define MAX_BUFFER 4096
 
@@ -35,22 +36,22 @@ enum states {
 };
 
 static const struct state_definition client_states[] = {
-    {.state = HELLO_READ, .on_read_ready = read_hello},
-    {.state = HELLO_WRITE, .on_write_ready = write_hello},
-    {.state = AUTH_READ, .on_read_ready = read_auth},
-    {.state = AUTH_WRITE, .on_write_ready = write_auth},
-    {.state = REQUEST_READ, .on_read_ready = read_request},
+    {.state = HELLO_READ, .on_read_ready = hello_read},
+    {.state = HELLO_WRITE, .on_write_ready = hello_write},
+    {.state = AUTH_READ, .on_read_ready = auth_read},
+    {.state = AUTH_WRITE, .on_write_ready = auth_write},
+    {.state = REQUEST_READ, .on_read_ready = request_read},
     {
         .state = DNS_LOOKUP,
         .on_arrival = dns_lookup,
     },
     {.state = DEST_CONNECT, .on_arrival = try_connect},
-    {.state = REQUEST_WRITE, .on_write_ready = write_request},
+    {.state = REQUEST_WRITE, .on_write_ready = request_write},
     {.state = FORWARDING,
-     .on_write_ready = write_forward,
-     .on_read_ready = read_forward,
-     .on_arrival = setup_forward,
-     .on_departure = close_forward},
+     .on_write_ready = forward_write,
+     .on_read_ready = forward_read,
+     .on_arrival = forward_setup,
+     .on_departure = forward_close},
     {.state = DONE, .on_arrival = end_connection},
     {.state = ERROR, .on_arrival = error_handler}};
 
