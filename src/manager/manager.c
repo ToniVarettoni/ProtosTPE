@@ -22,7 +22,6 @@ int main() {
 
   if (current_stats == NULL) {
     log_to_stdout("The server is currently down\n");
-    selector_select(fds);
 
     logger_destroy();
     selector_destroy(fds);
@@ -36,22 +35,17 @@ int main() {
   strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", tm_info);
 
   log_to_stdout("STATISTICS FOR SERVER - %s\n\n", time_str);
-  selector_select(fds);
 
   log_to_stdout("Historic connections to the server: %d\n",
                 current_stats->historic_connections);
-  selector_select(fds);
 
   log_to_stdout("Current connections to the server: %d\n",
                 current_stats->current_connections);
-  selector_select(fds);
 
   log_to_stdout("Total bytes transferred from server to client: %d\n",
                 current_stats->transferred_bytes);
-  selector_select(fds);
 
   log_to_stdout("END OF STATISTICS, EXECUTE AGAIN FOR UPDATED INFORMATION\n");
-  selector_select(fds);
 
   selector_destroy(fds);
 

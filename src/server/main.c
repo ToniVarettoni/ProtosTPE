@@ -89,15 +89,13 @@ int main(int argc, char *argv[]) {
 
   // printf("Listener on port %d \n", PORT);
   log_to_stdout("Listener on port %d \n", PORT);
-  selector_select(fds);
 
   while (running) {
     selector_select(fds);
   }
 
   log_to_stdout("\nShutting down server...\n");
-  selector_select(fds);
-
+  
   close(master_socket);
   selector_destroy(fds);
   selector_close();
