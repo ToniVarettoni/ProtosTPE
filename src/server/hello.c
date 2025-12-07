@@ -60,8 +60,9 @@ static const struct parser_definition hello_parser_def = {
 hello_status_t hello_init(struct hello_parser *hp) {
   memset(hp, 0, sizeof(struct hello_parser));
   hp->p = parser_init(parser_no_classes(), &hello_parser_def);
-  if (hp->p == NULL)
+  if (hp->p == NULL) {
     return HELLO_UNKNOWN_ERROR;
+  }
   return HELLO_OK;
 }
 
@@ -69,61 +70,67 @@ hello_status_t hello_read(struct selector_key *key) {
   struct hello_parser *hp = ATTACHMENT(key);
 
   uint8_t c;
-  ssize_t n = recv(key->fd, &c, 1, 0);
-  if (n <= 0) {
-    if (errno == EAGAIN || errno == EWOULDBLOCK)
+  ssize_t left = recv(key->fd, &c, MAX_BUFFER, 0);
+  if (left <= 0) {
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return HELLO_OK;
+    }
     return HELLO_UNKNOWN_ERROR;
   }
+  while (left) {
+    const struct parser_event *ev = parser_feed(hp->p, c);
 
-  const struct parser_event *ev = parser_feed(hp->p, c);
+    for (; ev != NULL; ev = ev->next) {
+      switch (ev->type) {
 
-  for (; ev != NULL; ev = ev->next) {
-    switch (ev->type) {
-
-    case HELLO_EVENT_VER:
-      hp->ver = ev->data[0];
-      if (hp->ver != 0x05)
-        return HELLO_VER_ERROR;
-      break;
-
-    case HELLO_EVENT_NMETHODS:
-      if (hp->nmethods == 0)
-        return HELLO_NMETHODS_ERROR;
-      hp->nmethods = ev->data[0];
-      hp->methods_read = 0;
-      break;
-
-    case HELLO_EVENT_METHOD:
-      if (hp->methods_read < hp->nmethods) {
-        hp->methods[hp->methods_read++] = ev->data[0];
-      }
-      if (hp->methods_read == hp->nmethods) {
-        bool found = false;
-        hp->method_selected = HELLO_AUTH_NO_METHOD_ACCEPTED;
-
-        for (int i = 0; i < hp->nmethods && !found; i++) {
-          if (hp->methods[i] == HELLO_AUTH_USER_PASS) {
-            hp->method_selected = HELLO_AUTH_USER_PASS;
-            found = true;
-            break;
-          }
+      case HELLO_EVENT_VER:
+        hp->ver = ev->data[0];
+        if (hp->ver != 0x05) {
+          return HELLO_VER_ERROR;
         }
+        break;
 
-        if (!found)
-          return HELLO_METHOD_NOT_ACCEPTED_ERROR;
+      case HELLO_EVENT_NMETHODS:
+        if (hp->nmethods == 0) {
+          return HELLO_NMETHODS_ERROR;
+        }
+        hp->nmethods = ev->data[0];
+        hp->methods_read = 0;
+        break;
 
-        parser_reset(hp->p);
-        return HELLO_OK;
+      case HELLO_EVENT_METHOD:
+        if (hp->methods_read < hp->nmethods) {
+          hp->methods[hp->methods_read++] = ev->data[0];
+        }
+        if (hp->methods_read == hp->nmethods) {
+          bool found = false;
+          hp->method_selected = HELLO_AUTH_NO_METHOD_ACCEPTED;
+
+          for (int i = 0; i < hp->nmethods && !found; i++) {
+            if (hp->methods[i] == HELLO_AUTH_USER_PASS) {
+              hp->method_selected = HELLO_AUTH_USER_PASS;
+              found = true;
+              break;
+            }
+          }
+
+          if (!found) {
+            return HELLO_METHOD_NOT_ACCEPTED_ERROR;
+          }
+
+          parser_reset(hp->p);
+          return HELLO_OK;
+        }
+        break;
+
+      case HELLO_EVENT_UNEXPECTED:
+        return HELLO_UNKNOWN_ERROR;
+
+      case HELLO_EVENT_DONE:
+        break;
       }
-      break;
-
-    case HELLO_EVENT_UNEXPECTED:
-      return HELLO_UNKNOWN_ERROR;
-
-    case HELLO_EVENT_DONE:
-      break;
     }
+    left--;
   }
 
   return HELLO_OK;
