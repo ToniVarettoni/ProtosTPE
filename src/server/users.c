@@ -125,19 +125,40 @@ static user_status load_users(char *users_file_path) {
                                      parsed_user.access_level);
     switch (status) {
     case USERS_INVALID_USERNAME:
-      printf("invalid username at line %u", line);
+      printf("invalid username at line %u\n", line);
       break;
     case USERS_INVALID_PASSWORD:
-      printf("invalid password at line %u", line);
+      printf("invalid password at line %u\n", line);
       break;
     case USERS_INVALID_ACCESS_LEVEL:
-      printf("invalid acces level at line %u", line);
+      printf("invalid access level at line %u\n", line);
       break;
     case USERS_MAX_USERS_REACHED:
-      printf("max users reached.");
-
+      printf("max users reached\n");
+      break;
+    case USERS_WRONG_USERNAME:
+      printf("wrong username at line %u\n", line);
+      break;
+    case USERS_WRONG_PASSWORD:
+      printf("wrong password at line %u\n", line);
+      break;
+    case USERS_IO_ERROR:
+      printf("IO error at line %u\n", line);
+      break;
+    case USERS_NOMEM_ERROR:
+      printf("no memory available while loading users\n");
+      break;
+    case USERS_USER_ALREADY_EXISTS:
+      printf("user already exists at line %u\n", line);
+      break;
+    case USERS_UNKOWN_ERROR:
+      printf("unknown error at line %u\n", line);
+      break;
+    case USERS_OK:
+    case USERS_USER_NOT_FOUND:
       break;
     }
+
   } while (result >= 0);
 
   fclose(file);
@@ -150,8 +171,11 @@ user_status users_init(char *users_file_param) {
                         : DEFAULT_USERS_FILE_PATH;
 
   users = malloc(sizeof(user_t) * MAX_USERS);
-
+  if (users == NULL) {
+    return USERS_NOMEM_ERROR;
+  }
   load_users(users_file_path);
+  return USERS_OK;
 }
 
 user_status user_create(char *username, char *password,
@@ -176,7 +200,7 @@ user_status user_create(char *username, char *password,
   strcpy(users[users_size].password, password);
   users[users_size].access_level = access_level;
   users_size++;
-  return 0;
+  return USERS_OK;
 }
 
 user_status user_login(char *username, char *password,

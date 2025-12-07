@@ -11,9 +11,13 @@
 #include "request.h"
 
 #define MAX_BUFFER 4096
+#define ATTACHMENT(key) ((client_t *)(key)->data)
 
 typedef struct {
   struct state_machine stm;
+  union {
+    hello_parser_t hello_parser;
+  } parser;
   buffer reading_buffer;
   buffer writing_buffer;
   uint8_t reading_buffer_storage[MAX_BUFFER];
@@ -36,11 +40,17 @@ enum states {
 };
 
 static const struct state_definition client_states[] = {
-    {.state = HELLO_READ, .on_read_ready = hello_read},
+    {.state = HELLO_READ,
+     .on_arrival = hello_read_init,
+     .on_read_ready = hello_read},
     {.state = HELLO_WRITE, .on_write_ready = hello_write},
-    {.state = AUTH_READ, .on_read_ready = auth_read},
+    {.state = AUTH_READ,
+     .on_arrival = auth_read_init,
+     .on_read_ready = auth_read},
     {.state = AUTH_WRITE, .on_write_ready = auth_write},
-    {.state = REQUEST_READ, .on_read_ready = request_read},
+    {.state = REQUEST_READ,
+     .on_arrival = request_read_init,
+     .on_read_ready = request_read},
     {
         .state = DNS_LOOKUP,
         .on_arrival = dns_lookup,

@@ -1,4 +1,5 @@
-#include "../include/hello.h"
+#include "include/hello.h"
+#include "include/client_utils.h"
 
 static void act_ver(struct parser_event *ret, const uint8_t c) {
   ret->type = HELLO_EVENT_VER;
@@ -57,22 +58,30 @@ static const struct parser_definition hello_parser_def = {
     .start_state = HELLO_STATE_VER,
 };
 
-hello_status_t hello_init(struct hello_parser *hp) {
-  memset(hp, 0, sizeof(struct hello_parser));
+hello_status_t hello_parser_init(hello_parser_t *hp) {
+  memset(hp, 0, sizeof(hello_parser_t));
   hp->p = parser_init(parser_no_classes(), &hello_parser_def);
-  if (hp->p == NULL)
+  if (hp->p == NULL) {
     return HELLO_UNKNOWN_ERROR;
+  }
   return HELLO_OK;
 }
 
+void hello_read_init(const unsigned state, struct selector_key *key) {
+  client_t *client = ATTACHMENT(key);
+  hello_parser_init(&client->parser.hello_parser);
+}
+
 hello_status_t hello_read(struct selector_key *key) {
-  struct hello_parser *hp = ATTACHMENT(key);
+  client_t *client = ATTACHMENT(key);
+  hello_parser_t *hp = &client->parser.hello_parser;
 
   uint8_t c;
   ssize_t n = recv(key->fd, &c, 1, 0);
   if (n <= 0) {
-    if (errno == EAGAIN || errno == EWOULDBLOCK)
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return HELLO_OK;
+    }
     return HELLO_UNKNOWN_ERROR;
   }
 
@@ -83,13 +92,15 @@ hello_status_t hello_read(struct selector_key *key) {
 
     case HELLO_EVENT_VER:
       hp->ver = ev->data[0];
-      if (hp->ver != 0x05)
+      if (hp->ver != 0x05) {
         return HELLO_VER_ERROR;
+      }
       break;
 
     case HELLO_EVENT_NMETHODS:
-      if (hp->nmethods == 0)
+      if (hp->nmethods == 0) {
         return HELLO_NMETHODS_ERROR;
+      }
       hp->nmethods = ev->data[0];
       hp->methods_read = 0;
       break;
@@ -110,9 +121,9 @@ hello_status_t hello_read(struct selector_key *key) {
           }
         }
 
-        if (!found)
+        if (!found) {
           return HELLO_METHOD_NOT_ACCEPTED_ERROR;
-
+        }
         parser_reset(hp->p);
         return HELLO_OK;
       }
@@ -130,11 +141,13 @@ hello_status_t hello_read(struct selector_key *key) {
 }
 
 hello_status_t hello_write(struct selector_key *key) {
-  struct hello_parser *hp = ATTACHMENT(key);
+  client_t *client = ATTACHMENT(key);
+  hello_parser_t *hp = &client->parser.hello_parser;
+
   uint8_t reply[2] = {0x05, hp->method_selected};
 
-  if (send(key->fd, reply, 2, 0) != 2)
+  if (send(key->fd, reply, 2, 0) != 2) {
     return HELLO_UNKNOWN_ERROR;
-
+  }
   return HELLO_OK;
 }

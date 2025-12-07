@@ -36,18 +36,16 @@ typedef enum {
   HELLO_EVENT_UNEXPECTED
 } hello_event_t;
 
-struct hello_parser {
+typedef struct {
   uint8_t ver;
   uint8_t nmethods;
   uint8_t methods[HELLO_MAX_METHODS];
   uint8_t methods_read;
-
   uint8_t method_selected;
-
   struct parser *p;
-};
+} hello_parser_t;
 
-hello_status_t hello_init(struct hello_parser *hp);
+void hello_read_init(const unsigned state, struct selector_key *key);
 
 hello_status_t hello_read(struct selector_key *key);
 
