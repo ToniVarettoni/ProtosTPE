@@ -45,9 +45,9 @@ void handle_read_client(struct selector_key *key) {
 
 void handle_write(struct selector_key *key) {}
 
-void handle_close(struct selector_key *key) { 
+void handle_close(struct selector_key *key) {
   decrement_current_connections();
-  return; 
+  return;
 }
 
 static const fd_handler CLIENT_HANDLER = {.handle_read = handle_read_client,

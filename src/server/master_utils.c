@@ -1,9 +1,9 @@
 #include "../lib/buffer/buffer.h"
-#include "../lib/stm/stm.h"
-#include "include/client_utils.h"
 #include "../lib/logger/logger.h"
 #include "../lib/selector/selector.h"
 #include "../lib/stats/stats.h"
+#include "../lib/stm/stm.h"
+#include "include/client_utils.h"
 #include "io_utils.h"
 #include <arpa/inet.h> //close
 #include <errno.h>

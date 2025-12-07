@@ -3,14 +3,15 @@
 */
 
 #include "../lib/logger/logger.h"
-#include "include/master_utils.h"
 #include "../lib/selector/selector.h"
 #include "../lib/stats/stats.h"
+#include "include/master_utils.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> //strlen
@@ -18,7 +19,6 @@
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 #include <sys/types.h>
 #include <unistd.h> //close
-#include <stdbool.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -28,9 +28,7 @@
 
 static int running = true;
 
-void signal_handler(int signal) {
-  running = false;
-}
+void signal_handler(int signal) { running = false; }
 
 int main(int argc, char *argv[]) {
   signal(SIGINT, signal_handler);
@@ -99,11 +97,11 @@ int main(int argc, char *argv[]) {
 
   log_to_stdout("\nShutting down server...\n");
   selector_select(fds);
-  
+
   close(master_socket);
   selector_destroy(fds);
   selector_close();
-  cleanup_stats(); 
+  cleanup_stats();
 
   return 0;
 }

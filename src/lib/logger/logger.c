@@ -6,8 +6,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "logger.h"
 #include "../selector/selector.h"
+#include "logger.h"
 
 static char *buffer = NULL;
 static size_t size = 0;
@@ -52,10 +52,10 @@ static void logger_handle_close(struct selector_key *key) {
 }
 
 static fd_handler logger_handler = {
-  .handle_write = logger_handle_write,
-  .handle_close = logger_handle_close,
-  .handle_read = NULL,
-  .handle_block = NULL,
+    .handle_write = logger_handle_write,
+    .handle_close = logger_handle_close,
+    .handle_read = NULL,
+    .handle_block = NULL,
 };
 
 void logger_initialize(fd_selector selector_param) {
@@ -73,7 +73,7 @@ void logger_initialize(fd_selector selector_param) {
   selector_register(selector, fd, &logger_handler, OP_NOOP, NULL);
 }
 
-void log_to_stdout(char * format, ...) {
+void log_to_stdout(char *format, ...) {
   va_list args;
 
   va_start(args, format);
