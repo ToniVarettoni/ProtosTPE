@@ -124,16 +124,16 @@ static user_status load_users(char *users_file_path) {
     user_status status = user_create(parsed_user.username, parsed_user.password,
                                      parsed_user.access_level);
     switch (status) {
-    case INVALID_USERNAME:
+    case USERS_INVALID_USERNAME:
       printf("invalid username at line %u", line);
       break;
-    case INVALID_PASSWORD:
+    case USERS_INVALID_PASSWORD:
       printf("invalid password at line %u", line);
       break;
-    case INVALID_ACCESS_LEVEL:
+    case USERS_INVALID_ACCESS_LEVEL:
       printf("invalid acces level at line %u", line);
       break;
-    case MAX_USERS_REACHED:
+    case USERS_MAX_USERS_REACHED:
       printf("max users reached.");
 
       break;
@@ -141,7 +141,7 @@ static user_status load_users(char *users_file_path) {
   } while (result >= 0);
 
   fclose(file);
-  return OK;
+  return USERS_OK;
 }
 
 user_status users_init(char *users_file_param) {
@@ -158,19 +158,19 @@ user_status user_create(char *username, char *password,
                         access_level_t access_level) {
   if (username == NULL) {
     printf("username cannot be null\n");
-    return INVALID_USERNAME;
+    return USERS_INVALID_USERNAME;
   }
   if (password == NULL) {
     printf("password cannot be null\n");
-    return INVALID_PASSWORD;
+    return USERS_INVALID_PASSWORD;
   }
   if (access_level != ADMIN && access_level != USER)
-    return INVALID_ACCESS_LEVEL;
+    return USERS_INVALID_ACCESS_LEVEL;
   if (users_size >= MAX_USERS)
-    return MAX_USERS_REACHED;
+    return USERS_MAX_USERS_REACHED;
   if (get_user_index(username) >= 0) {
-    printf("user already exists");
-    return USER_ALREADY_EXISTS;
+    printf("user already exists\n");
+    return USERS_USER_ALREADY_EXISTS;
   }
   strcpy(users[users_size].username, username);
   strcpy(users[users_size].password, password);
@@ -183,29 +183,53 @@ user_status user_login(char *username, char *password,
                        access_level_t *output_level) {
   int i;
   if ((i = get_user_index(username)) < 0) {
-    printf("user %s not found", username);
-    return USER_NOT_FOUND;
+    printf("user %s not found\n", username);
+    return USERS_USER_NOT_FOUND;
   } else {
     if (strcmp(users[i].password, password) == 0) {
-      printf("user %s logged in successfully", username);
+      printf("user %s logged in successfully\n", username);
       *output_level = users[i].access_level;
-      return OK;
+      return USERS_OK;
     }
-    printf("wrong password for user %s", username);
-    return WRONG_PASSWORD;
+    printf("wrong password for user %s\n", username);
+    return USERS_WRONG_PASSWORD;
   }
 }
 
 user_status user_delete(char *user_username_to_delete,
                         char *user_username_who_deletes) {
-  // to be implemented...
+  if (user_username_to_delete == NULL || user_username_who_deletes == NULL) {
+    printf("username cannot be NULL\n");
+    return USERS_INVALID_USERNAME;
+  }
+  int to_delete_index;
+  if ((to_delete_index = get_user_index(user_username_to_delete)) < 0) {
+    printf("user %s not found\n", user_username_to_delete);
+    return USERS_INVALID_USERNAME;
+  }
+  int who_deletes_index;
+  if ((who_deletes_index = get_user_index(user_username_who_deletes)) < 0) {
+    printf("user %s not found\n", user_username_who_deletes);
+    return USERS_INVALID_USERNAME;
+  }
+  if (users[who_deletes_index].access_level != ADMIN) {
+    printf(
+        "user %s does not have enough access level to perform delete action\n",
+        user_username_who_deletes);
+    return USERS_INVALID_ACCESS_LEVEL;
+  }
+
+  memmove(&users[to_delete_index], &users[to_delete_index],
+          (users_size - to_delete_index - 1) * sizeof(user_t));
+  users_size--;
+  return USERS_OK;
 }
 
 static user_status save_users() {
   FILE *file = fopen(users_file_path, WRTIE_MODE);
 
   if (file == NULL)
-    return IO_ERROR;
+    return USERS_IO_ERROR;
   int left = users_size, i = 0;
   while (left) {
     user_t current_user = users[i];
@@ -214,15 +238,15 @@ static user_status save_users() {
     i++;
     left--;
   }
-  return OK;
+  return USERS_OK;
 }
 
 user_status users_shutdown() {
-  if (save_users() != OK) {
+  if (save_users() != USERS_OK) {
     printf("error while saving users\n");
-    return IO_ERROR;
+    return USERS_IO_ERROR;
   }
   free(users);
   users_size = 0;
-  return OK;
+  return USERS_OK;
 }
