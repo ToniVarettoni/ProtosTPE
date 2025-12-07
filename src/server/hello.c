@@ -128,6 +128,8 @@ hello_status_t hello_read(struct selector_key *key) {
 
       case HELLO_EVENT_DONE:
         break;
+      default:
+        return HELLO_UNKNOWN_ERROR;
       }
     }
     left--;
