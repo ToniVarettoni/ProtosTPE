@@ -1,5 +1,9 @@
 #include "../include/hello.h"
 
+#define HELLO_PROTOCOL_VERSION 0x05
+#define HELLO_NO_ACCEPTABLE_METHODS 0xFF
+#define HELLO_REPLY_SIZE 2
+
 static void act_ver(struct parser_event *ret, const uint8_t c) {
   ret->type = HELLO_EVENT_VER;
   ret->n = 1;
@@ -85,7 +89,7 @@ hello_status_t hello_read(struct selector_key *key) {
 
       case HELLO_EVENT_VER:
         hp->ver = ev->data[0];
-        if (hp->ver != 0x05) {
+        if (hp->ver != HELLO_PROTOCOL_VERSION) {
           return HELLO_VER_ERROR;
         }
         break;
@@ -115,7 +119,7 @@ hello_status_t hello_read(struct selector_key *key) {
           }
 
           if (!found) {
-            return HELLO_METHOD_NOT_ACCEPTED_ERROR;
+            hp->method_selected = HELLO_NO_ACCEPTABLE_METHODS;
           }
 
           parser_reset(hp->p);
@@ -128,6 +132,7 @@ hello_status_t hello_read(struct selector_key *key) {
 
       case HELLO_EVENT_DONE:
         break;
+
       default:
         return HELLO_UNKNOWN_ERROR;
       }
@@ -140,10 +145,11 @@ hello_status_t hello_read(struct selector_key *key) {
 
 hello_status_t hello_write(struct selector_key *key) {
   struct hello_parser *hp = ATTACHMENT(key);
-  uint8_t reply[2] = {0x05, hp->method_selected};
+  uint8_t reply[HELLO_REPLY_SIZE] = {HELLO_PROTOCOL_VERSION, hp->method_selected};
 
-  if (send(key->fd, reply, 2, 0) != 2)
+  if (send(key->fd, reply, HELLO_REPLY_SIZE, 0) != HELLO_REPLY_SIZE) {
     return HELLO_UNKNOWN_ERROR;
+  }
 
   return HELLO_OK;
 }

@@ -39,6 +39,7 @@ typedef enum {
 
 struct hello_parser {
   uint8_t ver;
+
   uint8_t nmethods;
   uint8_t methods[HELLO_MAX_METHODS];
   uint8_t methods_read;

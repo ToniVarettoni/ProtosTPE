@@ -31,11 +31,16 @@ typedef enum {
 
 struct auth_parser {
   uint8_t ver;
+
   uint8_t ulen;
+  uint8_t uname[MAX_BUFFER_SIZE];
+  uint8_t uname_read;
+
   uint8_t plen;
-  uint8_t uname_read, passwd_read;
+  uint8_t passwd[MAX_BUFFER_SIZE];
+  uint8_t passwd_read;
+  
   auth_status_t auth_status;
-  char uname[MAX_BUFFER_SIZE], passwd[MAX_BUFFER_SIZE];
 
   struct parser *p;
 };

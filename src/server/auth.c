@@ -1,5 +1,8 @@
 #include "include/auth.h"
 
+#define AUTH_VERSION 0x01
+#define AUTH_REPLY_SIZE 2
+
 static void act_auth_ver(struct parser_event *ret, const uint8_t c) {
   ret->type = AUTH_EVENT_VER;
   ret->n = 1;
@@ -102,21 +105,20 @@ auth_status_t auth_read(struct selector_key *key) {
 
       case AUTH_EVENT_VER:
         ap->ver = ev->data[0];
-        if (ap->ver != 0x01) {
+        if (ap->ver != AUTH_VERSION) {
           return AUTH_ERROR;
         }
         break;
 
       case AUTH_EVENT_ULEN:
         ap->ulen = ev->data[0];
-        ap->passwd_read = 0;
-        ap->passwd[0] = '\0';
+        ap->uname_read = 0;
         break;
 
       case AUTH_EVENT_UNAME:
         if (ap->uname_read < ap->ulen) {
           ap->uname[ap->uname_read++] = ev->data[0];
-          ap->uname[ap->uname_read] = 0;
+          ap->uname[ap->uname_read] = '\0';
         }
         if (ap->uname_read == ap->ulen) {
           parser_set_state(ap->p, AUTH_STATE_PLEN);
@@ -126,13 +128,12 @@ auth_status_t auth_read(struct selector_key *key) {
       case AUTH_EVENT_PLEN:
         ap->plen = ev->data[0];
         ap->passwd_read = 0;
-        ap->passwd[0] = 0;
         break;
 
       case AUTH_EVENT_PASSWD:
         if (ap->passwd_read < ap->plen) {
           ap->passwd[ap->passwd_read++] = ev->data[0];
-          ap->passwd[ap->passwd_read] = 0;
+          ap->passwd[ap->passwd_read] = '\0';
         }
         if (ap->passwd_read == ap->plen) {
           access_level_t access_level;
@@ -156,8 +157,8 @@ auth_status_t auth_read(struct selector_key *key) {
 auth_status_t auth_write(struct selector_key *key) {
   struct auth_parser *ap = ATTACHMENT(key);
 
-  uint8_t response[2];
-  response[0] = 0x01;
+  uint8_t response[AUTH_REPLY_SIZE];
+  response[0] = AUTH_VERSION;
   response[1] = ap->auth_status;
 
   ssize_t n = send(key->fd, response, sizeof(response), 0);
