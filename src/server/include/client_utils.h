@@ -1,6 +1,12 @@
 #ifndef _CLIENT_UTILS_
 #define _CLIENT_UTILS_
+#define __USE_XOPEN2K 1
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include "../../lib/buffer/buffer.h"
 #include "../../lib/selector/selector.h"
 #include "../../lib/stm/stm.h"
@@ -9,6 +15,8 @@
 #include "forwarding.h"
 #include "hello.h"
 #include "request.h"
+
+typedef struct addrinfo addrinfo;
 
 #define MAX_BUFFER 4096
 
@@ -24,6 +32,7 @@ typedef struct {
   uint8_t reading_buffer_storage[MAX_BUFFER];
   uint8_t writing_buffer_storage[MAX_BUFFER];
   int destination_fd;
+  struct addrinfo *dest_addr;
 } client_t;
 
 typedef enum {

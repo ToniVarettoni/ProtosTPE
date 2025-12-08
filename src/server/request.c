@@ -35,8 +35,20 @@ static void act_atyp_req(struct parser_event *ret, const uint8_t c) {
   ret->n = 1;
 }
 
-static void act_dstaddr_req(struct parser_event *ret, const uint8_t c) {
-  ret->type = REQUEST_STATE_DSTADDR;
+static void act_dstaddripv4_req(struct parser_event *ret, const uint8_t c) {
+  ret->type = REQUEST_STATE_DSTADDR_IPV4;
+  ret->data[0] = c;
+  ret->n = 1;
+}
+
+static void act_dstaddripv6_req(struct parser_event *ret, const uint8_t c) {
+  ret->type = REQUEST_STATE_DSTADDR_IPV6;
+  ret->data[0] = c;
+  ret->n = 1;
+}
+
+static void act_dstaddr_domainname_req(struct parser_event *ret, const uint8_t c) {
+  ret->type = REQUEST_STATE_DSTADDR_DOMAINNAME;
   ret->data[0] = c;
   ret->n = 1;
 }
@@ -67,13 +79,26 @@ static struct parser_state_transition ST_RSV[] = {
     {ANY, REQUEST_STATE_ATYP, act_rsv_req, NULL}};
 
 static struct parser_state_transition ST_ATYP[] = {
-    {ANY, REQUEST_STATE_DSTADDR, act_atyp_req, NULL}};
+    {0x02, REQUEST_STATE_DSTADDR_IPV4, act_atyp_req, NULL},
+    {0X04, REQUEST_STATE_DSTADDR_IPV6, act_atyp_req, NULL},
+    {0x03, REQUEST_STATE_DSTADDR_DOMAINNAME, act_atyp_req, NULL},
+    {ANY, REQUEST_ATYP_ERROR, NULL, NULL}};
 
-static struct parser_state_transition ST_DSTADDR[] = {
-    {ANY, REQUEST_STATE_DSTPORT, act_dstaddr_req, NULL}};
+static struct parser_state_transition ST_DSTADDR_IPV4[] = {
+    {0, REQUEST_STATE_DSTPORT, NULL, NULL},
+    {ANY, REQUEST_STATE_DSTADDR_IPV4, act_dstaddripv4_req, NULL}};
+
+static struct parser_state_transition ST_DSTADDR_IPV6[] = {
+    {0, REQUEST_STATE_DSTPORT, NULL, NULL},
+    {ANY, REQUEST_STATE_DSTADDR_IPV6, act_dstaddripv6_req, NULL}};
+
+static struct parser_state_transition ST_DSTADDR_DOMAINNAME[] = {
+    {0, REQUEST_STATE_DSTPORT, NULL, NULL},
+    {ANY, REQUEST_STATE_DSTADDR_DOMAINNAME, act_dstaddr_domainname_req, NULL}};
 
 static struct parser_state_transition ST_DSTPORT[] = {
-    {ANY, REQUEST_STATE_FIN, act_dstport_req, NULL}};
+    {0, REQUEST_STATE_FIN, NULL, NULL},
+    {ANY, REQUEST_STATE_DSTPORT, act_dstport_req, NULL}};
 
 static struct parser_state_transition ST_FIN[] = {
     {ANY, REQUEST_STATE_ERROR, act_error_req, NULL}};
@@ -82,7 +107,7 @@ static struct parser_state_transition ST_ERROR[] = {
     {ANY, REQUEST_STATE_ERROR, act_error_req, NULL}};
 
 static const struct parser_state_transition *states[] = {
-    ST_VER, ST_CMD, ST_RSV, ST_ATYP, ST_DSTADDR, ST_DSTPORT, ST_FIN, ST_ERROR,
+    ST_VER, ST_CMD, ST_RSV, ST_ATYP, ST_DSTADDR_IPV4, ST_DSTADDR_IPV6, ST_DSTADDR_DOMAINNAME, ST_DSTPORT, ST_FIN, ST_ERROR,
 };
 
 static const size_t states_n[] = {
@@ -90,14 +115,16 @@ static const size_t states_n[] = {
     sizeof(ST_CMD) / sizeof(ST_CMD[0]),
     sizeof(ST_RSV) / sizeof(ST_RSV[0]),
     sizeof(ST_ATYP) / sizeof(ST_ATYP[0]),
-    sizeof(ST_DSTADDR) / sizeof(ST_DSTADDR[0]),
+    sizeof(ST_DSTADDR_IPV4) / sizeof(ST_DSTADDR_IPV4[0]),
+    sizeof(ST_DSTADDR_IPV6) / sizeof(ST_DSTADDR_IPV6[0]),
+    sizeof(ST_DSTADDR_DOMAINNAME) / sizeof(ST_DSTADDR_DOMAINNAME[0]),
     sizeof(ST_DSTPORT) / sizeof(ST_DSTPORT[0]),
     sizeof(ST_FIN) / sizeof(ST_FIN[0]),
     sizeof(ST_ERROR) / sizeof(ST_ERROR[0]),
 };
 
 static const struct parser_definition request_parser_def = {
-    .states_count = 8,
+    .states_count = 10,
     .states = states,
     .states_n = states_n,
     .start_state = REQUEST_STATE_VER,
@@ -124,25 +151,135 @@ unsigned request_read(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
   request_parser_t *rp = &client->parser.request_parser;
   uint8_t buffer[1024];
-  size_t n;
+  size_t n, addr_count = 0, port_count = 0;
 
   n = recv(key->fd, buffer, sizeof(buffer), 0);
+
+  if (n <= 0) {
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+      return REQUEST_READ;
+    }
+    return ERROR;
+  }
 
   for (size_t i = 0; i < n; i++) {
     const struct parser_event *e = parser_feed(rp->p, buffer[i]);
     if (e != NULL) {
-      if (e->type == REQUEST_STATE_FIN) {
+      switch (e->type){
+      case REQUEST_STATE_FIN:
         printf("Request parsed!\n");
-        return REQUEST_STATE_FIN;
-      }
-      if (e->type == REQUEST_STATE_ERROR) {
+        switch (rp->atyp){
+          case ATTYP_DOMAINNAME:
+            /* code */
+            return DNS_LOOKUP;
+          
+          case ATTYP_IPV4:
+            client->dest_addr = calloc(1, sizeof(addrinfo));
+            rp->sockAddress = (struct sockaddr_in) {
+              .sin_family = AF_INET,
+              .sin_addr = rp->ipv4,
+              .sin_port = htons(rp->port),
+            };
+            *client->dest_addr = (struct addrinfo) {
+              .ai_family = AF_INET,
+              .ai_addr = (struct sockaddr *) &rp->sockAddress,
+              .ai_addrlen = sizeof(struct sockaddr_in),
+              .ai_socktype = SOCK_STREAM,
+              .ai_protocol = IPPROTO_TCP
+            };  
+            return DEST_CONNECT;
+
+          case ATTYP_IPV6:
+            client->dest_addr = calloc(1, sizeof(addrinfo));
+            rp->sockAddress6 = (struct sockaddr_in6) {
+                  .sin6_family = AF_INET6,
+                  .sin6_addr = rp->ipv6,
+                  .sin6_port = htons(rp->port),
+              };
+            *client->dest_addr = (struct addrinfo) {
+                  .ai_family = AF_INET6,
+                  .ai_addr = (struct sockaddr *) &rp->sockAddress6,
+                  .ai_addrlen = sizeof(struct sockaddr_in6),
+            };  
+            return DEST_CONNECT;
+
+          default:
+            printf("Error invalid addres type: %d\n", rp->atyp);
+            return ERROR;
+        }
+                
+      case REQUEST_STATE_ERROR:
         printf("Error parsing request\n");
-        return REQUEST_STATE_ERROR;
+        return ERROR;
+      
+      case REQUEST_STATE_CMD:
+        rp->cmd = e->data[0];
+        if (rp->cmd != CMD_BIND && rp->cmd != CMD_CONNECT && rp->cmd != CMD_UDP_ASSOCIATE){
+          printf("Error parsing request cmd: %d\n", rp->cmd);
+          return ERROR;
+        }
+        printf("correctly parsed cmd: %d", rp->cmd);
+        break;
+      
+      case REQUEST_STATE_ATYP:
+        rp->atyp = e->data;
+        break;
+
+      case REQUEST_STATE_DSTADDR_IPV4:
+        rp->addr[rp->addr_len++] = e->data[0];
+        if (rp->addr_len == IPV4_LEN){
+          memcpy(&rp->ipv4, rp->addr, 4);
+          rp->addr[rp->addr_len] = 0;
+          printf("correctly parsed ipv4: %s", rp->addr);
+          parser_feed(rp->p, 0);
+        }
+        break;
+
+      case REQUEST_STATE_DSTADDR_IPV6:
+        rp->addr[rp->addr_len++] = e->data[0];
+        if (rp->addr_len == IPV6_LEN){
+          memcpy(&rp->ipv4, rp->addr, 16);
+          parser_feed(rp->p, 0);
+        }
+        break;
+
+      case REQUEST_STATE_DSTADDR_DOMAINNAME:
+        if (rp->addr_len == 0){
+          rp->addr_len = e->data[0];
+        }
+        rp->addr[addr_count++] = e->data[0];
+        if (rp->addr_len == addr_count){
+          parser_feed(rp->p, 0);
+        }
+
+      case REQUEST_STATE_DSTPORT:
+        rp->port = e->data[0];
+        if (port_count == 0){
+          rp->port = ((uint16_t)e->data[0] << 8);
+          port_count++;
+        }else {
+          rp->port |= e->data[0];
+          parser_feed(rp->p, 0);
+        }
+        break;
+
+      case REQUEST_STATE_VER:
+        if (e->data[0] != 0x05){
+          printf("Error in request version\n");
+          return ERROR;
+        }
+        break;
+      case REQUEST_STATE_RSV:
+        break;
+        
+      
+      default:
+        printf("Error: invalid request state: %d\n", e->type);
+        break;
       }
     }
   }
-
-  return REQUEST_STATE_VER;
+  return REQUEST_READ;
 }
 
 void dns_lookup(const unsigned state, struct selector_key *key) {}

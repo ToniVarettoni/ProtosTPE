@@ -178,7 +178,6 @@ unsigned auth_read(struct selector_key *key) {
 unsigned auth_write(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
   auth_parser_t *ap = &client->parser.auth_parser;
-
   uint8_t response[AUTH_REPLY_SIZE];
   response[0] = AUTH_VERSION;
   response[1] = ap->auth_status;
