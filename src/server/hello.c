@@ -1,44 +1,44 @@
 #include "include/hello.h"
 #include "include/client_utils.h"
 
-static void act_ver(struct parser_event *ret, const uint8_t c) {
+static void act_ver_hello(struct parser_event *ret, const uint8_t c) {
   ret->type = HELLO_EVENT_VER;
   ret->n = 1;
   ret->data[0] = c;
 }
 
-static void act_nmethods(struct parser_event *ret, const uint8_t c) {
+static void act_nmethods_hello(struct parser_event *ret, const uint8_t c) {
   ret->type = HELLO_EVENT_NMETHODS;
   ret->n = 1;
   ret->data[0] = c;
 }
 
-static void act_method(struct parser_event *ret, const uint8_t c) {
+static void act_method_hello(struct parser_event *ret, const uint8_t c) {
   ret->type = HELLO_EVENT_METHOD;
   ret->n = 1;
   ret->data[0] = c;
 }
 
-static void act_done(struct parser_event *ret, const uint8_t c) {
+static void act_done_hello(struct parser_event *ret, const uint8_t c) {
   (void)c;
   ret->type = HELLO_EVENT_DONE;
   ret->n = 0;
 }
 
 static struct parser_state_transition ST_VER[] = {
-    {ANY, HELLO_STATE_NMETHODS, act_ver, NULL}};
+    {ANY, HELLO_STATE_NMETHODS, act_ver_hello, NULL}};
 
 static struct parser_state_transition ST_NMETHODS[] = {
-    {ANY, HELLO_STATE_METHODS, act_nmethods, NULL}};
+    {ANY, HELLO_STATE_METHODS, act_nmethods_hello, NULL}};
 
 static struct parser_state_transition ST_METHODS[] = {
-    {ANY, HELLO_STATE_METHODS, act_method, NULL}};
+    {ANY, HELLO_STATE_METHODS, act_method_hello, NULL}};
 
 static struct parser_state_transition ST_FIN[] = {
-    {ANY, HELLO_STATE_FIN, act_done, NULL}};
+    {ANY, HELLO_STATE_FIN, act_done_hello, NULL}};
 
 static struct parser_state_transition ST_ERR[] = {
-    {ANY, HELLO_STATE_ERROR, act_done, NULL}};
+    {ANY, HELLO_STATE_ERROR, act_done_hello, NULL}};
 
 static const struct parser_state_transition *states[] = {
     ST_VER, ST_NMETHODS, ST_METHODS, ST_FIN, ST_ERR};
@@ -69,7 +69,10 @@ hello_status_t hello_parser_init(hello_parser_t *hp) {
 
 void hello_read_init(const unsigned state, struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
-  hello_parser_init(&client->parser.hello_parser);
+  hello_status_t status = hello_parser_init(&client->parser.hello_parser);
+  if (status != HELLO_UNKNOWN_ERROR) {
+    close_connection(key);
+  }
 }
 
 hello_status_t hello_read(struct selector_key *key) {

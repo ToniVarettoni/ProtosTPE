@@ -17,6 +17,7 @@ typedef struct {
   struct state_machine stm;
   union {
     hello_parser_t hello_parser;
+    request_parser_t request_parser;
   } parser;
   buffer reading_buffer;
   buffer writing_buffer;
@@ -68,5 +69,7 @@ static const struct state_definition client_states[] = {
 const fd_interest get_client_interests();
 
 const fd_handler *get_client_handler();
+
+void close_connection(struct selector_key *key);
 
 #endif
