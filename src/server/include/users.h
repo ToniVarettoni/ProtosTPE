@@ -6,7 +6,7 @@
 #define MAX_USERNAME_LEN 255
 #define MAX_PASSWORD_LEN 255
 
-#define MAX_USERS 50
+#define MAX_USERS_REGISTERED 50
 
 // TODO: improve error handling
 

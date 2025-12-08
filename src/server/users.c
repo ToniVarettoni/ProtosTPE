@@ -170,7 +170,7 @@ user_status users_init(char *users_file_param) {
                         ? users_file_param
                         : DEFAULT_USERS_FILE_PATH;
 
-  users = malloc(sizeof(user_t) * MAX_USERS);
+  users = malloc(sizeof(user_t) * MAX_USERS_REGISTERED);
   if (users == NULL) {
     return USERS_NOMEM_ERROR;
   }
@@ -190,7 +190,7 @@ user_status user_create(char *username, char *password,
   }
   if (access_level != ADMIN && access_level != USER)
     return USERS_INVALID_ACCESS_LEVEL;
-  if (users_size >= MAX_USERS)
+  if (users_size >= MAX_USERS_REGISTERED)
     return USERS_MAX_USERS_REACHED;
   if (get_user_index(username) >= 0) {
     printf("user already exists\n");

@@ -5,6 +5,7 @@
 #include "../lib/logger/logger.h"
 #include "../lib/selector/selector.h"
 #include "../lib/stats/stats.h"
+#include "../lib/args/args.h"
 #include "include/master_utils.h"
 #include "include/users.h"
 #include <arpa/inet.h> //close
@@ -23,9 +24,8 @@
 
 #define TRUE 1
 #define FALSE 0
-#define PORT 8888
 
-#define MAX_CLIENTS 30
+#define DEFAULT_MAX_CLIENTS 30
 
 static int running = true;
 
@@ -35,11 +35,19 @@ int main(int argc, char *argv[]) {
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_handler);
 
+  struct socks5args args;
+  parse_args(argc, argv, &args);
+
+  // creates users added from command line
+  for (int i = 0; i < MAX_USERS && args.users[i].name != NULL; i++) {
+    user_create(args.users[i].name, args.users[i].pass, USER);
+  }
+
   const struct selector_init sel_init = {.signal = 0};
 
   selector_init(&sel_init);
 
-  fd_selector fds = selector_new(MAX_CLIENTS);
+  fd_selector fds = selector_new(DEFAULT_MAX_CLIENTS);
   selector_status error;
 
   int opt = TRUE;
@@ -65,8 +73,11 @@ int main(int argc, char *argv[]) {
 
   // type of socket created
   address.sin_family = AF_INET;
-  address.sin_addr.s_addr = INADDR_ANY;
-  address.sin_port = htons(PORT);
+  address.sin_port = htons(args.socks_port);
+  if (inet_pton(AF_INET, args.socks_addr, &address.sin_addr) <= 0) {
+  perror("inte_pton\n");
+  exit(EXIT_FAILURE);
+}
 
   // bind the socket to localhost port 8888
   if (bind(master_socket, (struct sockaddr *)&address, sizeof(address)) < 0) {
@@ -96,7 +107,7 @@ int main(int argc, char *argv[]) {
     log_to_stdout("Users loaded successfully from %s\n", DEFAULT_USERS_FILE_PATH);
   }
 
-  log_to_stdout("Listener on port %d \n", PORT);
+  log_to_stdout("Listener on port %d \n", args.socks_port);
 
   while (running) {
     selector_select(fds);
