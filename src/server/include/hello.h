@@ -5,6 +5,7 @@
 #include "../../lib/selector/selector.h"
 
 #define HELLO_MAX_METHODS 255
+#define MAX_BUFFER 4096
 
 typedef enum {
   HELLO_STATE_VER = 0,  // waiting for VER field
@@ -38,6 +39,7 @@ typedef enum {
 
 typedef struct {
   uint8_t ver;
+
   uint8_t nmethods;
   uint8_t methods[HELLO_MAX_METHODS];
   uint8_t methods_read;

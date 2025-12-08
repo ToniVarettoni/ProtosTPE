@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 
   if ((error = selector_register(fds, master_socket, get_master_handler(),
                                  MASTER_INTERESTS, NULL)) != SELECTOR_SUCCESS) {
-    printf("%s\n", selector_error(error));
+    log_to_stdout("%s\n", selector_error(error));
   }
 
   // initialize my logger with my selector
@@ -95,7 +95,8 @@ int main(int argc, char *argv[]) {
   }
 
   log_to_stdout("\nShutting down server...\n");
-  
+
+  logger_destroy();
   close(master_socket);
   selector_destroy(fds);
   selector_close();

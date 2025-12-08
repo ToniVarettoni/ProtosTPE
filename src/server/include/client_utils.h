@@ -11,7 +11,6 @@
 #include "request.h"
 
 #define MAX_BUFFER 4096
-#define ATTACHMENT(key) ((client_t *)(key)->data)
 
 typedef struct {
   struct state_machine stm;
@@ -26,7 +25,7 @@ typedef struct {
   int destination_fd;
 } client_t;
 
-enum states {
+typedef enum {
   HELLO_READ = 0,
   HELLO_WRITE,
   AUTH_READ,
@@ -38,7 +37,7 @@ enum states {
   FORWARDING,
   DONE,
   ERROR
-};
+} client_state_t;
 
 static const struct state_definition client_states[] = {
     {.state = HELLO_READ,

@@ -1,5 +1,10 @@
-#include "include/hello.h"
+#include "../include/hello.h"
+#include "../lib/logger/logger.h"
 #include "include/client_utils.h"
+
+#define HELLO_PROTOCOL_VERSION 0x05
+#define HELLO_NO_ACCEPTABLE_METHODS 0xFF
+#define HELLO_REPLY_SIZE 2
 
 static void act_ver_hello(struct parser_event *ret, const uint8_t c) {
   ret->type = HELLO_EVENT_VER;
@@ -80,64 +85,71 @@ hello_status_t hello_read(struct selector_key *key) {
   hello_parser_t *hp = &client->parser.hello_parser;
 
   uint8_t c;
-  ssize_t n = recv(key->fd, &c, 1, 0);
-  if (n <= 0) {
+  ssize_t left = recv(key->fd, &c, MAX_BUFFER, 0);
+  if (left <= 0) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return HELLO_OK;
     }
     return HELLO_UNKNOWN_ERROR;
   }
+  while (left) {
+    const struct parser_event *ev = parser_feed(hp->p, c);
 
-  const struct parser_event *ev = parser_feed(hp->p, c);
+    for (; ev != NULL; ev = ev->next) {
+      switch (ev->type) {
 
-  for (; ev != NULL; ev = ev->next) {
-    switch (ev->type) {
+      case HELLO_EVENT_VER:
+        hp->ver = ev->data[0];
+        log_to_stdout("Reading the protocol version: %d\n", hp->ver);
+        if (hp->ver != HELLO_PROTOCOL_VERSION) {
+          return HELLO_VER_ERROR;
+        }
+        break;
 
-    case HELLO_EVENT_VER:
-      hp->ver = ev->data[0];
-      if (hp->ver != 0x05) {
-        return HELLO_VER_ERROR;
-      }
-      break;
+      case HELLO_EVENT_NMETHODS:
+        if (hp->nmethods == 0) {
+          return HELLO_NMETHODS_ERROR;
+        }
+        hp->nmethods = ev->data[0];
+        hp->methods_read = 0;
+        break;
 
-    case HELLO_EVENT_NMETHODS:
-      if (hp->nmethods == 0) {
-        return HELLO_NMETHODS_ERROR;
-      }
-      hp->nmethods = ev->data[0];
-      hp->methods_read = 0;
-      break;
+      case HELLO_EVENT_METHOD:
+        if (hp->methods_read < hp->nmethods) {
+          hp->methods[hp->methods_read++] = ev->data[0];
+        }
+        if (hp->methods_read == hp->nmethods) {
+          bool found = false;
+          hp->method_selected = HELLO_AUTH_NO_METHOD_ACCEPTED;
 
-    case HELLO_EVENT_METHOD:
-      if (hp->methods_read < hp->nmethods) {
-        hp->methods[hp->methods_read++] = ev->data[0];
-      }
-      if (hp->methods_read == hp->nmethods) {
-        bool found = false;
-        hp->method_selected = HELLO_AUTH_NO_METHOD_ACCEPTED;
-
-        for (int i = 0; i < hp->nmethods && !found; i++) {
-          if (hp->methods[i] == HELLO_AUTH_USER_PASS) {
-            hp->method_selected = HELLO_AUTH_USER_PASS;
-            found = true;
-            break;
+          for (int i = 0; i < hp->nmethods && !found; i++) {
+            if (hp->methods[i] == HELLO_AUTH_USER_PASS) {
+              hp->method_selected = HELLO_AUTH_USER_PASS;
+              found = true;
+              break;
+            }
           }
-        }
 
-        if (!found) {
-          return HELLO_METHOD_NOT_ACCEPTED_ERROR;
+          if (!found) {
+            hp->method_selected = HELLO_NO_ACCEPTABLE_METHODS;
+          }
+
+          parser_reset(hp->p);
+          return HELLO_OK;
         }
-        parser_reset(hp->p);
-        return HELLO_OK;
+        break;
+
+      case HELLO_EVENT_UNEXPECTED:
+        return HELLO_UNKNOWN_ERROR;
+
+      case HELLO_EVENT_DONE:
+        break;
+
+      default:
+        return HELLO_UNKNOWN_ERROR;
       }
-      break;
-
-    case HELLO_EVENT_UNEXPECTED:
-      return HELLO_UNKNOWN_ERROR;
-
-    case HELLO_EVENT_DONE:
-      break;
     }
+    left--;
   }
 
   return HELLO_OK;
@@ -146,11 +158,11 @@ hello_status_t hello_read(struct selector_key *key) {
 hello_status_t hello_write(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
   hello_parser_t *hp = &client->parser.hello_parser;
+  uint8_t reply[HELLO_REPLY_SIZE] = {HELLO_PROTOCOL_VERSION, hp->method_selected};
 
-  uint8_t reply[2] = {0x05, hp->method_selected};
-
-  if (send(key->fd, reply, 2, 0) != 2) {
+  if (send(key->fd, reply, HELLO_REPLY_SIZE, 0) != HELLO_REPLY_SIZE) {
     return HELLO_UNKNOWN_ERROR;
   }
+
   return HELLO_OK;
 }
