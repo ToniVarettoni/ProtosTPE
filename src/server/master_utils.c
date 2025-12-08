@@ -38,7 +38,6 @@ void handle_read_master(struct selector_key *key) {
   fcntl(new_socket, F_SETFL, flags | O_NONBLOCK);
 
   client_t *client = calloc(1, sizeof(client_t));
-  increment_current_connections();
   if (client == NULL) {
     log_to_stdout(
         "Failed to load client with ip: %s, in port: %d: Calloc failed\n",
@@ -46,6 +45,7 @@ void handle_read_master(struct selector_key *key) {
     close(new_socket);
     return;
   }
+  increment_current_connections();
 
   client->stm.initial = HELLO_READ;
   client->stm.max_state = ERROR;
