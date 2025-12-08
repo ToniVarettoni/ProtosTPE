@@ -35,7 +35,8 @@ int main(int argc, char *argv[]) {
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_handler);
 
-  const struct selector_init sel_init = {.signal = 0};
+  const struct selector_init sel_init = {
+      .signal = 0, .select_timeout = {.tv_sec = 1800, .tv_nsec = 0}};
 
   selector_init(&sel_init);
 
@@ -91,9 +92,11 @@ int main(int argc, char *argv[]) {
   // initialize users from users.txt
   user_status user_init_status = users_init(NULL);
   if (user_init_status != USERS_OK) {
-    log_to_stdout("Warning: Failed to initialize users. Authentication may not work.\n");
+    log_to_stdout(
+        "Warning: Failed to initialize users. Authentication may not work.\n");
   } else {
-    log_to_stdout("Users loaded successfully from %s\n", DEFAULT_USERS_FILE_PATH);
+    log_to_stdout("Users loaded successfully from %s\n",
+                  DEFAULT_USERS_FILE_PATH);
   }
 
   log_to_stdout("Listener on port %d \n", PORT);
