@@ -1,9 +1,9 @@
 #ifndef _AUTH_H_
 #define _AUTH_H_
 
-#include "../lib/parser/parser.h"
-#include "../lib/selector/selector.h"
-#include "include/users.h"
+#include "../../lib/parser/parser.h"
+#include "../../lib/selector/selector.h"
+#include "users.h"
 
 #define MAX_BUFFER_SIZE 255
 #define MAX_BUFFER 4096

@@ -60,7 +60,7 @@ static struct parser_state_transition ST_FIN[] = {
 static struct parser_state_transition ST_ERROR[] = {
     {ANY, AUTH_STATE_FIN, act_auth_done, NULL}};
 
-static const struct parse_state_transition *states[] = {
+static const struct parser_state_transition *states[] = {
     ST_VER, ST_ULEN, ST_UNAME, ST_PLEN, ST_PASSWD, ST_FIN, ST_ERROR};
 
 static const size_t states_n[] = {sizeof(ST_VER) / sizeof(ST_VER[0]),
@@ -137,7 +137,7 @@ auth_status_t auth_read(struct selector_key *key) {
         }
         if (ap->passwd_read == ap->plen) {
           access_level_t access_level;
-          if (user_login(ap->uname, ap->passwd, &access_level) == USERS_OK) {
+          if (user_login((char *)ap->uname, (char *)ap->passwd, &access_level) == USERS_OK) {
             ap->auth_status = AUTH_OK;
           } else {
             ap->auth_status = AUTH_ERROR;
@@ -152,6 +152,7 @@ auth_status_t auth_read(struct selector_key *key) {
       }
     }
   }
+  return AUTH_ERROR;
 }
 
 auth_status_t auth_write(struct selector_key *key) {

@@ -81,3 +81,7 @@ parser_feed(struct parser *p,
 static const unsigned classes[0xFF] = {0x00};
 
 const unsigned *parser_no_classes(void) { return classes; }
+
+void parser_set_state(struct parser *p, unsigned state) {
+  p->state = state;
+}
