@@ -13,15 +13,15 @@
 #include <unistd.h> //close
 
 void handle_read_client(struct selector_key *key) {
-  stm_handler_read(&(ATTACHMENT(key))->stm, key);
+  stm_handler_read(&((client_t *)ATTACHMENT(key))->stm, key);
 }
 
 void handle_write_client(struct selector_key *key) {
-  stm_handler_write(&(ATTACHMENT(key))->stm, key);
+  stm_handler_write(&((client_t *)ATTACHMENT(key))->stm, key);
 }
 
 void handle_close_client(struct selector_key *key) {
-  stm_handler_close(&(ATTACHMENT(key))->stm, key);
+  stm_handler_close(&((client_t *)ATTACHMENT(key))->stm, key);
   decrement_current_connections();
 }
 

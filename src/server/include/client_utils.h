@@ -12,8 +12,6 @@
 
 #define MAX_BUFFER 4096
 
-#define ATTACHMENT(key) (client_t *)((key)->data)
-
 typedef struct {
   struct state_machine stm;
   buffer reading_buffer;

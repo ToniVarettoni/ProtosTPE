@@ -1,4 +1,5 @@
 #include "../include/hello.h"
+#include "../lib/logger/logger.h"
 
 #define HELLO_PROTOCOL_VERSION 0x05
 #define HELLO_NO_ACCEPTABLE_METHODS 0xFF
@@ -89,6 +90,7 @@ hello_status_t hello_read(struct selector_key *key) {
 
       case HELLO_EVENT_VER:
         hp->ver = ev->data[0];
+        log_to_stdout("Reading the protocol version: %d\n", hp->ver);
         if (hp->ver != HELLO_PROTOCOL_VERSION) {
           return HELLO_VER_ERROR;
         }

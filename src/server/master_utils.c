@@ -81,8 +81,8 @@ void handle_read_master(struct selector_key *key) {
                 ntohs(address.sin_port));
 
   // send new connection greeting message
-  int left = strlen(message);
-  left = send_all(new_socket, message, left);
+  // int left = strlen(message);
+  // left = send_all(new_socket, message, left);
   // if (left != strlen(message)) {
   //   signal();
   // }
