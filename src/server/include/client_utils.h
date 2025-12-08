@@ -16,6 +16,7 @@ typedef struct {
   struct state_machine stm;
   union {
     hello_parser_t hello_parser;
+    auth_parser_t auth_parser;
     request_parser_t request_parser;
   } parser;
   buffer reading_buffer;
@@ -43,27 +44,31 @@ static const struct state_definition client_states[] = {
     {.state = HELLO_READ,
      .on_arrival = hello_read_init,
      .on_read_ready = hello_read},
-    {.state = HELLO_WRITE, .on_write_ready = hello_write},
+    {.state = HELLO_WRITE,
+     .on_write_ready = hello_write},
     {.state = AUTH_READ,
      .on_arrival = auth_read_init,
      .on_read_ready = auth_read},
-    {.state = AUTH_WRITE, .on_write_ready = auth_write},
+    {.state = AUTH_WRITE,
+     .on_write_ready = auth_write},
     {.state = REQUEST_READ,
      .on_arrival = request_read_init,
      .on_read_ready = request_read},
-    {
-        .state = DNS_LOOKUP,
-        .on_arrival = dns_lookup,
-    },
-    {.state = DEST_CONNECT, .on_arrival = try_connect},
-    {.state = REQUEST_WRITE, .on_write_ready = request_write},
+    {.state = DNS_LOOKUP,
+      .on_arrival = dns_lookup},
+    {.state = DEST_CONNECT,
+     .on_arrival = try_connect},
+    {.state = REQUEST_WRITE,
+     .on_write_ready = request_write},
     {.state = FORWARDING,
      .on_write_ready = forward_write,
      .on_read_ready = forward_read,
      .on_arrival = forward_setup,
      .on_departure = forward_close},
-    {.state = DONE, .on_arrival = end_connection},
-    {.state = ERROR, .on_arrival = error_handler}};
+    {.state = DONE,
+     .on_arrival = end_connection},
+    {.state = ERROR,
+     .on_arrival = error_handler}};
 
 const fd_interest get_client_interests();
 

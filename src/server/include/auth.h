@@ -29,7 +29,7 @@ typedef enum {
   AUTH_EVENT_DONE
 } auth_event_t;
 
-struct auth_parser {
+typedef struct {
   uint8_t ver;
 
   uint8_t ulen;
@@ -40,15 +40,15 @@ struct auth_parser {
   uint8_t passwd[MAX_BUFFER_SIZE];
   uint8_t passwd_read;
   
-  auth_status_t auth_status;
+  uint8_t auth_status;
 
   struct parser *p;
-};
+} auth_parser_t;
 
-auth_status_t auth_init(struct auth_parser *ap);
+void auth_read_init(const unsigned state, struct selector_key *key);
 
-auth_status_t auth_read(struct selector_key *key);
+unsigned auth_read(struct selector_key *key);
 
-auth_status_t auth_write(struct selector_key *key);
+unsigned auth_write(struct selector_key *key);
 
 #endif

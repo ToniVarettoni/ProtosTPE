@@ -87,7 +87,6 @@ void handle_read_master(struct selector_key *key) {
   //   signal();
   // }
 
-  log_to_stdout("Welcome message sent successfully");
 }
 
 static const fd_handler MASTER_HANDLER = {.handle_read = handle_read_master};

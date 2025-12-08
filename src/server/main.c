@@ -6,6 +6,7 @@
 #include "../lib/selector/selector.h"
 #include "../lib/stats/stats.h"
 #include "include/master_utils.h"
+#include "include/users.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <fcntl.h>
@@ -87,7 +88,14 @@ int main(int argc, char *argv[]) {
   // initialize my logger with my selector
   logger_initialize(fds);
 
-  // printf("Listener on port %d \n", PORT);
+  // initialize users from users.txt
+  user_status user_init_status = users_init(NULL);
+  if (user_init_status != USERS_OK) {
+    log_to_stdout("Warning: Failed to initialize users. Authentication may not work.\n");
+  } else {
+    log_to_stdout("Users loaded successfully from %s\n", DEFAULT_USERS_FILE_PATH);
+  }
+
   log_to_stdout("Listener on port %d \n", PORT);
 
   while (running) {
@@ -96,6 +104,7 @@ int main(int argc, char *argv[]) {
 
   log_to_stdout("\nShutting down server...\n");
 
+  users_shutdown();
   logger_destroy();
   close(master_socket);
   selector_destroy(fds);

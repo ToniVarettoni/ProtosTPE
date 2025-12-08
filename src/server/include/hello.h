@@ -49,8 +49,8 @@ typedef struct {
 
 void hello_read_init(const unsigned state, struct selector_key *key);
 
-hello_status_t hello_read(struct selector_key *key);
+unsigned hello_read(struct selector_key *key);
 
-hello_status_t hello_write(struct selector_key *key);
+unsigned hello_write(struct selector_key *key);
 
 #endif

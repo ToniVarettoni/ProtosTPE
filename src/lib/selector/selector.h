@@ -115,6 +115,7 @@ typedef enum {
  */
 #define INTEREST_OFF(FLAG, MASK) ((FLAG) & ~(MASK))
 
+ #define ATTACHMENT(key) ((key)->data)
 /**
  * Argumento de todas las funciones callback del handler
  */

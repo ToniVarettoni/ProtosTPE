@@ -1,7 +1,13 @@
 #include "include/auth.h"
+#include "include/client_utils.h"
+#include "../lib/selector/selector.h"
+#include "../lib/logger/logger.h"
 
 #define AUTH_VERSION 0x01
 #define AUTH_REPLY_SIZE 2
+
+#define AUTH_SUCCESS 0x00
+#define AUTH_FAILURE 0x01
 
 static void act_auth_ver(struct parser_event *ret, const uint8_t c) {
   ret->type = AUTH_EVENT_VER;
@@ -94,33 +100,35 @@ void auth_read_init(const unsigned state, struct selector_key *key) {
   }
 }
 
-auth_status_t auth_read(struct selector_key *key) {
+unsigned auth_read(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
-  struct auth_parser *ap = &client->parser.auth_parser;
+  auth_parser_t *ap = &client->parser.auth_parser;
 
   uint8_t c;
-  ssize_t left = recv(key->fd, &c, MAX_BUFFER, 0);
-  if (left <= 0) {
+  ssize_t n = recv(key->fd, &c, 1, 0);
+  if (n <= 0) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
-      return AUTH_OK;
+      return AUTH_READ;
     }
-    return AUTH_ERROR;
+    return ERROR;
   }
-  while (left) {
-    const struct parser_event *ev = parser_feed(ap->p, c);
+  
+  const struct parser_event *ev = parser_feed(ap->p, c);
 
-    for (; ev != NULL; ev = ev->next) {
+  for (; ev != NULL; ev = ev->next) {
       switch (ev->type) {
 
       case AUTH_EVENT_VER:
         ap->ver = ev->data[0];
+        log_to_stdout("Authentication version: %d\n", ap->ver);
         if (ap->ver != AUTH_VERSION) {
-          return AUTH_ERROR;
+          return ERROR;
         }
         break;
 
       case AUTH_EVENT_ULEN:
         ap->ulen = ev->data[0];
+        log_to_stdout("Username length: %d\n", ap->ulen);
         ap->uname_read = 0;
         break;
 
@@ -132,10 +140,12 @@ auth_status_t auth_read(struct selector_key *key) {
         if (ap->uname_read == ap->ulen) {
           parser_set_state(ap->p, AUTH_STATE_PLEN);
         }
+        log_to_stdout("Username read: %s\n", ap->uname);
         break;
 
       case AUTH_EVENT_PLEN:
         ap->plen = ev->data[0];
+        log_to_stdout("Password length: %d\n", ap->plen);
         ap->passwd_read = 0;
         break;
 
@@ -143,39 +153,43 @@ auth_status_t auth_read(struct selector_key *key) {
         if (ap->passwd_read < ap->plen) {
           ap->passwd[ap->passwd_read++] = ev->data[0];
           ap->passwd[ap->passwd_read] = '\0';
+          log_to_stdout("Password read: %s\n", ap->passwd);
         }
         if (ap->passwd_read == ap->plen) {
           access_level_t access_level;
           if (user_login((char *)ap->uname, (char *)ap->passwd, &access_level) == USERS_OK) {
-            ap->auth_status = AUTH_OK;
+            ap->auth_status = AUTH_SUCCESS;
           } else {
-            ap->auth_status = AUTH_ERROR;
+            ap->auth_status = AUTH_FAILURE;
           }
           parser_set_state(ap->p, AUTH_STATE_FIN);
-          return AUTH_OK;
+          selector_set_interest_key(key, OP_WRITE);
+          return AUTH_WRITE;
         }
         break;
 
       default:
-        return AUTH_ERROR;
+        return ERROR;
       }
     }
-  }
-  return AUTH_ERROR;
+  return AUTH_READ;
 }
 
-auth_status_t auth_write(struct selector_key *key) {
-  struct auth_parser *ap = ATTACHMENT(key);
+unsigned auth_write(struct selector_key *key) {
+  client_t *client = ATTACHMENT(key);
+  auth_parser_t *ap = &client->parser.auth_parser;
 
   uint8_t response[AUTH_REPLY_SIZE];
   response[0] = AUTH_VERSION;
   response[1] = ap->auth_status;
 
   ssize_t n = send(key->fd, response, sizeof(response), 0);
-  if (n != sizeof(response)) {
-    // cliente cerró la conexión. Hay que manejar esto
-    selector_unregister_fd(key->s, key->fd);
-    return AUTH_ERROR;
+  if (n != sizeof(response) || ap->auth_status == AUTH_FAILURE) {
+    return ERROR;
+  } else if (ap->auth_status == AUTH_SUCCESS) {
+    log_to_stdout("Passed authentication!\n");
+    selector_set_interest_key(key, OP_READ);
+    return REQUEST_READ; 
   }
-  return AUTH_OK;
+  return ERROR;
 }

@@ -1,7 +1,7 @@
 #ifndef _USERS_H_
 #define _USERS_H_
 
-#define DEFAULT_USERS_FILE_PATH "users.txt"
+#define DEFAULT_USERS_FILE_PATH "src/server/users.txt"
 
 #define MAX_USERNAME_LEN 255
 #define MAX_PASSWORD_LEN 255

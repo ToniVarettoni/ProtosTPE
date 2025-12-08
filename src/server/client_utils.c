@@ -25,15 +25,25 @@ void handle_close_client(struct selector_key *key) {
   decrement_current_connections();
 }
 
+unsigned ignore_read(struct selector_key *key) {
+  client_t *client = ATTACHMENT(key);
+  return stm_state(&client->stm);
+}
+
+unsigned ignore_write(struct selector_key *key) {
+  client_t *client = ATTACHMENT(key);
+  return stm_state(&client->stm);
+}
+
 static const fd_handler CLIENT_HANDLER = {.handle_read = handle_read_client,
                                           .handle_write = handle_write_client,
                                           .handle_close = handle_close_client};
 
 const fd_handler *get_client_handler() { return &CLIENT_HANDLER; }
 
-const fd_interest CLIENT_INTERESTS = OP_READ | OP_WRITE;
+const fd_interest INITIAL_CLIENT_INTERESTS = OP_READ;
 
-const fd_interest get_client_interests() { return CLIENT_INTERESTS; }
+const fd_interest get_client_interests() { return INITIAL_CLIENT_INTERESTS; }
 
 void close_connection(struct selector_key *key) {
   // TODO
