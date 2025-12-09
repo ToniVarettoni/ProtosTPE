@@ -39,8 +39,10 @@ typedef enum {
   MONITOR_AUTH_STATUS_ERR
 } monitor_auth_status_t;
 
-void monitor_init(const unsigned state, struct selector_key *key);
+void monitor_auth_init(const unsigned state, struct selector_key *key);
 
 unsigned monitor_auth_read(struct selector_key *key);
+
+void monitor_auth_finalize(const unsigned state, struct selector_key *key);
 
 #endif

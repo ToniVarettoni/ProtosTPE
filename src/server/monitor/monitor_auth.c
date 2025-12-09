@@ -82,12 +82,17 @@ monitor_auth_status_t monitor_auth_parser_init(monitor_auth_parser_t *map) {
   return MONITOR_AUTH_STATUS_OK;
 }
 
-void monitor_init(const unsigned state, struct selector_key *key) {
+void monitor_auth_init(const unsigned state, struct selector_key *key) {
   monitor_t *monitor = ATTACHMENT(key);
   if (monitor_auth_parser_init(&monitor->parser.auth_parser) !=
       MONITOR_AUTH_STATUS_OK) {
     close_connection(key);
   }
+}
+
+void monitor_auth_finalize(const unsigned state, struct selector_key *key) {
+  monitor_t *monitor = ATTACHMENT(key);
+  parser_destroy(monitor->parser.auth_parser.p);
 }
 
 unsigned monitor_auth_read(struct selector_key *key) {

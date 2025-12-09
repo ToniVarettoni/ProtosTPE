@@ -25,8 +25,9 @@ typedef struct {
 
 static const struct state_definition monitor_states[] = {
     {.state = MONITOR_AUTH,
-     .on_arrival = monitor_init,
-     .on_read_ready = monitor_auth_read},
+     .on_arrival = monitor_auth_init,
+     .on_read_ready = monitor_auth_read,
+     .on_departure = monitor_auth_finalize},
     {.state = MONITOR_REQ_READ,
      .on_arrival = monitor_read_init,
      .on_read_ready = monitor_req_read,
