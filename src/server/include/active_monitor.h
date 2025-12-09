@@ -1,11 +1,23 @@
 #ifndef _MONITOR_H_
 #define _MONITOR_H_
 
+#include "../../lib/logger/logger.h"
+#include "../../lib/parser/parser.h"
+#include "../../lib/selector/selector.h"
 #include "../../lib/stm/stm.h"
+#include "client_utils.h"
+#include "users.h"
+
 #include "monitor_auth.h"
 #include "monitor_req.h"
 #include "monitor_res.h"
-#include "users.h"
+
+/* Possible requests:
+**  - ADD USER (parameters: <username> <password> <role>)
+**  - REMOVE USER (parameters: <username>)
+**  - CHANGE USER PASSWORD (parameters: <username> <password>)
+**  - STATISTICS
+*/
 
 typedef enum {
   MONITOR_AUTH = 0,  // waiting for user&password for authentication
@@ -20,6 +32,7 @@ typedef struct {
   access_level_t user_access_level;
   union {
     monitor_auth_parser_t auth_parser;
+    monitor_req_parser_t req_parser;
   } parser;
 } monitor_t;
 
@@ -29,9 +42,9 @@ static const struct state_definition monitor_states[] = {
      .on_read_ready = monitor_auth_read,
      .on_departure = monitor_auth_finalize},
     {.state = MONITOR_REQ_READ,
-     .on_arrival = monitor_read_init,
+     .on_arrival = monitor_req_init,
      .on_read_ready = monitor_req_read,
-     .on_departure = monitor_req_read_finalize},
+     .on_departure = monitor_req_finalize},
     {.state = MONITOR_RES_WRITE,
      .on_arrival = monitor_res_write_init,
      .on_read_ready = monitor_res_write,

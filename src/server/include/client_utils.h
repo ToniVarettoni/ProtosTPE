@@ -4,11 +4,6 @@
 #define __USE_GNU
 #define __USE_MISC
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
 #include "../../lib/buffer/buffer.h"
 #include "../../lib/selector/selector.h"
 #include "../../lib/stm/stm.h"
@@ -17,6 +12,11 @@
 #include "forwarding.h"
 #include "hello.h"
 #include "request.h"
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 typedef struct addrinfo addrinfo;
 
@@ -38,6 +38,7 @@ typedef struct {
   struct addrinfo *dest_addr;
   struct gaicb * dns_req;
   uint8_t err;
+
 } client_t;
 
 typedef enum {
@@ -58,29 +59,22 @@ static const struct state_definition client_states[] = {
     {.state = HELLO_READ,
      .on_arrival = hello_read_init,
      .on_read_ready = hello_read},
-    {.state = HELLO_WRITE,
-     .on_write_ready = hello_write},
+    {.state = HELLO_WRITE, .on_write_ready = hello_write},
     {.state = AUTH_READ,
      .on_arrival = auth_read_init,
      .on_read_ready = auth_read},
-    {.state = AUTH_WRITE,
-     .on_write_ready = auth_write},
+    {.state = AUTH_WRITE, .on_write_ready = auth_write},
     {.state = REQUEST_READ,
      .on_arrival = request_read_init,
      .on_read_ready = request_read},
-    {.state = DNS_LOOKUP,
-     .on_write_ready = dns_lookup},
-    {.state = DEST_CONNECT,
-     .on_write_ready = try_connect},
-    {.state = REQUEST_WRITE,
-     .on_write_ready = request_write},
+    {.state = DNS_LOOKUP, .on_write_ready = dns_lookup},
+    {.state = DEST_CONNECT, .on_write_ready = try_connect},
+    {.state = REQUEST_WRITE, .on_write_ready = request_write},
     {.state = FORWARDING,
      .on_write_ready = forward_write,
      .on_read_ready = forward_read},
-    {.state = DONE,
-     .on_arrival = end_connection},
-    {.state = ERROR,
-     .on_arrival = error_handler}};
+    {.state = DONE, .on_arrival = end_connection},
+    {.state = ERROR, .on_arrival = error_handler}};
 
 const fd_interest get_client_interests();
 

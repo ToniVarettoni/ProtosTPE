@@ -28,7 +28,7 @@ typedef struct {
   uint8_t plen;
   uint8_t uname_read, passwd_read;
 
-  char uname[MAX_LENGTH];
+  char uname[MAX_LENGTH + 1];
   char passwd[MAX_LENGTH];
 
   struct parser *p;

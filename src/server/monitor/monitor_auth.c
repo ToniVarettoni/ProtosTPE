@@ -1,4 +1,4 @@
-#include "monitor_auth.h"
+#include "../include/monitor_auth.h"
 #include "../../lib/logger/logger.h"
 #include "../../lib/parser/parser.h"
 #include "../include/active_monitor.h"
@@ -73,7 +73,8 @@ static const struct parser_definition monitor_auth_parser_def = {
     .states_n = states_n,
     .start_state = MONITOR_AUTH_STATE_ULEN};
 
-monitor_auth_status_t monitor_auth_parser_init(monitor_auth_parser_t *map) {
+static monitor_auth_status_t
+monitor_auth_parser_init(monitor_auth_parser_t *map) {
   memset(map, 0, sizeof(monitor_auth_parser_t));
   map->p = parser_init(parser_no_classes(), &monitor_auth_parser_def);
   if (map->p == NULL) {
@@ -103,9 +104,9 @@ unsigned monitor_auth_read(struct selector_key *key) {
   ssize_t n = recv(key->fd, &c, 1, 0);
   if (n <= 0) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
-      return HELLO_READ;
+      return MONITOR_AUTH;
     }
-    return ERROR;
+    return MONITOR_ERROR;
   }
 
   const struct parser_event *ev = parser_feed(map->p, c);
@@ -139,7 +140,8 @@ unsigned monitor_auth_read(struct selector_key *key) {
       if (map->passwd_read == map->plen) {
         log_to_stdout("Password read: %s\n", map->passwd);
         if (user_login(map->uname, map->passwd, &monitor->user_access_level) !=
-            USERS_OK) {
+                USERS_OK ||
+            monitor->user_access_level) {
           return MONITOR_ERROR;
         }
         log_to_stdout("Successfully logged in user %s\n", map->uname);

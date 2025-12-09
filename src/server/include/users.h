@@ -51,8 +51,9 @@ user_status user_create(char *username, char *password,
 user_status user_login(char *username, char *password,
                        access_level_t *output_level);
 
-user_status user_delete(char *user_username_to_delete,
-                        char *user_username_who_deletes);
+user_status user_change_password(char *username, char *password);
+
+user_status user_delete(char *user_username_to_delete);
 
 user_status users_shutdown();
 

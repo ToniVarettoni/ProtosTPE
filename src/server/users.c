@@ -220,9 +220,23 @@ user_status user_login(char *username, char *password,
   }
 }
 
-user_status user_delete(char *user_username_to_delete,
-                        char *user_username_who_deletes) {
-  if (user_username_to_delete == NULL || user_username_who_deletes == NULL) {
+user_status user_change_password(char *username, char *password) {
+  if (username == NULL) {
+    return USERS_INVALID_USERNAME;
+  }
+  if (password == NULL) {
+    return USERS_INVALID_PASSWORD;
+  }
+  int index;
+  if ((index = get_user_index(username)) < 0) {
+    return USERS_USER_NOT_FOUND;
+  }
+  strcpy(users[index].password, password);
+  return USERS_OK;
+}
+
+user_status user_delete(char *user_username_to_delete) {
+  if (user_username_to_delete == NULL) {
     log_to_stdout("username cannot be NULL\n");
     return USERS_INVALID_USERNAME;
   }
@@ -231,18 +245,6 @@ user_status user_delete(char *user_username_to_delete,
     log_to_stdout("user %s not found\n", user_username_to_delete);
     return USERS_INVALID_USERNAME;
   }
-  int who_deletes_index;
-  if ((who_deletes_index = get_user_index(user_username_who_deletes)) < 0) {
-    log_to_stdout("user %s not found\n", user_username_who_deletes);
-    return USERS_INVALID_USERNAME;
-  }
-  if (users[who_deletes_index].access_level != ADMIN) {
-    log_to_stdout(
-        "user %s does not have enough access level to perform delete action\n",
-        user_username_who_deletes);
-    return USERS_INVALID_ACCESS_LEVEL;
-  }
-
   memmove(&users[to_delete_index], &users[to_delete_index],
           (users_size - to_delete_index - 1) * sizeof(user_t));
   users_size--;
