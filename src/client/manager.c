@@ -1,6 +1,6 @@
 #include "../lib/logger/logger.h"
 #include "../lib/selector/selector.h"
-#include "../lib/stats/stats.h"
+#include "include/stats.h"
 #include <time.h>
 
 #define MAX_FDS 10

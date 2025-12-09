@@ -1,9 +1,9 @@
 #include "../lib/buffer/buffer.h"
 #include "../lib/logger/logger.h"
 #include "../lib/selector/selector.h"
-#include "../lib/stats/stats.h"
 #include "../lib/stm/stm.h"
 #include "include/client_utils.h"
+#include "include/stats.h"
 #include "io_utils.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
@@ -87,7 +87,6 @@ void handle_read_master(struct selector_key *key) {
   // if (left != strlen(message)) {
   //   signal();
   // }
-
 }
 
 static const fd_handler MASTER_HANDLER = {.handle_read = handle_read_master};

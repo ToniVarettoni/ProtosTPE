@@ -4,7 +4,7 @@
 
 #include "../lib/logger/logger.h"
 #include "../lib/selector/selector.h"
-#include "../lib/stats/stats.h"
+#include "include/stats.h"
 #include "../lib/args/args.h"
 #include "include/master_utils.h"
 #include "include/users.h"

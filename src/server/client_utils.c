@@ -1,6 +1,6 @@
 #include "include/client_utils.h"
 #include "../lib/selector/selector.h"
-#include "../lib/stats/stats.h"
+#include "include/stats.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <netinet/in.h>
@@ -22,7 +22,7 @@ void handle_write_client(struct selector_key *key) {
 
 void handle_close_client(struct selector_key *key) {
   stm_handler_close(&((client_t *)ATTACHMENT(key))->stm, key);
-  decrement_current_connections();
+  increment_current_connections();
 }
 
 unsigned ignore_read(struct selector_key *key) {
