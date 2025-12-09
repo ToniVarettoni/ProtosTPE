@@ -7,7 +7,15 @@ void end_connection(const unsigned state, struct selector_key *key) {
     selector_unregister_fd(key->s, client->destination_fd);
     close(client->client_fd);
     close(client->destination_fd);
-    parser_destroy(&client->parser);
+    if (client->parser.hello_parser.p != NULL) {
+        parser_destroy(client->parser.hello_parser.p);
+    }
+    if (client->parser.auth_parser.p != NULL) {
+        parser_destroy(client->parser.auth_parser.p);
+    }
+    if (client->parser.request_parser.p != NULL) {
+        parser_destroy(client->parser.request_parser.p);
+    }
     free(key->data);
     free(key);
 }

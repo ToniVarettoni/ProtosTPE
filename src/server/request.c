@@ -23,7 +23,7 @@
 #define SOCKS_REPLY_SUCCESS 0x00
 #define SOCKS_REPLY_GENERAL_FAILURE 0x01
 #define SOCKS_REPLY_NETWORK_UNREACHABLE 0x03
-#define SOCKS_HOST_UNREACHABLE 0x04
+#define SOCKS_REPLY_HOST_UNREACHABLE 0x04
 #define SOCKS_REPLY_CMD_NOT_SUPPORTED 0x07
 #define SOCKS_REPLY_ATYP_NOT_SUPPORTED 0X08
 
@@ -258,7 +258,7 @@ unsigned request_read(struct selector_key *key) {
         break;
       
       case REQUEST_STATE_ATYP:
-        if(e->data[0] != SOCKS_ATYP_IPV4 || e->data[0] != SOCKS_ATYP_IPV6 || e->data != SOCKS_ATYP_DOMAINNAME) {
+        if(e->data[0] != SOCKS_ATYP_IPV4 || e->data[0] != SOCKS_ATYP_IPV6 || e->data[0] != SOCKS_ATYP_DOMAINNAME) {
           selector_set_interest_key(key, OP_WRITE);
           rp->reply_status = SOCKS_REPLY_ATYP_NOT_SUPPORTED;
           return REQUEST_WRITE;
@@ -354,7 +354,7 @@ unsigned request_read(struct selector_key *key) {
 
 unsigned setup_lookup(struct selector_key *key, char *addrname, uint8_t addrlen, uint16_t port) {
   client_t *client = ATTACHMENT(key);
-  request_parser_t *rp = client->parser.request_parser;
+  request_parser_t *rp = &client->parser.request_parser;
   struct gaicb *req = calloc(1, sizeof(struct gaicb));
   client->dns_req = req;
 
@@ -380,7 +380,7 @@ unsigned setup_lookup(struct selector_key *key, char *addrname, uint8_t addrlen,
     free(hints);
     free(req);
     selector_set_interest_key(key, OP_WRITE);
-    rp->reply_status = SOCKS_HOST_UNREACHABLE;
+    rp->reply_status = SOCKS_REPLY_HOST_UNREACHABLE;
     return REQUEST_WRITE;
   }
 
@@ -391,6 +391,7 @@ unsigned setup_lookup(struct selector_key *key, char *addrname, uint8_t addrlen,
 
 unsigned dns_lookup(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
+  request_parser_t *rp = &client->parser.request_parser;
   if (client->dns_req == NULL) {
     selector_set_interest_key(key, OP_NOOP);
     return ERROR;
@@ -411,7 +412,7 @@ unsigned dns_lookup(struct selector_key *key) {
     if (status == EAI_NONAME || status == EAI_FAIL) {
       rp->reply_status = SOCKS_REPLY_NETWORK_UNREACHABLE;
     } else if (status == EAI_AGAIN || status == EAI_SYSTEM) {
-      rp->reply_status = SOCKS_REPLY_HOSTS_UNREACHABLE;
+      rp->reply_status = SOCKS_REPLY_HOST_UNREACHABLE;
     } else {
       rp->reply_status = SOCKS_REPLY_GENERAL_FAILURE;
     }
@@ -422,7 +423,7 @@ unsigned dns_lookup(struct selector_key *key) {
     free((void *)client->dns_req->ar_name);
     free(client->dns_req);
     client->dns_req = NULL;
-    selector_set_interest(key, OP_WRITE);
+    selector_set_interest_key(key, OP_WRITE);
     return REQUEST_WRITE;
   }
 
