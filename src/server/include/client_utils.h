@@ -30,10 +30,14 @@ typedef struct {
     auth_parser_t auth_parser;
     request_parser_t request_parser;
   } parser;
-  buffer reading_buffer;
-  buffer writing_buffer;
-  uint8_t reading_buffer_storage[MAX_BUFFER];
-  uint8_t writing_buffer_storage[MAX_BUFFER];
+  buffer reading_buffer_client;
+  buffer writing_buffer_client;
+  uint8_t reading_buffer_client_storage[MAX_BUFFER];
+  uint8_t writing_buffer_client_storage[MAX_BUFFER];
+  buffer reading_buffer_destiny;
+  buffer writing_buffer_destiny;
+  uint8_t reading_buffer_destiny_storage[MAX_BUFFER];
+  uint8_t writing_buffer_destiny_storage[MAX_BUFFER];
   int destination_fd;
   struct addrinfo *dest_addr;
   struct gaicb * dns_req;
@@ -75,9 +79,7 @@ static const struct state_definition client_states[] = {
      .on_write_ready = request_write},
     {.state = FORWARDING,
      .on_write_ready = forward_write,
-     .on_read_ready = forward_read,
-     .on_arrival = forward_setup,
-     .on_departure = forward_close},
+     .on_read_ready = forward_read},
     {.state = DONE,
      .on_arrival = end_connection},
     {.state = ERROR,

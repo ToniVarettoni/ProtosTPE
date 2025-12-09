@@ -138,7 +138,7 @@ static const struct parser_definition request_parser_def = {
 static unsigned handle_request_fin(struct selector_key *key,
                                    request_parser_t *rp) {
   client_t *client = ATTACHMENT(key);
-  log_to_stdout("Request parsed! Remember, the address type is %d\n", rp->atyp);
+  log_to_stdout("Request parsed! Remember, the address type is %x\n", rp->atyp);
 
   switch (rp->atyp) {
 
@@ -251,7 +251,7 @@ unsigned request_read(struct selector_key *key) {
       
       case REQUEST_STATE_ATYP:
         rp->atyp = e->data[0];
-        log_to_stdout("Address type: %d\n", rp->atyp);
+        log_to_stdout("Address type: %x\n", rp->atyp);
         break;
 
       case REQUEST_STATE_DSTADDR_IPV4:
@@ -261,7 +261,7 @@ unsigned request_read(struct selector_key *key) {
         if (rp->addr_read == IPV4_LEN) {
           memcpy(&rp->ipv4, rp->addr, IPV4_LEN);
           rp->addr[rp->addr_read] = 0;
-          log_to_stdout("Correctly parsed ipv4: %s", rp->addr);
+          log_to_stdout("Correctly parsed ipv4: %s\n", (char *)rp->addr);
           parser_set_state(rp->p, REQUEST_STATE_DSTPORT);
         }
         break;
@@ -323,6 +323,7 @@ unsigned request_read(struct selector_key *key) {
         }
         log_to_stdout("Protocol version (request): %d\n", e->data[0]);
         break;
+        
       case REQUEST_STATE_RSV:
         log_to_stdout("Passing reserved byte...\n");
         break;
@@ -427,7 +428,6 @@ unsigned dns_lookup(struct selector_key *key) {
 unsigned try_connect(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
   struct addrinfo *addr = client->dest_addr;
-
   // me fijo si ya inicie una conexion
   if (client->destination_fd != -1) {
     int so_error = 0;
@@ -444,7 +444,7 @@ unsigned try_connect(struct selector_key *key) {
       return REQUEST_WRITE;
     }
 
-    // la conexion sigue en proceso
+    // la conexion sigue en procesos
     if (so_error == EINPROGRESS || so_error == EALREADY) {
       return DEST_CONNECT;
     }
@@ -547,6 +547,5 @@ unsigned request_write(struct selector_key *key) {
   if (client->destination_fd != -1) {
     selector_set_interest(key->s, client->destination_fd, OP_READ);
   }
-
   return FORWARDING; 
 }
