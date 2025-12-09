@@ -47,6 +47,7 @@ void handle_read_master(struct selector_key *key) {
   }
   increment_current_connections();
 
+  client->client_fd = new_socket;
   client->stm.initial = HELLO_READ;
   client->stm.max_state = ERROR;
   client->stm.states = client_states;

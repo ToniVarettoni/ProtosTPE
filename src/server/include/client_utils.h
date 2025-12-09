@@ -1,6 +1,8 @@
 #ifndef _CLIENT_UTILS_
 #define _CLIENT_UTILS_
 #define __USE_XOPEN2K 1
+#define __USE_GNU
+#define __USE_MISC
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -22,6 +24,7 @@ typedef struct addrinfo addrinfo;
 
 typedef struct {
   struct state_machine stm;
+  uint8_t client_fd;
   union {
     hello_parser_t hello_parser;
     auth_parser_t auth_parser;
@@ -33,6 +36,7 @@ typedef struct {
   uint8_t writing_buffer_storage[MAX_BUFFER];
   int destination_fd;
   struct addrinfo *dest_addr;
+  struct gaicb * dns_req;
 } client_t;
 
 typedef enum {

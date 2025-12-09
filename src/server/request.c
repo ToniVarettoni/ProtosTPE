@@ -174,10 +174,9 @@ unsigned request_read(struct selector_key *key) {
         printf("Request parsed!\n");
         switch (rp->atyp){
           case ATTYP_DOMAINNAME:
-            /* code */
-            selector_set_interest_key(key, OP_NOOP);
-            return DNS_LOOKUP;
-          
+            selector_set_interest_key(key, OP_NOOP);          
+            return setup_lookup(key, rp->addr, rp->addr_len, rp->port);
+
           case ATTYP_IPV4:
             client->dest_addr = calloc(1, sizeof(addrinfo));
             rp->sockAddress = (struct sockaddr_in) {
@@ -303,8 +302,63 @@ unsigned request_read(struct selector_key *key) {
   return REQUEST_READ;
 }
 
-void dns_lookup(const unsigned state, struct selector_key *key) {}
+unsigned setup_lookup(struct selector_key *key, char ** addrname, uint8_t addrlen, uint16_t port) {
 
-void try_connect(const unsigned state, struct selector_key *key) {}
+  client_t *client = ATTACHMENT(key);
+  struct gaicb *req = calloc(1, sizeof(struct gaicb));
+  client->dns_req = req;
+
+  char *service = malloc(6);
+  snprintf(service, 6, "%u", port);
+
+  req->ar_name = strdup(addrname);
+  req->ar_service = service;
+
+  struct addrinfo *hints = calloc(1, sizeof(struct addrinfo));
+  hints->ai_family = AF_UNSPEC;
+  hints->ai_socktype = SOCK_STREAM;
+
+  req->ar_request = hints;
+
+  struct gaicb *reqs[1] = { req };
+
+  req->ar_name = strdup(addrname);
+
+  int rc = getaddrinfo_a(GAI_NOWAIT, reqs, 1, NULL);
+
+  if (rc != 0) {
+    return ERROR;
+  }
+
+  return DNS_LOOKUP;
+}
+
+void try_connect(const unsigned state, struct selector_key *key) {
+  client_t * client = ATTACHMENT(key);
+  selector_set_interest_key(key, OP_WRITE);
+  struct addrinfo* addr = client->dest_addr;
+  while (addr != NULL && client->destination_fd != -1){
+    client->destination_fd = socket(addr->ai_family, SOCK_STREAM, addr->ai_protocol);
+    if (client->destination_fd < 0){
+      printf("Error: failed to create remote socket for client: %d", client->client_fd);
+      return ERROR;
+    }
+
+    selector_fd_set_nio(client->destination_fd);
+    errno = 0;
+    if (connect(client->destination_fd, addr->ai_addr, addr->ai_addrlen) == 0 || errno == EINPROGRESS){
+      selector_register(key->s, client->destination_fd, get_client_handler, OP_WRITE, key->data);
+      return DEST_CONNECT;
+    }else{
+      printf("Error: failed to connect  to remote for client: %d, errno: %s\n", client->client_fd, strerror(errno));
+      close(client->destination_fd);
+      client->destination_fd = -1;
+      addr = addr->ai_next;
+    }
+  }
+  printf("Error: failed to connect  to remote for client: %d\n", client->client_fd, strerror(errno));
+  return ERROR;
+}
+
 
 unsigned request_write(struct selector_key *key) { return 0; }

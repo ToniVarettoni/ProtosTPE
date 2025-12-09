@@ -5,6 +5,7 @@
 #include "../../lib/selector/selector.h"
 
 
+
 #define MAX_ADDR_SIZE 255
 #define PORT_SIZE 2
 #define IPV4_LEN 4
@@ -12,7 +13,8 @@
 
 void request_read_init(const unsigned state, struct selector_key *key);
 unsigned request_read(struct selector_key *key);
-void dns_lookup(const unsigned state, struct selector_key *key);
+unsigned setup_lookup(struct selector_key *key, char ** addrname, uint8_t addrlen, uint16_t port);
+unsigned dns_lookup(const unsigned state, struct selector_key *key);
 void try_connect(const unsigned state, struct selector_key *key);
 unsigned request_write(struct selector_key *key);
 
