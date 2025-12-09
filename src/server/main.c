@@ -2,10 +2,9 @@
     Handle multiple socket connections with select and fd_set on Linux
 */
 
+#include "../lib/args/args.h"
 #include "../lib/logger/logger.h"
 #include "../lib/selector/selector.h"
-#include "include/stats.h"
-#include "../lib/args/args.h"
 #include "include/master_utils.h"
 #include "include/users.h"
 #include <arpa/inet.h> //close
@@ -24,6 +23,9 @@
 
 #define TRUE 1
 #define FALSE 0
+
+#define PORT 1080
+#define MONITOR_PORT 8080
 
 #define DEFAULT_MAX_CLIENTS 30
 
@@ -106,6 +108,8 @@ int main(int argc, char *argv[]) {
                                  MASTER_INTERESTS, NULL)) != SELECTOR_SUCCESS) {
     log_to_stdout("%s\n", selector_error(error));
   }
+
+  log_to_stdout("Listener on port %d \n", args.socks_port);
 
   int monitor_socket;
 

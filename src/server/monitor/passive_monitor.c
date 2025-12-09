@@ -1,9 +1,9 @@
-#include "../lib/buffer/buffer.h"
-#include "../lib/logger/logger.h"
-#include "../lib/selector/selector.h"
-#include "../lib/stm/stm.h"
-#include "include/active_monitor.h"
-#include "include/stats.h"
+#include "../../lib/buffer/buffer.h"
+#include "../../lib/logger/logger.h"
+#include "../../lib/selector/selector.h"
+#include "../../lib/stm/stm.h"
+#include "../include/active_monitor.h"
+#include "../include/stats.h"
 #include "io_utils.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
@@ -88,7 +88,15 @@ void handle_read_passive_monitor(struct selector_key *key) {
   // }
 }
 
-static const fd_handler MASTER_HANDLER = {.handle_read =
-                                              handle_read_passive_monitor};
+static const fd_handler PASSIVE_MONITOR_HANDLER = {
+    .handle_read = handle_read_passive_monitor};
 
-const fd_handler *get_master_handler() { return &MASTER_HANDLER; }
+const fd_handler *get_passive_monitor_handler() {
+  return &PASSIVE_MONITOR_HANDLER;
+}
+
+const fd_interest INITIAL_PASSIVE_MONITOR_INTERESTS = OP_READ;
+
+const fd_interest get_passive_monitor_interests() {
+  return INITIAL_PASSIVE_MONITOR_INTERESTS;
+}

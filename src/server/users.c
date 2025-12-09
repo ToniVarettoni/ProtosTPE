@@ -125,34 +125,34 @@ static user_status load_users(char *users_file_path) {
                                      parsed_user.access_level);
     switch (status) {
     case USERS_INVALID_USERNAME:
-      printf("invalid username at line %u\n", line);
+      log_to_stdout("invalid username at line %u\n", line);
       break;
     case USERS_INVALID_PASSWORD:
-      printf("invalid password at line %u\n", line);
+      log_to_stdout("invalid password at line %u\n", line);
       break;
     case USERS_INVALID_ACCESS_LEVEL:
-      printf("invalid access level at line %u\n", line);
+      log_to_stdout("invalid access level at line %u\n", line);
       break;
     case USERS_MAX_USERS_REACHED:
-      printf("max users reached\n");
+      log_to_stdout("max users reached\n");
       break;
     case USERS_WRONG_USERNAME:
-      printf("wrong username at line %u\n", line);
+      log_to_stdout("wrong username at line %u\n", line);
       break;
     case USERS_WRONG_PASSWORD:
-      printf("wrong password at line %u\n", line);
+      log_to_stdout("wrong password at line %u\n", line);
       break;
     case USERS_IO_ERROR:
-      printf("IO error at line %u\n", line);
+      log_to_stdout("IO error at line %u\n", line);
       break;
     case USERS_NOMEM_ERROR:
-      printf("no memory available while loading users\n");
+      log_to_stdout("no memory available while loading users\n");
       break;
     case USERS_USER_ALREADY_EXISTS:
-      printf("user already exists at line %u\n", line);
+      log_to_stdout("user already exists at line %u\n", line);
       break;
     case USERS_UNKOWN_ERROR:
-      printf("unknown error at line %u\n", line);
+      log_to_stdout("unknown error at line %u\n", line);
       break;
     case USERS_OK:
     case USERS_USER_NOT_FOUND:
@@ -181,11 +181,11 @@ user_status users_init(char *users_file_param) {
 user_status user_create(char *username, char *password,
                         access_level_t access_level) {
   if (username == NULL) {
-    printf("username cannot be null\n");
+    log_to_stdout("username cannot be null\n");
     return USERS_INVALID_USERNAME;
   }
   if (password == NULL) {
-    printf("password cannot be null\n");
+    log_to_stdout("password cannot be null\n");
     return USERS_INVALID_PASSWORD;
   }
   if (access_level != ADMIN && access_level != USER)
@@ -193,7 +193,7 @@ user_status user_create(char *username, char *password,
   if (users_size >= MAX_USERS_REGISTERED)
     return USERS_MAX_USERS_REACHED;
   if (get_user_index(username) >= 0) {
-    printf("user already exists\n");
+    log_to_stdout("user already exists\n");
     return USERS_USER_ALREADY_EXISTS;
   }
   strcpy(users[users_size].username, username);
@@ -207,15 +207,15 @@ user_status user_login(char *username, char *password,
                        access_level_t *output_level) {
   int i;
   if ((i = get_user_index(username)) < 0) {
-    printf("user %s not found\n", username);
+    log_to_stdout("user %s not found\n", username);
     return USERS_USER_NOT_FOUND;
   } else {
     if (strcmp(users[i].password, password) == 0) {
-      printf("user %s logged in successfully\n", username);
+      log_to_stdout("user %s logged in successfully\n", username);
       *output_level = users[i].access_level;
       return USERS_OK;
     }
-    printf("wrong password for user %s\n", username);
+    log_to_stdout("wrong password for user %s\n", username);
     return USERS_WRONG_PASSWORD;
   }
 }
@@ -223,21 +223,21 @@ user_status user_login(char *username, char *password,
 user_status user_delete(char *user_username_to_delete,
                         char *user_username_who_deletes) {
   if (user_username_to_delete == NULL || user_username_who_deletes == NULL) {
-    printf("username cannot be NULL\n");
+    log_to_stdout("username cannot be NULL\n");
     return USERS_INVALID_USERNAME;
   }
   int to_delete_index;
   if ((to_delete_index = get_user_index(user_username_to_delete)) < 0) {
-    printf("user %s not found\n", user_username_to_delete);
+    log_to_stdout("user %s not found\n", user_username_to_delete);
     return USERS_INVALID_USERNAME;
   }
   int who_deletes_index;
   if ((who_deletes_index = get_user_index(user_username_who_deletes)) < 0) {
-    printf("user %s not found\n", user_username_who_deletes);
+    log_to_stdout("user %s not found\n", user_username_who_deletes);
     return USERS_INVALID_USERNAME;
   }
   if (users[who_deletes_index].access_level != ADMIN) {
-    printf(
+    log_to_stdout(
         "user %s does not have enough access level to perform delete action\n",
         user_username_who_deletes);
     return USERS_INVALID_ACCESS_LEVEL;
@@ -270,7 +270,7 @@ static user_status save_users() {
 
 user_status users_shutdown() {
   if (save_users() != USERS_OK) {
-    printf("error while saving users\n");
+    log_to_stdout("error while saving users\n");
     return USERS_IO_ERROR;
   }
   free(users);

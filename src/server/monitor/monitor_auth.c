@@ -1,7 +1,8 @@
 #include "monitor_auth.h"
+#include "../../lib/logger/logger.h"
 #include "../../lib/parser/parser.h"
+#include "../include/active_monitor.h"
 #include "../include/client_utils.h"
-#include "monitor.h"
 
 static void act_monitor_auth_ulen(struct parser_event *ret, const uint8_t c) {
   ret->type = MONITOR_AUTH_EVENT_ULEN;
@@ -38,7 +39,7 @@ static struct parser_state_transition ST_ULEN[] = {
 };
 
 static struct parser_state_transition ST_UNAME[] = {
-    {ANY, MONITOR_AUTH_STATE_PLEN, act_monitor_auth_uname, NULL},
+    {ANY, MONITOR_AUTH_STATE_UNAME, act_monitor_auth_uname, NULL},
 };
 
 static struct parser_state_transition ST_PLEN[] = {
@@ -46,7 +47,7 @@ static struct parser_state_transition ST_PLEN[] = {
 };
 
 static struct parser_state_transition ST_PASSWD[] = {
-    {ANY, MONITOR_AUTH_STATE_DONE, act_monitor_auth_password, NULL},
+    {ANY, MONITOR_AUTH_STATE_PASSWD, act_monitor_auth_password, NULL},
 };
 
 static struct parser_state_transition ST_DONE[] = {
@@ -82,8 +83,9 @@ monitor_auth_status_t monitor_auth_parser_init(monitor_auth_parser_t *map) {
 }
 
 void monitor_init(const unsigned state, struct selector_key *key) {
-  monitor_auth_parser_t *map = ATTACHMENT(key);
-  if (monitor_auth_parser_init(map) != MONITOR_AUTH_STATUS_OK) {
+  monitor_t *monitor = ATTACHMENT(key);
+  if (monitor_auth_parser_init(&monitor->parser.auth_parser) !=
+      MONITOR_AUTH_STATUS_OK) {
     close_connection(key);
   }
 }
@@ -116,6 +118,7 @@ unsigned monitor_auth_read(struct selector_key *key) {
         map->uname[map->uname_read] = '\0';
       }
       if (map->uname_read == map->ulen) {
+        log_to_stdout("Read username: %s\n", map->uname);
         parser_set_state(map->p, MONITOR_AUTH_STATE_PLEN);
       }
       break;
@@ -129,17 +132,20 @@ unsigned monitor_auth_read(struct selector_key *key) {
         map->passwd[map->passwd_read] = '\0';
       }
       if (map->passwd_read == map->plen) {
+        log_to_stdout("Password read: %s\n", map->passwd);
         if (user_login(map->uname, map->passwd, &monitor->user_access_level) !=
             USERS_OK) {
           return MONITOR_ERROR;
         }
+        log_to_stdout("Successfully logged in user %s\n", map->uname);
         parser_set_state(map->p, MONITOR_AUTH_STATE_DONE);
       }
+      break;
     case MONITOR_AUTH_EVENT_DONE:
       return MONITOR_REQ_READ;
     default:
       return MONITOR_ERROR;
     }
   }
-  return MONITOR_ERROR;
+  return MONITOR_AUTH;
 }
