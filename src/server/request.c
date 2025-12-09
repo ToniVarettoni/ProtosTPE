@@ -20,6 +20,13 @@
 #define SOCKS_CMD_BIND 0x02
 #define SOCKS_CMD_UDP_ASSOCIATE 0x03
 
+#define SOCKS_REPLY_SUCCESS 0x00
+#define SOCKS_REPLY_GENERAL_FAILURE 0x01
+#define SOCKS_REPLY_NETWORK_UNREACHABLE 0x03
+#define SOCKS_HOST_UNREACHABLE 0x04
+#define SOCKS_REPLY_CMD_NOT_SUPPORTED 0x07
+#define SOCKS_REPLY_ATYP_NOT_SUPPORTED 0X08
+
 static void act_ver_req(struct parser_event *ret, const uint8_t c) {
   ret->type = REQUEST_STATE_VER;
   ret->data[0] = c;
@@ -241,15 +248,21 @@ unsigned request_read(struct selector_key *key) {
       
       case REQUEST_STATE_CMD:
         rp->cmd = e->data[0];
-        if (rp->cmd != CMD_BIND && rp->cmd != CMD_CONNECT && rp->cmd != CMD_UDP_ASSOCIATE){
-          log_to_stdout("Error parsing request cmd: %d\n", rp->cmd);
-          selector_set_interest_key(key, OP_NOOP);
-          return ERROR;
+        if (rp->cmd != CMD_CONNECT){
+          log_to_stdout("CMD %d not supported\n", rp->cmd);
+          selector_set_interest_key(key, OP_WRITE);
+          rp->reply_status = SOCKS_REPLY_CMD_NOT_SUPPORTED;
+          return REQUEST_WRITE;
         }
         log_to_stdout("Correctly parsed cmd: %d\n", rp->cmd);
         break;
       
       case REQUEST_STATE_ATYP:
+        if(e->data[0] != SOCKS_ATYP_IPV4 || e->data[0] != SOCKS_ATYP_IPV6 || e->data != SOCKS_ATYP_DOMAINNAME) {
+          selector_set_interest_key(key, OP_WRITE);
+          rp->reply_status = SOCKS_REPLY_ATYP_NOT_SUPPORTED;
+          return REQUEST_WRITE;
+        }
         rp->atyp = e->data[0];
         log_to_stdout("Address type: %d\n", rp->atyp);
         break;
@@ -317,12 +330,13 @@ unsigned request_read(struct selector_key *key) {
 
       case REQUEST_STATE_VER:
         if (e->data[0] != 0x05){
-          log_to_stdout("Version %d is not valid or something else went wrong.\n");
-          selector_set_interest_key(key, OP_NOOP);
-          return ERROR;
+          selector_set_interest_key(key, OP_WRITE);
+          rp->reply_status = SOCKS_REPLY_GENERAL_FAILURE;
+          return REQUEST_WRITE;
         }
         log_to_stdout("Protocol version (request): %d\n", e->data[0]);
         break;
+      
       case REQUEST_STATE_RSV:
         log_to_stdout("Passing reserved byte...\n");
         break;
@@ -340,6 +354,7 @@ unsigned request_read(struct selector_key *key) {
 
 unsigned setup_lookup(struct selector_key *key, char *addrname, uint8_t addrlen, uint16_t port) {
   client_t *client = ATTACHMENT(key);
+  request_parser_t *rp = client->parser.request_parser;
   struct gaicb *req = calloc(1, sizeof(struct gaicb));
   client->dns_req = req;
 
@@ -364,7 +379,9 @@ unsigned setup_lookup(struct selector_key *key, char *addrname, uint8_t addrlen,
     free(service);
     free(hints);
     free(req);
-    return ERROR;
+    selector_set_interest_key(key, OP_WRITE);
+    rp->reply_status = SOCKS_HOST_UNREACHABLE;
+    return REQUEST_WRITE;
   }
 
   log_to_stdout("Passed the lookup setup!\n");
@@ -391,6 +408,13 @@ unsigned dns_lookup(struct selector_key *key) {
   }
 
   if (status != 0) {
+    if (status == EAI_NONAME || status == EAI_FAIL) {
+      rp->reply_status = SOCKS_REPLY_NETWORK_UNREACHABLE;
+    } else if (status == EAI_AGAIN || status == EAI_SYSTEM) {
+      rp->reply_status = SOCKS_REPLY_HOSTS_UNREACHABLE;
+    } else {
+      rp->reply_status = SOCKS_REPLY_GENERAL_FAILURE;
+    }
     log_to_stdout("Failed lookup.\n");
     selector_set_interest_key(key, OP_NOOP);
     free((void *)client->dns_req->ar_request);
@@ -398,7 +422,8 @@ unsigned dns_lookup(struct selector_key *key) {
     free((void *)client->dns_req->ar_name);
     free(client->dns_req);
     client->dns_req = NULL;
-    return ERROR;
+    selector_set_interest(key, OP_WRITE);
+    return REQUEST_WRITE;
   }
 
   client->dest_addr = client->dns_req->ar_result;
@@ -426,6 +451,7 @@ unsigned dns_lookup(struct selector_key *key) {
 
 unsigned try_connect(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
+  request_parser_t *rp = &client->parser.request_parser;
   struct addrinfo *addr = client->dest_addr;
 
   // me fijo si ya inicie una conexion
@@ -441,6 +467,7 @@ unsigned try_connect(struct selector_key *key) {
     // la conexion en proceso termino
     if (so_error == 0) {
       selector_set_interest(key->s, client->client_fd, OP_WRITE);
+      rp->reply_status = SOCKS_REPLY_SUCCESS;
       return REQUEST_WRITE;
     }
 
@@ -480,6 +507,7 @@ unsigned try_connect(struct selector_key *key) {
 
       if (status == 0) {
         selector_set_interest(key->s, client->client_fd, OP_WRITE);
+        rp->reply_status = SOCKS_REPLY_SUCCESS;
         return REQUEST_WRITE;
       }
 

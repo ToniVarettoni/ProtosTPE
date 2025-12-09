@@ -29,6 +29,7 @@ typedef struct {
   struct in_addr ipv4;
   struct in6_addr ipv6;
   uint16_t port;
+  uint8_t reply_status;
   union {
     struct sockaddr_in sockAddress; 
     struct sockaddr_in6 sockAddress6; 
