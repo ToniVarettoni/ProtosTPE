@@ -16,7 +16,7 @@ typedef enum {
 } monitor_state_t;
 
 typedef struct {
-  struct state_machine *stm;
+  struct state_machine stm;
   access_level_t user_access_level;
   union {
     monitor_auth_parser_t auth_parser;
@@ -48,8 +48,8 @@ unsigned ignore_read_monitor(struct selector_key *key);
 
 unsigned ignore_write_monitor(struct selector_key *key);
 
-const fd_handler *get_monitor_handler();
+const fd_handler *get_active_monitor_handler();
 
-const fd_interest get_monitor_interests();
+const fd_interest get_active_monitor_interests();
 
 #endif
