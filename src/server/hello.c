@@ -101,7 +101,7 @@ unsigned hello_read(struct selector_key *key) {
 
       case HELLO_EVENT_VER:
         hp->ver = ev->data[0];
-        log_to_stdout("Reading the protocol version: %d\n", hp->ver);
+        log_to_stdout("Reading the protocol version: %d for client: %d\n", hp->ver, key->fd);
         if (hp->ver != HELLO_PROTOCOL_VERSION) {
           return ERROR;
         }

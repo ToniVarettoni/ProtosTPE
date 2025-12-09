@@ -51,10 +51,14 @@ void handle_read_master(struct selector_key *key) {
   client->stm.max_state = ERROR;
   client->stm.states = client_states;
   client->destination_fd = -1;
-  buffer_init(&client->reading_buffer, MAX_BUFFER,
-              client->reading_buffer_storage);
-  buffer_init(&client->writing_buffer, MAX_BUFFER,
-              client->writing_buffer_storage);
+  buffer_init(&client->reading_buffer_client, MAX_BUFFER,
+              client->reading_buffer_client_storage);
+  buffer_init(&client->writing_buffer_client, MAX_BUFFER,
+              client->writing_buffer_client_storage);
+  buffer_init(&client->reading_buffer_destiny, MAX_BUFFER,
+              client->reading_buffer_destiny_storage);
+  buffer_init(&client->writing_buffer_destiny, MAX_BUFFER,
+              client->writing_buffer_destiny_storage);
   stm_init(&client->stm);
 
   // add new socket to array of sockets
