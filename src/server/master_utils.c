@@ -19,7 +19,6 @@
 void handle_read_master(struct selector_key *key) {
   struct sockaddr_in address;
   int new_socket, addr_len = 0;
-  char *message = "ECHO Daemon v1.0 \r\n";
 
   do {
     new_socket =

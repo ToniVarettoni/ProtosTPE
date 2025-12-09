@@ -77,18 +77,30 @@ void log_to_stdout(char *format, ...) {
   va_list args;
 
   va_start(args, format);
+  // esto me va a devolver el tamanio del string pedido a loggear
   int real_size = vsnprintf(NULL, 0, format, args);
   va_end(args);
 
   if (real_size < 0)
     return;
 
-  buffer = (char *)malloc(real_size + 1);
-  size = real_size;
+  size_t new_size = size + (size_t)real_size;
+  char *tmp = realloc(buffer, new_size + 1);
+  if (tmp == NULL) {
+    perror("realloc");
+    free(buffer);
+    buffer = NULL;
+    size = 0;
+    return;
+  }
+  buffer = tmp;
 
   va_start(args, format);
-  vsnprintf(buffer, real_size + 1, format, args);
+  // aca si me encargo de cargarle al buffer el string pedido
+  vsnprintf(buffer + size, (size_t)real_size + 1, format, args);
   va_end(args);
+
+  size = new_size;
 
   selector_set_interest(selector, log_fd, OP_WRITE);
 }

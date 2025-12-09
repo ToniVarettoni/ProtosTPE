@@ -1,5 +1,8 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "request.h"
 #include "include/client_utils.h"
+#include "../lib/logger/logger.h"
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netdb.h>
@@ -103,7 +106,7 @@ static struct parser_state_transition ST_DSTPORT[] = {
     {ANY, REQUEST_STATE_DSTPORT, act_dstport_req, NULL}};
 
 static struct parser_state_transition ST_FIN[] = {
-    {ANY, REQUEST_STATE_ERROR, act_error_req, NULL}};
+    {ANY, REQUEST_STATE_FIN, act_fin_req, NULL}};
 
 static struct parser_state_transition ST_ERROR[] = {
     {ANY, REQUEST_STATE_ERROR, act_error_req, NULL}};
@@ -132,6 +135,56 @@ static const struct parser_definition request_parser_def = {
     .start_state = REQUEST_STATE_VER,
 };
 
+static unsigned handle_request_fin(struct selector_key *key,
+                                   request_parser_t *rp) {
+  client_t *client = ATTACHMENT(key);
+  log_to_stdout("Request parsed! Remember, the address type is %d\n", rp->atyp);
+
+  switch (rp->atyp) {
+
+  case ATTYP_DOMAINNAME:
+    log_to_stdout("Started domain name resolution...\n");
+    selector_set_interest_key(key, OP_WRITE);
+    return setup_lookup(key, (char *)rp->addr, rp->addr_len, rp->port);
+  
+  case ATTYP_IPV4:
+    client->dest_addr = calloc(1, sizeof(addrinfo));
+    rp->sockAddress = (struct sockaddr_in){
+        .sin_family = AF_INET,
+        .sin_addr = rp->ipv4,
+        .sin_port = htons(rp->port),
+    };
+    *client->dest_addr = (struct addrinfo){
+        .ai_family = AF_INET,
+        .ai_addr = (struct sockaddr *)&rp->sockAddress,
+        .ai_addrlen = sizeof(struct sockaddr_in),
+        .ai_socktype = SOCK_STREAM,
+        .ai_protocol = IPPROTO_TCP};
+    selector_set_interest_key(key, OP_WRITE);
+    return DEST_CONNECT;
+  
+  case ATTYP_IPV6:
+    client->dest_addr = calloc(1, sizeof(addrinfo));
+    rp->sockAddress6 = (struct sockaddr_in6){
+        .sin6_family = AF_INET6,
+        .sin6_addr = rp->ipv6,
+        .sin6_port = htons(rp->port),
+    };
+    *client->dest_addr = (struct addrinfo){
+        .ai_family = AF_INET6,
+        .ai_addr = (struct sockaddr *)&rp->sockAddress6,
+        .ai_addrlen = sizeof(struct sockaddr_in6),
+    };
+    selector_set_interest_key(key, OP_WRITE);
+    return DEST_CONNECT;
+  
+  default:
+    log_to_stdout("Error invalid addres type: %d\n", rp->atyp);
+    selector_set_interest_key(key, OP_NOOP);
+    return ERROR;
+  }
+}
+
 request_status_t request_parser_init(request_parser_t *hp) {
   memset(hp, 0, sizeof(request_parser_t));
   hp->p = parser_init(parser_no_classes(), &request_parser_def);
@@ -147,13 +200,15 @@ void request_read_init(const unsigned state, struct selector_key *key) {
   if (status != REQUEST_OK) {
     close_connection(key);
   }
+  client->parser.request_parser.addr_read = 0;
+  client->parser.request_parser.port_read = 0;
 }
 
 unsigned request_read(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
   request_parser_t *rp = &client->parser.request_parser;
   uint8_t buffer[1024];
-  size_t n, addr_count = 0, port_count = 0;
+  size_t n;
 
   n = recv(key->fd, buffer, sizeof(buffer), 0);
 
@@ -170,53 +225,12 @@ unsigned request_read(struct selector_key *key) {
     const struct parser_event *e = parser_feed(rp->p, buffer[i]);
     if (e != NULL) {
       switch (e->type){
+      
       case REQUEST_STATE_FIN:
-        printf("Request parsed!\n");
-        switch (rp->atyp){
-          case ATTYP_DOMAINNAME:
-            selector_set_interest_key(key, OP_NOOP);          
-            return setup_lookup(key, rp->addr, rp->addr_len, rp->port);
-
-          case ATTYP_IPV4:
-            client->dest_addr = calloc(1, sizeof(addrinfo));
-            rp->sockAddress = (struct sockaddr_in) {
-              .sin_family = AF_INET,
-              .sin_addr = rp->ipv4,
-              .sin_port = htons(rp->port),
-            };
-            *client->dest_addr = (struct addrinfo) {
-              .ai_family = AF_INET,
-              .ai_addr = (struct sockaddr *) &rp->sockAddress,
-              .ai_addrlen = sizeof(struct sockaddr_in),
-              .ai_socktype = SOCK_STREAM,
-              .ai_protocol = IPPROTO_TCP
-            };  
-            selector_set_interest_key(key, OP_NOOP);
-            return DEST_CONNECT;
-
-          case ATTYP_IPV6:
-            client->dest_addr = calloc(1, sizeof(addrinfo));
-            rp->sockAddress6 = (struct sockaddr_in6) {
-                  .sin6_family = AF_INET6,
-                  .sin6_addr = rp->ipv6,
-                  .sin6_port = htons(rp->port),
-              };
-            *client->dest_addr = (struct addrinfo) {
-                  .ai_family = AF_INET6,
-                  .ai_addr = (struct sockaddr *) &rp->sockAddress6,
-                  .ai_addrlen = sizeof(struct sockaddr_in6),
-            };  
-            selector_set_interest_key(key, OP_NOOP);
-            return DEST_CONNECT;
-
-          default:
-            printf("Error invalid addres type: %d\n", rp->atyp);
-            selector_set_interest_key(key, OP_NOOP);
-            return ERROR;
-        }
+        return handle_request_fin(key, rp);
                 
       case REQUEST_STATE_ERROR:
-        printf("Error parsing request\n");
+        log_to_stdout("Error parsing request\n");
         selector_set_interest_key(key, OP_NOOP);
         return ERROR;
       
@@ -227,30 +241,31 @@ unsigned request_read(struct selector_key *key) {
           selector_set_interest_key(key, OP_NOOP);
           return ERROR;
         }
-        printf("correctly parsed cmd: %d", rp->cmd);
+        log_to_stdout("Correctly parsed cmd: %d\n", rp->cmd);
         break;
       
       case REQUEST_STATE_ATYP:
         rp->atyp = e->data[0];
+        log_to_stdout("Address type: %d\n", rp->atyp);
         break;
 
       case REQUEST_STATE_DSTADDR_IPV4:
-        if (rp->addr_len < IPV4_LEN) {
-          rp->addr[rp->addr_len++] = e->data[0];
+        if (rp->addr_read < IPV4_LEN) {
+          rp->addr[rp->addr_read++] = e->data[0];
         }
-        if (rp->addr_len == IPV4_LEN) {
+        if (rp->addr_read == IPV4_LEN) {
           memcpy(&rp->ipv4, rp->addr, IPV4_LEN);
-          rp->addr[rp->addr_len] = 0;
-          printf("correctly parsed ipv4: %s", rp->addr);
+          rp->addr[rp->addr_read] = 0;
+          log_to_stdout("Correctly parsed ipv4: %s", rp->addr);
           parser_set_state(rp->p, REQUEST_STATE_DSTPORT);
         }
         break;
 
       case REQUEST_STATE_DSTADDR_IPV6:
-        if (rp->addr_len < IPV6_LEN) {
-          rp->addr[rp->addr_len++] = e->data[0];
+        if (rp->addr_read < IPV6_LEN) {
+          rp->addr[rp->addr_read++] = e->data[0];
         }
-        if (rp->addr_len == IPV6_LEN) {
+        if (rp->addr_read == IPV6_LEN) {
           memcpy(&rp->ipv6, rp->addr, IPV6_LEN);
           parser_set_state(rp->p, REQUEST_STATE_DSTPORT);
         }
@@ -259,24 +274,39 @@ unsigned request_read(struct selector_key *key) {
       case REQUEST_STATE_DSTADDR_DOMAINNAME:
         if (rp->addr_len == 0) {
           rp->addr_len = e->data[0];
+          log_to_stdout("Address length is %d\n", rp->addr_len);
           break;
         }
-        if (addr_count < rp->addr_len) {
-          rp->addr[addr_count++] = e->data[0];
+        if (rp->addr_read < rp->addr_len) {
+          rp->addr[rp->addr_read++] = e->data[0];
         }
-        if (rp->addr_len == addr_count) {
-          rp->addr[addr_count] = 0;
+        if (rp->addr_len == rp->addr_read) {
+          rp->addr[rp->addr_read] = '\0';
+          log_to_stdout("Domain name read is %s\n", rp->addr);
           parser_set_state(rp->p, REQUEST_STATE_DSTPORT);
         }
         break;
 
       case REQUEST_STATE_DSTPORT:
-        if (port_count == 0) {
+        if (rp->port_read == 0) {
           rp->port = ((uint16_t)e->data[0] << 8);
-          port_count++;
+          rp->port_read = 1;
+          log_to_stdout("Destination port is %d\n", rp->port);
         } else {
           rp->port |= e->data[0];
+          rp->port_read = 2;
+          log_to_stdout("Second read of destination port is %d\n", rp->port);
           parser_set_state(rp->p, REQUEST_STATE_FIN);
+          const struct parser_event *fin_ev = parser_feed(rp->p, 0);
+          for (; fin_ev != NULL; fin_ev = fin_ev->next) {
+            if (fin_ev->type == REQUEST_STATE_FIN) {
+              return handle_request_fin(key, rp);
+            }
+            if (fin_ev->type == REQUEST_STATE_ERROR) {
+              selector_set_interest_key(key, OP_NOOP);
+              return ERROR;
+            }
+          }
         }
         break;
 
@@ -289,11 +319,12 @@ unsigned request_read(struct selector_key *key) {
         log_to_stdout("Protocol version (request): %d\n", e->data[0]);
         break;
       case REQUEST_STATE_RSV:
+        log_to_stdout("Passing reserved byte...\n");
         break;
         
       
       default:
-        printf("Error: invalid request state: %d\n", e->type);
+        log_to_stdout("Error: invalid request state: %d\n", e->type);
         selector_set_interest_key(key, OP_NOOP);
         return ERROR;
       }
@@ -302,8 +333,7 @@ unsigned request_read(struct selector_key *key) {
   return REQUEST_READ;
 }
 
-unsigned setup_lookup(struct selector_key *key, char ** addrname, uint8_t addrlen, uint16_t port) {
-
+unsigned setup_lookup(struct selector_key *key, char *addrname, uint8_t addrlen, uint16_t port) {
   client_t *client = ATTACHMENT(key);
   struct gaicb *req = calloc(1, sizeof(struct gaicb));
   client->dns_req = req;
@@ -322,43 +352,194 @@ unsigned setup_lookup(struct selector_key *key, char ** addrname, uint8_t addrle
 
   struct gaicb *reqs[1] = { req };
 
-  req->ar_name = strdup(addrname);
+  int status = getaddrinfo_a(GAI_NOWAIT, reqs, 1, NULL);
 
-  int rc = getaddrinfo_a(GAI_NOWAIT, reqs, 1, NULL);
-
-  if (rc != 0) {
+  if (status != 0) {
+    free((void *)req->ar_name);
+    free(service);
+    free(hints);
+    free(req);
     return ERROR;
   }
+
+  log_to_stdout("Passed the lookup setup!\n");
 
   return DNS_LOOKUP;
 }
 
-void try_connect(const unsigned state, struct selector_key *key) {
-  client_t * client = ATTACHMENT(key);
+unsigned dns_lookup(struct selector_key *key) {
+  client_t *client = ATTACHMENT(key);
+  if (client->dns_req == NULL) {
+    selector_set_interest_key(key, OP_NOOP);
+    return ERROR;
+  }
+
+  const struct gaicb *reqs[] = {(const struct gaicb *)client->dns_req};
+  struct timespec ts = {.tv_sec = 0, .tv_nsec = 1000000}; // small wait to let lookup progress
+  gai_suspend(reqs, 1, &ts);
+
+  int status = gai_error(client->dns_req);
+  if (status == EAI_INPROGRESS) {
+    log_to_stdout("Lookup still going...\n");
+    selector_set_interest_key(key, OP_WRITE);
+    return DNS_LOOKUP;
+  }
+
+  if (status != 0) {
+    log_to_stdout("Failed lookup.\n");
+    selector_set_interest_key(key, OP_NOOP);
+    free((void *)client->dns_req->ar_request);
+    free((void *)client->dns_req->ar_service);
+    free((void *)client->dns_req->ar_name);
+    free(client->dns_req);
+    client->dns_req = NULL;
+    return ERROR;
+  }
+
+  client->dest_addr = client->dns_req->ar_result;
+
+  char host[NI_MAXHOST];
+  if (client->dest_addr != NULL &&
+      getnameinfo(client->dest_addr->ai_addr, client->dest_addr->ai_addrlen,
+                  host, sizeof(host), NULL, 0, NI_NUMERICHOST) == 0) {
+    log_to_stdout("Lookup successful! Hostname is %s\n", host);
+  } else {
+    log_to_stdout("Lookup successful, using resolved address.\n");
+  }
+
+  free((void *)client->dns_req->ar_request);
+  free((void *)client->dns_req->ar_service);
+  free((void *)client->dns_req->ar_name);
+  free(client->dns_req);
+  client->dns_req = NULL;
+
+  
+
   selector_set_interest_key(key, OP_WRITE);
-  struct addrinfo* addr = client->dest_addr;
-  while (addr != NULL && client->destination_fd != -1){
-    client->destination_fd = socket(addr->ai_family, SOCK_STREAM, addr->ai_protocol);
-    if (client->destination_fd < 0){
-      printf("Error: failed to create remote socket for client: %d", client->client_fd);
+  return DEST_CONNECT;
+}
+
+unsigned try_connect(struct selector_key *key) {
+  client_t *client = ATTACHMENT(key);
+  struct addrinfo *addr = client->dest_addr;
+
+  // me fijo si ya inicie una conexion
+  if (client->destination_fd != -1) {
+    int so_error = 0;
+    socklen_t len = sizeof(so_error);
+    if (getsockopt(client->destination_fd, SOL_SOCKET, SO_ERROR, &so_error, &len) < 0) {
+      log_to_stdout("Error: getsockopt failed for client %d: %s\n", client->client_fd, strerror(errno));
+      selector_set_interest_key(key, OP_NOOP);
       return ERROR;
     }
 
-    selector_fd_set_nio(client->destination_fd);
-    errno = 0;
-    if (connect(client->destination_fd, addr->ai_addr, addr->ai_addrlen) == 0 || errno == EINPROGRESS){
-      selector_register(key->s, client->destination_fd, get_client_handler, OP_WRITE, key->data);
+    // la conexion en proceso termino
+    if (so_error == 0) {
+      selector_set_interest(key->s, client->client_fd, OP_WRITE);
+      return REQUEST_WRITE;
+    }
+
+    // la conexion sigue en proceso
+    if (so_error == EINPROGRESS || so_error == EALREADY) {
       return DEST_CONNECT;
-    }else{
-      printf("Error: failed to connect  to remote for client: %d, errno: %s\n", client->client_fd, strerror(errno));
-      close(client->destination_fd);
-      client->destination_fd = -1;
+    }
+
+    // esta conexion fallo, asi que intento de conectarme al siguiente addr
+    log_to_stdout("Error: failed to connect to remote for client: %d, errno: %s\n", client->client_fd, strerror(so_error));
+    close(client->destination_fd);
+    client->destination_fd = -1;
+    if (addr != NULL) {
       addr = addr->ai_next;
+      client->dest_addr = addr;
     }
   }
-  printf("Error: failed to connect  to remote for client: %d\n", client->client_fd, strerror(errno));
+
+  // no hay conexion activa o la anterior no funciono
+  for (; addr != NULL; addr = addr->ai_next) {
+    int fd = socket(addr->ai_family, SOCK_STREAM, addr->ai_protocol);
+    if (fd < 0) {
+      continue;
+    }
+
+    selector_fd_set_nio(fd);
+    errno = 0;
+    int status = connect(fd, addr->ai_addr, addr->ai_addrlen);
+    if (status == 0 || errno == EINPROGRESS) {
+      client->destination_fd = fd;
+      client->dest_addr = addr;
+      if (selector_register(key->s, fd, get_client_handler(), OP_WRITE, key->data) != SELECTOR_SUCCESS) {
+        close(fd);
+        client->destination_fd = -1;
+        continue;
+      }
+
+      if (status == 0) {
+        selector_set_interest(key->s, client->client_fd, OP_WRITE);
+        return REQUEST_WRITE;
+      }
+
+      return DEST_CONNECT;
+    }
+
+    close(fd);
+  }
+
+  log_to_stdout("Error: failed to connect to remote for client: %d\n", client->client_fd);
+  selector_set_interest_key(key, OP_NOOP);
   return ERROR;
 }
 
 
-unsigned request_write(struct selector_key *key) { return 0; }
+unsigned request_write(struct selector_key *key) { 
+  client_t *client = ATTACHMENT(key);
+  uint8_t reply[4 + 16 + 2]; // VER REP RSV ATYP + ADDR + PORT
+  size_t index = 0;
+
+  reply[index++] = SOCKS_VERSION_5;
+  reply[index++] = 0x00; // success (per request)
+  reply[index++] = 0x00; // RSV
+
+  struct sockaddr_storage socket_storage;
+  socklen_t ss_len = sizeof(socket_storage);
+  int family = AF_INET;
+  memset(&socket_storage, 0, sizeof(socket_storage));
+
+  // getsockname me retorna la direccion y el puerto usado por el proxy para llegar al remoto
+  if (client->destination_fd != -1 &&
+      getsockname(client->destination_fd, (struct sockaddr *)&socket_storage, &ss_len) == 0) { 
+    family = ((struct sockaddr *)&socket_storage)->sa_family;
+  } else {
+    family = AF_INET;
+  }
+
+  // se carga el ATYP, la direccion y el puerto (va saltando usando sizeof)
+  if (family == AF_INET) {
+    struct sockaddr_in *sin4 = (struct sockaddr_in *)&socket_storage;
+    reply[index++] = SOCKS_ATYP_IPV4;
+    memcpy(&reply[index], &sin4->sin_addr, sizeof(sin4->sin_addr));
+    index += sizeof(sin4->sin_addr);
+    memcpy(&reply[index], &sin4->sin_port, sizeof(sin4->sin_port));
+    index += sizeof(sin4->sin_port);
+  // idem pero IPv6
+  } else if (family == AF_INET6) {
+    struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)&socket_storage;
+    reply[index++] = SOCKS_ATYP_IPV6;
+    memcpy(&reply[index], &sin6->sin6_addr, sizeof(sin6->sin6_addr));
+    index += sizeof(sin6->sin6_addr);
+    memcpy(&reply[index], &sin6->sin6_port, sizeof(sin6->sin6_port)); // network order
+    index += sizeof(sin6->sin6_port);
+  }
+
+  ssize_t n = send(key->fd, reply, index, 0);
+  if (n != (ssize_t)index) {
+    selector_set_interest_key(key, OP_NOOP);
+    return ERROR;
+  }
+
+  selector_set_interest(key->s, client->client_fd, OP_READ);
+  if (client->destination_fd != -1) {
+    selector_set_interest(key->s, client->destination_fd, OP_READ);
+  }
+
+  return FORWARDING; 
+}

@@ -13,9 +13,9 @@
 
 void request_read_init(const unsigned state, struct selector_key *key);
 unsigned request_read(struct selector_key *key);
-unsigned setup_lookup(struct selector_key *key, char ** addrname, uint8_t addrlen, uint16_t port);
-unsigned dns_lookup(const unsigned state, struct selector_key *key);
-void try_connect(const unsigned state, struct selector_key *key);
+unsigned setup_lookup(struct selector_key *key, char *addrname, uint8_t addrlen, uint16_t port);
+unsigned dns_lookup(struct selector_key *key);
+unsigned try_connect(struct selector_key *key);
 unsigned request_write(struct selector_key *key);
 
 typedef struct {
@@ -23,6 +23,8 @@ typedef struct {
   uint8_t atyp;
   uint8_t cmd;
   uint8_t addr_len;
+  uint8_t addr_read;
+  uint8_t port_read;
   uint8_t addr[MAX_ADDR_SIZE];
   struct in_addr ipv4;
   struct in6_addr ipv6;
