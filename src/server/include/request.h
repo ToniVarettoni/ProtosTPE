@@ -40,7 +40,7 @@ typedef enum {
 } request_status_t;
 
 typedef enum {
-  ATTYP_IPV4 = 0x02,
+  ATTYP_IPV4 = 0x01,
   ATTYP_IPV6 = 0x04,
   ATTYP_DOMAINNAME = 0x03
 } request_attyp_t;

@@ -91,7 +91,6 @@ void log_to_stdout(char *format, ...) {
   va_end(args);
 
   selector_set_interest(selector, log_fd, OP_WRITE);
-  selector_select(selector);
 }
 
 void logger_destroy() {

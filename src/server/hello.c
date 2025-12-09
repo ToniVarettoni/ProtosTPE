@@ -138,6 +138,7 @@ unsigned hello_read(struct selector_key *key) {
 
           parser_reset(hp->p);
           selector_set_interest_key(key, OP_WRITE);
+          log_to_stdout("Passing to write...\n");
           return HELLO_WRITE;
         }
         break;

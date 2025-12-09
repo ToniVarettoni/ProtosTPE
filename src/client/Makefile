@@ -1,6 +1,6 @@
 include ../../Makefile.inc
 
-SRCS = $(wildcard *.c)
+SRCS = $(wildcard *.c) $(wildcard ../lib/*/*.c)
 OBJECTS = $(SRCS:.c=.o)
 EXEC = $(BIN_PATH)/client
 

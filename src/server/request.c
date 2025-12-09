@@ -1,5 +1,11 @@
 #include "request.h"
 #include "include/client_utils.h"
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define SOCKS_VERSION_5 0x05
 
@@ -79,25 +85,21 @@ static struct parser_state_transition ST_RSV[] = {
     {ANY, REQUEST_STATE_ATYP, act_rsv_req, NULL}};
 
 static struct parser_state_transition ST_ATYP[] = {
-    {0x02, REQUEST_STATE_DSTADDR_IPV4, act_atyp_req, NULL},
-    {0X04, REQUEST_STATE_DSTADDR_IPV6, act_atyp_req, NULL},
-    {0x03, REQUEST_STATE_DSTADDR_DOMAINNAME, act_atyp_req, NULL},
-    {ANY, REQUEST_ATYP_ERROR, NULL, NULL}};
+    {SOCKS_ATYP_IPV4, REQUEST_STATE_DSTADDR_IPV4, act_atyp_req, NULL},
+    {SOCKS_ATYP_IPV6, REQUEST_STATE_DSTADDR_IPV6, act_atyp_req, NULL},
+    {SOCKS_ATYP_DOMAINNAME, REQUEST_STATE_DSTADDR_DOMAINNAME, act_atyp_req, NULL},
+    {ANY, REQUEST_ATYP_ERROR, act_error_req, NULL}};
 
 static struct parser_state_transition ST_DSTADDR_IPV4[] = {
-    {0, REQUEST_STATE_DSTPORT, NULL, NULL},
     {ANY, REQUEST_STATE_DSTADDR_IPV4, act_dstaddripv4_req, NULL}};
 
 static struct parser_state_transition ST_DSTADDR_IPV6[] = {
-    {0, REQUEST_STATE_DSTPORT, NULL, NULL},
     {ANY, REQUEST_STATE_DSTADDR_IPV6, act_dstaddripv6_req, NULL}};
 
 static struct parser_state_transition ST_DSTADDR_DOMAINNAME[] = {
-    {0, REQUEST_STATE_DSTPORT, NULL, NULL},
     {ANY, REQUEST_STATE_DSTADDR_DOMAINNAME, act_dstaddr_domainname_req, NULL}};
 
 static struct parser_state_transition ST_DSTPORT[] = {
-    {0, REQUEST_STATE_FIN, NULL, NULL},
     {ANY, REQUEST_STATE_DSTPORT, act_dstport_req, NULL}};
 
 static struct parser_state_transition ST_FIN[] = {
@@ -159,6 +161,8 @@ unsigned request_read(struct selector_key *key) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return REQUEST_READ;
     }
+    log_to_stdout("Error parsing the request.\n");
+    selector_set_interest_key(key, OP_NOOP);
     return ERROR;
   }
 
@@ -171,6 +175,7 @@ unsigned request_read(struct selector_key *key) {
         switch (rp->atyp){
           case ATTYP_DOMAINNAME:
             /* code */
+            selector_set_interest_key(key, OP_NOOP);
             return DNS_LOOKUP;
           
           case ATTYP_IPV4:
@@ -187,6 +192,7 @@ unsigned request_read(struct selector_key *key) {
               .ai_socktype = SOCK_STREAM,
               .ai_protocol = IPPROTO_TCP
             };  
+            selector_set_interest_key(key, OP_NOOP);
             return DEST_CONNECT;
 
           case ATTYP_IPV6:
@@ -201,73 +207,87 @@ unsigned request_read(struct selector_key *key) {
                   .ai_addr = (struct sockaddr *) &rp->sockAddress6,
                   .ai_addrlen = sizeof(struct sockaddr_in6),
             };  
+            selector_set_interest_key(key, OP_NOOP);
             return DEST_CONNECT;
 
           default:
             printf("Error invalid addres type: %d\n", rp->atyp);
+            selector_set_interest_key(key, OP_NOOP);
             return ERROR;
         }
                 
       case REQUEST_STATE_ERROR:
         printf("Error parsing request\n");
+        selector_set_interest_key(key, OP_NOOP);
         return ERROR;
       
       case REQUEST_STATE_CMD:
         rp->cmd = e->data[0];
         if (rp->cmd != CMD_BIND && rp->cmd != CMD_CONNECT && rp->cmd != CMD_UDP_ASSOCIATE){
-          printf("Error parsing request cmd: %d\n", rp->cmd);
+          log_to_stdout("Error parsing request cmd: %d\n", rp->cmd);
+          selector_set_interest_key(key, OP_NOOP);
           return ERROR;
         }
         printf("correctly parsed cmd: %d", rp->cmd);
         break;
       
       case REQUEST_STATE_ATYP:
-        rp->atyp = e->data;
+        rp->atyp = e->data[0];
         break;
 
       case REQUEST_STATE_DSTADDR_IPV4:
-        rp->addr[rp->addr_len++] = e->data[0];
-        if (rp->addr_len == IPV4_LEN){
-          memcpy(&rp->ipv4, rp->addr, 4);
+        if (rp->addr_len < IPV4_LEN) {
+          rp->addr[rp->addr_len++] = e->data[0];
+        }
+        if (rp->addr_len == IPV4_LEN) {
+          memcpy(&rp->ipv4, rp->addr, IPV4_LEN);
           rp->addr[rp->addr_len] = 0;
           printf("correctly parsed ipv4: %s", rp->addr);
-          parser_feed(rp->p, 0);
+          parser_set_state(rp->p, REQUEST_STATE_DSTPORT);
         }
         break;
 
       case REQUEST_STATE_DSTADDR_IPV6:
-        rp->addr[rp->addr_len++] = e->data[0];
-        if (rp->addr_len == IPV6_LEN){
-          memcpy(&rp->ipv4, rp->addr, 16);
-          parser_feed(rp->p, 0);
+        if (rp->addr_len < IPV6_LEN) {
+          rp->addr[rp->addr_len++] = e->data[0];
+        }
+        if (rp->addr_len == IPV6_LEN) {
+          memcpy(&rp->ipv6, rp->addr, IPV6_LEN);
+          parser_set_state(rp->p, REQUEST_STATE_DSTPORT);
         }
         break;
 
       case REQUEST_STATE_DSTADDR_DOMAINNAME:
-        if (rp->addr_len == 0){
+        if (rp->addr_len == 0) {
           rp->addr_len = e->data[0];
+          break;
         }
-        rp->addr[addr_count++] = e->data[0];
-        if (rp->addr_len == addr_count){
-          parser_feed(rp->p, 0);
+        if (addr_count < rp->addr_len) {
+          rp->addr[addr_count++] = e->data[0];
         }
+        if (rp->addr_len == addr_count) {
+          rp->addr[addr_count] = 0;
+          parser_set_state(rp->p, REQUEST_STATE_DSTPORT);
+        }
+        break;
 
       case REQUEST_STATE_DSTPORT:
-        rp->port = e->data[0];
-        if (port_count == 0){
+        if (port_count == 0) {
           rp->port = ((uint16_t)e->data[0] << 8);
           port_count++;
-        }else {
+        } else {
           rp->port |= e->data[0];
-          parser_feed(rp->p, 0);
+          parser_set_state(rp->p, REQUEST_STATE_FIN);
         }
         break;
 
       case REQUEST_STATE_VER:
         if (e->data[0] != 0x05){
-          printf("Error in request version\n");
+          log_to_stdout("Version %d is not valid or something else went wrong.\n");
+          selector_set_interest_key(key, OP_NOOP);
           return ERROR;
         }
+        log_to_stdout("Protocol version (request): %d\n", e->data[0]);
         break;
       case REQUEST_STATE_RSV:
         break;
@@ -275,7 +295,8 @@ unsigned request_read(struct selector_key *key) {
       
       default:
         printf("Error: invalid request state: %d\n", e->type);
-        break;
+        selector_set_interest_key(key, OP_NOOP);
+        return ERROR;
       }
     }
   }

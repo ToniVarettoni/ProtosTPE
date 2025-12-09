@@ -87,19 +87,19 @@ static user_status parse_user(FILE *users_file, user_t *parsed_user,
   }
   parsed_user->username[username_length] = '\0';
 
-  // Parse password
+  // Parse password until newline/EOF
   int password_length = 0;
-  while ((c = fgetc(users_file)) >= 0) {
+  while ((c = fgetc(users_file)) >= 0 && c != '\n') {
     if (c < 32 || password_length > MAX_PASSWORD_LEN) {
       // invalid char at line :line
-      if (c != '\n')
-        return skipLine(users_file, line);
-      (*line)++;
-      return 1;
+      return skipLine(users_file, line);
     }
     parsed_user->password[password_length++] = c;
   }
   parsed_user->password[password_length] = '\0';
+  if (c == '\n') {
+    (*line)++;
+  }
   return 0;
 }
 
@@ -250,6 +250,9 @@ user_status user_delete(char *user_username_to_delete,
 }
 
 static user_status save_users() {
+  if (users_size == 0) {
+    return USERS_OK;
+  }
   FILE *file = fopen(users_file_path, WRTIE_MODE);
 
   if (file == NULL)

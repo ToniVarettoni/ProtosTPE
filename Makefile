@@ -7,9 +7,6 @@ server: bin
 client: bin
 	@$(MAKE) -C src/client all
 
-manager: bin
-	@$(MAKE) -C src/manager all
-
 all: server client manager
 
 clean:

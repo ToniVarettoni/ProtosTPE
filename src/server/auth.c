@@ -155,14 +155,16 @@ unsigned auth_read(struct selector_key *key) {
           ap->passwd[ap->passwd_read] = '\0';
           log_to_stdout("Password read: %s\n", ap->passwd);
         }
-        if (ap->passwd_read == ap->plen) {
+        if (ap->passwd_read == ap->plen && !ap->auth_done) {
           access_level_t access_level;
-          if (user_login((char *)ap->uname, (char *)ap->passwd, &access_level) == USERS_OK) {
+          log_to_stdout("Username and password combination: %s and %s\n", ap->uname, ap->passwd);
+          if (user_login((char *)ap->uname, (char *)ap->passwd, &access_level) ==
+              USERS_OK) {
             ap->auth_status = AUTH_SUCCESS;
           } else {
             ap->auth_status = AUTH_FAILURE;
           }
-          parser_set_state(ap->p, AUTH_STATE_FIN);
+          ap->auth_done = true;
           selector_set_interest_key(key, OP_WRITE);
           return AUTH_WRITE;
         }
@@ -184,6 +186,8 @@ unsigned auth_write(struct selector_key *key) {
 
   ssize_t n = send(key->fd, response, sizeof(response), 0);
   if (n != sizeof(response) || ap->auth_status == AUTH_FAILURE) {
+    log_to_stdout("Authentication failed.\n");
+    selector_set_interest_key(key, OP_NOOP);
     return ERROR;
   } else if (ap->auth_status == AUTH_SUCCESS) {
     log_to_stdout("Passed authentication!\n");

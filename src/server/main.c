@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
 
   struct socks5args args;
   parse_args(argc, argv, &args);
+  user_status user_init_status = users_init(NULL);
 
   // creates users added from command line
   for (int i = 0; i < MAX_USERS && args.users[i].name != NULL; i++) {
@@ -100,8 +101,6 @@ int main(int argc, char *argv[]) {
   // initialize my logger with my selector
   logger_initialize(fds);
 
-  // initialize users from users.txt
-  user_status user_init_status = users_init(NULL);
   if (user_init_status != USERS_OK) {
     log_to_stdout(
         "Warning: Failed to initialize users. Authentication may not work.\n");
