@@ -54,10 +54,10 @@ int main(int argc, char *argv[]) {
 
   int opt = TRUE;
   int master_socket;
-  struct sockaddr_in address;
+  struct sockaddr_in6 address6;
 
-  // create a master socket
-  if ((master_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+  // create a master socket, listening for IPv6 AND IPv4 
+  if ((master_socket = socket(AF_INET6, SOCK_STREAM, 0)) == 0) {
     perror("socket failed");
     exit(EXIT_FAILURE);
   }
@@ -73,16 +73,25 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  // type of socket created
-  address.sin_family = AF_INET;
-  address.sin_port = htons(args.socks_port);
-  if (inet_pton(AF_INET, args.socks_addr, &address.sin_addr) <= 0) {
-  perror("inte_pton\n");
-  exit(EXIT_FAILURE);
-}
+  // allow IPv4-mapped connections on the IPv6 socket
+  int v6only = 0;
+  if (setsockopt(master_socket, IPPROTO_IPV6, IPV6_V6ONLY, &v6only,
+                 sizeof(v6only)) < 0) {
+    perror("setsockopt IPV6_V6ONLY");
+    exit(EXIT_FAILURE);
+  }
 
-  // bind the socket to localhost port 8888
-  if (bind(master_socket, (struct sockaddr *)&address, sizeof(address)) < 0) {
+  // type of socket created
+  memset(&address6, 0, sizeof(address6));
+  address6.sin6_family = AF_INET6;
+  address6.sin6_port = htons(args.socks_port);
+  if (inet_pton(AF_INET6, args.socks_addr, &address6.sin6_addr) <= 0) {
+    // default to any if provided addr is not valid IPv6 (e.g., IPv4 string)
+    address6.sin6_addr = in6addr_any;
+  }
+
+  // bind the socket to the port
+  if (bind(master_socket, (struct sockaddr *)&address6, sizeof(address6)) < 0) {
     perror("bind failed");
     exit(EXIT_FAILURE);
   }
@@ -109,7 +118,7 @@ int main(int argc, char *argv[]) {
                   DEFAULT_USERS_FILE_PATH);
   }
 
-  log_to_stdout("Listener on port %d \n", args.socks_port);
+  log_to_stdout("Listener on port %d\n", args.socks_port);
 
   while (running) {
     selector_select(fds);

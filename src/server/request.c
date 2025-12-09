@@ -148,6 +148,7 @@ static unsigned handle_request_fin(struct selector_key *key,
     return setup_lookup(key, (char *)rp->addr, rp->addr_len, rp->port);
   
   case ATTYP_IPV4:
+    log_to_stdout("Started IPv4 connection...\n");
     client->dest_addr = calloc(1, sizeof(addrinfo));
     rp->sockAddress = (struct sockaddr_in){
         .sin_family = AF_INET,
@@ -159,11 +160,13 @@ static unsigned handle_request_fin(struct selector_key *key,
         .ai_addr = (struct sockaddr *)&rp->sockAddress,
         .ai_addrlen = sizeof(struct sockaddr_in),
         .ai_socktype = SOCK_STREAM,
-        .ai_protocol = IPPROTO_TCP};
+        .ai_protocol = IPPROTO_TCP
+      };
     selector_set_interest_key(key, OP_WRITE);
     return DEST_CONNECT;
   
   case ATTYP_IPV6:
+    log_to_stdout("Started IPv6 connection...\n");
     client->dest_addr = calloc(1, sizeof(addrinfo));
     rp->sockAddress6 = (struct sockaddr_in6){
         .sin6_family = AF_INET6,
@@ -174,6 +177,8 @@ static unsigned handle_request_fin(struct selector_key *key,
         .ai_family = AF_INET6,
         .ai_addr = (struct sockaddr *)&rp->sockAddress6,
         .ai_addrlen = sizeof(struct sockaddr_in6),
+        .ai_socktype = SOCK_STREAM,
+        .ai_protocol = IPPROTO_TCP,
     };
     selector_set_interest_key(key, OP_WRITE);
     return DEST_CONNECT;
@@ -481,6 +486,8 @@ unsigned try_connect(struct selector_key *key) {
       return DEST_CONNECT;
     }
 
+    log_to_stdout("connect() failed for client %d addr family %d: %s\n",
+                  client->client_fd, addr->ai_family, strerror(errno));
     close(fd);
   }
 
