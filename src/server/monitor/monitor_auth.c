@@ -155,10 +155,14 @@ unsigned monitor_auth_read(struct selector_key *key) {
           } else if (status == USERS_WRONG_PASSWORD) {
             monitor->error = MONITOR_WRONG_PASSWORD;
           }
+          uint8_t status = 0x01; // auth failure
+          send(key->fd, &status, 1, MSG_NOSIGNAL);
           return MONITOR_ERROR;
         }
         if (monitor->user_access_level) {
           monitor->error = MONITOR_LACKS_PRIVILEGE;
+          uint8_t status = 0x01; // auth failure
+          send(key->fd, &status, 1, MSG_NOSIGNAL);
           return MONITOR_ERROR;
         }
         return MONITOR_REQ; // move to next stage immediately after success
