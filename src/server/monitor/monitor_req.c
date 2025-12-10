@@ -95,6 +95,7 @@ void monitor_req_init(const unsigned state, struct selector_key *key) {
       MONITOR_REQ_STATUS_OK) {
     close_connection(key);
   }
+  monitor->active_parser = REQ_PARSER;
 }
 
 void monitor_req_finalize(const unsigned state, struct selector_key *key) {

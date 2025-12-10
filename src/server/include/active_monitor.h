@@ -29,10 +29,17 @@ typedef enum {
   MONITOR_UNKNOWN_ERROR
 } monitor_error_t;
 
+typedef enum {
+  NO_PARSER = 0,
+  AUTH_PARSER,
+  REQ_PARSER
+} parser_state_t;
+
 typedef struct {
   struct state_machine stm;
   access_level_t user_access_level;
-  monitor_error_t error;
+  uint8_t error;
+  uint8_t active_parser;
   union {
     monitor_auth_parser_t auth_parser;
     monitor_req_parser_t req_parser;

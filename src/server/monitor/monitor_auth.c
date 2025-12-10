@@ -89,6 +89,7 @@ void monitor_auth_init(const unsigned state, struct selector_key *key) {
       MONITOR_AUTH_STATUS_OK) {
     close_connection(key);
   }
+  monitor->active_parser = AUTH_PARSER;
 }
 
 void monitor_auth_finalize(const unsigned state, struct selector_key *key) {
