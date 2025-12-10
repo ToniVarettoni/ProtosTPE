@@ -11,6 +11,9 @@ void logger_initialize(fd_selector selector_param);
 // printf, pero asegurandose de no blockearse.
 void log_to_stdout(char *format, ...);
 
+// Vacio el buffer de los logs que hayan quedado
+void logger_flush(void);
+
 // Se asegura de liberar todos los recursos utilizados para armar el logger.
 void logger_destroy();
 

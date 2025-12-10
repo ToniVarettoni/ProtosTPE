@@ -87,8 +87,8 @@ int main(int argc, char *argv[]) {
   // type of socket created
   memset(&address6, 0, sizeof(address6));
   address6.sin6_family = AF_INET6;
-  address6.sin6_port = htons(args.mng_port);
-  if (inet_pton(AF_INET6, args.mng_addr, &address6.sin6_addr) <= 0) {
+  address6.sin6_port = htons(args.socks_port);
+  if (inet_pton(AF_INET6, args.socks_addr, &address6.sin6_addr) <= 0) {
     // default to any if provided addr is not valid IPv6 (e.g., IPv4 string)
     address6.sin6_addr = in6addr_any;
   }
@@ -142,8 +142,8 @@ int main(int argc, char *argv[]) {
   // type of socket created
   memset(&address6, 0, sizeof(address6));
   address6.sin6_family = AF_INET6;
-  address6.sin6_port = htons(args.socks_port);
-  if (inet_pton(AF_INET6, args.socks_addr, &address6.sin6_addr) <= 0) {
+  address6.sin6_port = htons(args.mng_port);
+  if (inet_pton(AF_INET6, args.mng_addr, &address6.sin6_addr) <= 0) {
     // default to any if provided addr is not valid IPv6 (e.g., IPv4 string)
     address6.sin6_addr = in6addr_any;
   }
@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
                   DEFAULT_USERS_FILE_PATH);
   }
 
-  log_to_stdout("Listener on port %d\n", args.socks_port);
+  log_to_stdout("Listener on port %d\n", args.mng_port);
 
   while (running) {
     selector_select(fds);

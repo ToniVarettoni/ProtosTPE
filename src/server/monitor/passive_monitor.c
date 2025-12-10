@@ -22,8 +22,7 @@ void handle_read_passive_monitor(struct selector_key *key) {
   char *message = "ECHO Daemon v1.0 \r\n";
 
   do {
-    new_socket =
-        accept(key->fd, (struct sockaddr *)&address, (socklen_t *)&addr_len);
+    new_socket = accept(key->fd, (struct sockaddr *)&address, (socklen_t *)&addr_len);
     if (new_socket < 0) {
       if (errno == EINTR)
         continue;
@@ -79,6 +78,7 @@ void handle_read_passive_monitor(struct selector_key *key) {
   log_to_stdout("New connection , socket fd is %d , ip is : %s , port : %d \n",
                 new_socket, inet_ntoa(address.sin_addr),
                 ntohs(address.sin_port));
+  log_to_stdout("Client connected to monitor!\n");
 
   // send new connection greeting message
   // int left = strlen(message);

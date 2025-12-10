@@ -11,9 +11,7 @@
 
 static char *buffer = NULL;
 static size_t size = 0;
-static fd_selector selector = NULL;
-
-static fd_selector selector;
+2 static fd_selector selector = NULL;
 
 static int log_fd = -1;
 
@@ -103,6 +101,12 @@ void log_to_stdout(char *format, ...) {
   size = new_size;
 
   selector_set_interest(selector, log_fd, OP_WRITE);
+}
+
+void logger_flush(void) {
+  while (buffer != NULL && size > 0 && selector != NULL) {
+    selector_select(selector);
+  }
 }
 
 void logger_destroy() {

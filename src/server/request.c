@@ -469,7 +469,7 @@ unsigned try_connect(struct selector_key *key) {
       return REQUEST_WRITE;
     }
 
-    // la conexion sigue en procesos
+    // la conexion sigue en proceso
     if (so_error == EINPROGRESS || so_error == EALREADY) {
       return DEST_CONNECT;
     }
