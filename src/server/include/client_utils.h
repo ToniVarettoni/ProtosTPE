@@ -25,6 +25,7 @@ typedef struct addrinfo addrinfo;
 typedef struct {
   struct state_machine stm;
   uint8_t client_fd;
+  uint8_t active_parser;
   union {
     hello_parser_t hello_parser;
     auth_parser_t auth_parser;
@@ -39,6 +40,13 @@ typedef struct {
   struct gaicb * dns_req;
   uint8_t err;
 } client_t;
+
+typedef enum {
+  NO_PARSER = 0,
+  HELLO_PARSER,
+  AUTH_PARSER,
+  REQUEST_PARSER
+} parser_state_t;
 
 typedef enum {
   HELLO_READ = 0,

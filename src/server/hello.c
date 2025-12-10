@@ -76,6 +76,7 @@ hello_status_t hello_parser_init(hello_parser_t *hp) {
 void hello_read_init(const unsigned state, struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
   hello_status_t status = hello_parser_init(&client->parser.hello_parser);
+  client->active_parser = HELLO_PARSER;
   if (status != HELLO_OK) {
     close_connection(key);
   }

@@ -192,7 +192,8 @@ static unsigned handle_request_fin(struct selector_key *key,
   
   default:
     log_to_stdout("Error invalid addres type: %d\n", rp->atyp);
-    selector_set_interest_key(key, OP_NOOP);
+    selector_set_interest_key(key, OP_WRITE);
+    client->err = 0x08; 
     return ERROR;
   }
 }
@@ -209,6 +210,7 @@ request_status_t request_parser_init(request_parser_t *hp) {
 void request_read_init(const unsigned state, struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
   request_status_t status = request_parser_init(&client->parser.request_parser);
+  client->active_parser = REQUEST_PARSER;
   if (status != REQUEST_OK) {
     close_connection(key);
   }
@@ -229,7 +231,8 @@ unsigned request_read(struct selector_key *key) {
       return REQUEST_READ;
     }
     log_to_stdout("Error parsing the request.\n");
-    selector_set_interest_key(key, OP_NOOP);
+    selector_set_interest_key(key, OP_WRITE);
+    client->err = 0x01;
     return ERROR;
   }
 
@@ -243,7 +246,8 @@ unsigned request_read(struct selector_key *key) {
                 
       case REQUEST_STATE_ERROR:
         log_to_stdout("Error parsing request\n");
-        selector_set_interest_key(key, OP_NOOP);
+        selector_set_interest_key(key, OP_WRITE);
+        client->err = 0x01;
         return ERROR;
       
       case REQUEST_STATE_CMD:
@@ -321,7 +325,8 @@ unsigned request_read(struct selector_key *key) {
               return handle_request_fin(key, rp);
             }
             if (fin_ev->type == REQUEST_STATE_ERROR) {
-              selector_set_interest_key(key, OP_NOOP);
+              selector_set_interest_key(key, OP_WRITE);
+              client->err = 0x01;
               return ERROR;
             }
           }
@@ -345,6 +350,7 @@ unsigned request_read(struct selector_key *key) {
       default:
         log_to_stdout("Error: invalid request state: %d\n", e->type);
         selector_set_interest_key(key, OP_NOOP);
+        client->err = 0x01;
         return ERROR;
       }
     }
@@ -393,7 +399,8 @@ unsigned dns_lookup(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
   request_parser_t *rp = &client->parser.request_parser;
   if (client->dns_req == NULL) {
-    selector_set_interest_key(key, OP_NOOP);
+    selector_set_interest_key(key, OP_WRITE);
+    client->err = 0x04;
     return ERROR;
   }
 
@@ -424,7 +431,8 @@ unsigned dns_lookup(struct selector_key *key) {
     free(client->dns_req);
     client->dns_req = NULL;
     selector_set_interest_key(key, OP_WRITE);
-    return REQUEST_WRITE;
+    client->err = 0x04;
+    return ERROR;
   }
 
   client->dest_addr = client->dns_req->ar_result;
@@ -518,7 +526,8 @@ unsigned try_connect(struct selector_key *key) {
   }
 
   log_to_stdout("Error: failed to connect to remote for client: %d\n", client->client_fd);
-  selector_set_interest_key(key, OP_NOOP);
+  selector_set_interest_key(key, OP_WRITE);
+  client->err = 0x03;
   return ERROR;
 }
 
@@ -565,7 +574,8 @@ unsigned request_write(struct selector_key *key) {
 
   ssize_t n = send(key->fd, reply, index, 0);
   if (n != (ssize_t)index) {
-    selector_set_interest_key(key, OP_NOOP);
+    selector_set_interest_key(key, OP_WRITE);
+    client->err = 0x01;
     return ERROR;
   }
 
