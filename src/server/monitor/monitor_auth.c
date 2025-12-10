@@ -152,7 +152,6 @@ unsigned monitor_auth_read(struct selector_key *key) {
           return MONITOR_ERROR;
         }
         log_to_stdout("Successfully logged in user %s\n", map->uname);
-        parser_set_state(map->p, MONITOR_AUTH_STATE_DONE);
         return MONITOR_REQ_READ; // move to next stage immediately after success
       }
       break;

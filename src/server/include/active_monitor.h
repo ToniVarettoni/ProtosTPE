@@ -12,13 +12,6 @@
 #include "monitor_req.h"
 #include "monitor_res.h"
 
-/* Possible requests:
-**  - ADD USER (parameters: <username> <password> <role>)
-**  - REMOVE USER (parameters: <username>)
-**  - CHANGE USER PASSWORD (parameters: <username> <password>)
-**  - STATISTICS
-*/
-
 typedef enum {
   MONITOR_AUTH = 0,  // waiting for user&password for authentication
   MONITOR_REQ_READ,  // waiting for req from client

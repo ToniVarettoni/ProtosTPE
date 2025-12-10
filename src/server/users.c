@@ -226,12 +226,14 @@ user_status valid_user(char *username, char *password) {
     if (*c < MINIMUN_PRINTABLE_ASCII) {
       return USERS_UNKOWN_ERROR;
     }
+    c++;
   }
   c = password;
   while (c != NULL) {
     if (*c < MINIMUN_PRINTABLE_ASCII) {
       return USERS_UNKOWN_ERROR;
     }
+    c++;
   }
   return USERS_OK;
 }

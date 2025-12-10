@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
   }
 
   const struct selector_init sel_init = {
-      .signal = 0, .select_timeout = {.tv_sec = 1800, .tv_nsec = 0}};
+      .signal = 0, .select_timeout = {.tv_sec = 1, .tv_nsec = 0}};
 
   selector_init(&sel_init);
 

@@ -1,3 +1,2 @@
 #username:password
 @alice:secret
-#user1:pass1

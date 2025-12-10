@@ -7,6 +7,13 @@
 
 #define REQ_AMOUNT 4
 
+/* Possible requests:
+**  - ADD USER (parameters: <username> <password> <role>)
+**  - REMOVE USER (parameters: <username>)
+**  - CHANGE USER PASSWORD (parameters: <username> <password>)
+**  - STATISTICS
+*/
+
 typedef enum {
   ADD_USER = 0x00,
   REMOVE_USER = 0x01,
