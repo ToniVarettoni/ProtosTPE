@@ -15,6 +15,7 @@ void handle_close_monitor(struct selector_key *key) {
 }
 
 unsigned ignore_read_monitor(struct selector_key *key) {
+  // ACA HACES LO TUYO TONARDOOOO
   monitor_t *monitor = ATTACHMENT(key);
   return stm_state(&monitor->stm);
 }

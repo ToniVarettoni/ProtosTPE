@@ -111,6 +111,7 @@ unsigned monitor_auth_read(struct selector_key *key) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return MONITOR_AUTH;
     }
+    monitor->error = MONITOR_IO_ERROR;
     return MONITOR_ERROR;
   }
 
@@ -146,11 +147,18 @@ unsigned monitor_auth_read(struct selector_key *key) {
       }
       if (map->passwd_read == map->plen) {
         log_to_stdout("Password read: %s\n", map->passwd);
-        if (user_login(map->uname, map->passwd, &monitor->user_access_level) !=
-                USERS_OK ||
-            monitor->user_access_level) {
-          uint8_t status = 0x01; // auth failure
-          send(key->fd, &status, 1, MSG_NOSIGNAL);
+        user_status status;
+        if ((status = user_login(map->uname, map->passwd,
+                                 &monitor->user_access_level)) != USERS_OK) {
+          if (status == USERS_USER_NOT_FOUND) {
+            monitor->error = MONITOR_USER_NOT_FOUND;
+          } else if (status == USERS_WRONG_PASSWORD) {
+            monitor->error = MONITOR_WRONG_PASSWORD;
+          }
+          return MONITOR_ERROR;
+        }
+        if (monitor->user_access_level) {
+          monitor->error = MONITOR_LACKS_PRIVILEGE;
           return MONITOR_ERROR;
         }
         return MONITOR_REQ; // move to next stage immediately after success
@@ -159,6 +167,7 @@ unsigned monitor_auth_read(struct selector_key *key) {
     case MONITOR_AUTH_EVENT_DONE:
       return MONITOR_REQ;
     default:
+      monitor->error = MONITOR_UNKNOWN_ERROR;
       return MONITOR_ERROR;
     }
   }

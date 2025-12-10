@@ -111,7 +111,7 @@ unsigned monitor_req_read(struct selector_key *key) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return MONITOR_REQ;
     }
-    log_to_stdout("Something went wrong.\n");
+    monitor->error = MONITOR_IO_ERROR;
     return MONITOR_ERROR;
   }
 
@@ -119,30 +119,27 @@ unsigned monitor_req_read(struct selector_key *key) {
   for (; ev != NULL; ev = ev->next) {
     switch (ev->type) {
 
-      case MONITOR_REQ_EVENT_TYPE:
-        mrq->type = ev->data[0];
-        break;
+    case MONITOR_REQ_EVENT_TYPE:
+      mrq->type = ev->data[0];
+      break;
 
-      case MONITOR_REQ_EVENT_ARGUMENT_LENGTH:
-        if (ev->data[0] == 0) {
-          if (mrq->arguments_read != max_arguments[mrq->type]) {
-            return MONITOR_ERROR;
-          }
-          if (handle_request(mrq) != MONITOR_REQ_STATUS_OK) {
-            return MONITOR_ERROR;
-          }
-          return MONITOR_DONE;
-        }
-        if ((mrq->req_status = handle_request(key)) != MONITOR_REQ_STATUS_OK) {
+    case MONITOR_REQ_EVENT_ARGUMENT_LENGTH:
+      if (ev->data[0] == 0) {
+        if (mrq->arguments_read != max_arguments[mrq->type]) {
+          monitor->error = MONITOR_INCORRECT_ARGUMENTS;
           return MONITOR_ERROR;
         }
-        return MONITOR_REQ;
-      
+        if ((mrq->req_status = handle_request(key)) != MONITOR_REQ_STATUS_OK) {
+          monitor->error = MONITOR_REQ_HANDLER_ERROR;
+          return MONITOR_ERROR;
+        }
+        return MONITOR_DONE;
+      }
       mrq->current_argument_length = ev->data[0];
       mrq->current_argument_read = 0;
       mrq->arguments_read++;
       break;
-      case MONITOR_REQ_EVENT_ARGUMENT:
+    case MONITOR_REQ_EVENT_ARGUMENT:
       if (mrq->current_argument_read < mrq->current_argument_length) {
         switch (mrq->arguments_read) {
         case 1:
@@ -158,6 +155,7 @@ unsigned monitor_req_read(struct selector_key *key) {
           mrq->current_argument_read++;
           break;
         default:
+          monitor->error = MONITOR_UNKNOWN_ERROR;
           return MONITOR_ERROR;
         }
       }
@@ -168,8 +166,10 @@ unsigned monitor_req_read(struct selector_key *key) {
     case MONITOR_REQ_EVENT_DONE:
       return MONITOR_REQ;
     case MONITOR_REQ_EVENT_ERROR:
+      monitor->error = MONITOR_UNKNOWN_ERROR;
       return MONITOR_ERROR;
     default:
+      monitor->error = MONITOR_UNKNOWN_ERROR;
       return MONITOR_ERROR;
     }
   }
@@ -177,8 +177,10 @@ unsigned monitor_req_read(struct selector_key *key) {
 }
 
 unsigned monitor_req_write(struct selector_key *key) {
+  monitor_t *monitor = ATTACHMENT(key);
   if (send_response(key) != MONITOR_REQ_STATUS_OK) {
     log_to_stdout("Failed to send response to monitor client\n");
+    monitor->error = MONITOR_IO_ERROR;
     return MONITOR_ERROR;
   }
   return MONITOR_DONE;
