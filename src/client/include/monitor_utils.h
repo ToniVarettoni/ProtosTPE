@@ -5,17 +5,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/**
- * Builds the authentication frame for the monitor protocol:
- * [ulen][uname bytes][plen][passwd bytes]
- * Returns the total frame length, or 0 on error (invalid lengths).
- */
+// construye el request de autenticacion para enviar al servidor
 size_t write_monitor_auth_request(uint8_t *buffer, size_t buffer_len, const user_t *login_user);
 
-/**
- * Reads a 1-byte auth reply from the server (0x00 == OK, anything else == fail).
- * Returns true on success, false otherwise. Does not block.
- */
+// lee el byte que le retorno el servidor. 0x00 para autenticacion exitosa y 
+// 0x01 para autenticacion fallada
 bool read_monitor_auth_reply(int sockfd);
+
+size_t write_monitor_user_add_request(uint8_t *buffer, size_t buffer_len, const user_t *user_to_add);
 
 #endif

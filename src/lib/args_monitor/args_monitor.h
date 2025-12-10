@@ -2,6 +2,7 @@
 #define ARGS_MONITOR_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef enum {
   ACTION_NONE = -1,
@@ -14,6 +15,7 @@ typedef enum {
 typedef struct {
   char *username;
   char *password;
+  uint8_t access_level;
 } user_t;
 
 typedef struct {

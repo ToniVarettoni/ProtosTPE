@@ -48,8 +48,7 @@ int main(int argc, char **argv) {
   printf("Client connected to monitor!\n");
 
   uint8_t auth_buf[512];
-  size_t auth_len =
-      write_monitor_auth_request(auth_buf, sizeof(auth_buf), &args.managing_user);
+  size_t auth_len = write_monitor_auth_request(auth_buf, sizeof(auth_buf), &args.managing_user);
   if (auth_len == 0) {
     fprintf(stderr, "Failed to build auth request.\n");
     close(sockfd);
@@ -69,6 +68,21 @@ int main(int argc, char **argv) {
     printf("Server accepted authentication.\n");
   } else {
     printf("Server rejected authentication or no reply received.\n");
+  }
+
+  uint8_t req_buf[512];
+  size_t req_len = 0;
+  if(args.action == ACTION_ADD_USER) {
+    req_len = write_monitor_user_add_request(req_buf, sizeof(req_buf), &args.user_to_modify);
+  } // else if (args.action == ACTION_DELETE_USER) {
+  //   size_t req_len = write_monitor_user_delete_request(req_buf, sizeof(req_buf), &args.user_to_modify);
+  // } else if (args.action == ACTION_STATS) {
+  //   size_t req_len = write_monitor_get_stats_request(req_buf, sizeof(req_buf));
+  // }
+  if(req_len == 0) {
+    fprintf(stderr, "Failed to build action request.\n");
+    close(sockfd);
+    return 1;
   }
 
   return 0;

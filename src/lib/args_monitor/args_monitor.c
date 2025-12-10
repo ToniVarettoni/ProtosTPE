@@ -54,7 +54,7 @@ static void parse_direction_port(char *arg, management_args_t *args) {
   args->port = parse_port(sep + 1);
 }
 
-static user_t parse_userpass(char *arg) {
+static user_t parse_userpass(char *arg, bool expect_access_level) {
   char *separator = strchr(arg, ':');
   if (separator == NULL || separator == arg || *(separator + 1) == '\0') {
     fprintf(stderr, "Invalid user:pass format.\n");
@@ -65,22 +65,43 @@ static user_t parse_userpass(char *arg) {
   char *username_out = arg;
   char *password_out = separator + 1;
 
+  uint8_t access_level = 0;
+  if (expect_access_level) {
+    size_t passlen = strlen(password_out);
+    if (passlen == 0) {
+      fprintf(stderr, "Password cannot be empty.\n");
+      exit(1);
+    }
+    char level = password_out[passlen - 1];
+    if (level == '#') {
+      access_level = 1; // USER
+      password_out[passlen - 1] = '\0';
+    } else if (level == '@') {
+      access_level = 0; // ADMIN
+      password_out[passlen - 1] = '\0';
+    } else {
+      fprintf(stderr, "Missing access level (# for user, @ for admin).\n");
+      exit(1);
+    }
+  }
+
   user_t user_out = {
-    .username = username_out,
-    .password = password_out,
+      .username = username_out,
+      .password = password_out,
+      .access_level = access_level,
   };
 
   return user_out;
 }
 
 static void login(management_args_t *args, char *user) {
-  user_t logging_user = parse_userpass(user);
+  user_t logging_user = parse_userpass(user, false);
 
   args->managing_user = logging_user;
 }
 
 static void add_user_to_modify(management_args_t *args, char *user) {
-  user_t added_user = parse_userpass(user);
+  user_t added_user = parse_userpass(user, true);
 
   args->user_to_modify = added_user;
 }
