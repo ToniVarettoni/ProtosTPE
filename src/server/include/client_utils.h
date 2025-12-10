@@ -30,17 +30,14 @@ typedef struct {
     auth_parser_t auth_parser;
     request_parser_t request_parser;
   } parser;
-  buffer reading_buffer_client;
-  buffer writing_buffer_client;
-  uint8_t reading_buffer_client_storage[MAX_BUFFER];
-  uint8_t writing_buffer_client_storage[MAX_BUFFER];
-  buffer reading_buffer_destiny;
-  buffer writing_buffer_destiny;
-  uint8_t reading_buffer_destiny_storage[MAX_BUFFER];
-  uint8_t writing_buffer_destiny_storage[MAX_BUFFER];
+  buffer client_buffer;
+  buffer destiny_buffer;
+  uint8_t client_buffer_storage[MAX_BUFFER];
+  uint8_t destiny_buffer_storage[MAX_BUFFER];
   int destination_fd;
   struct addrinfo *dest_addr;
   struct gaicb * dns_req;
+  uint8_t err;
 } client_t;
 
 typedef enum {

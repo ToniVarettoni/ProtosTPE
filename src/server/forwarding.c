@@ -5,7 +5,7 @@
 
 unsigned forward_write(struct selector_key *key) {    
     client_t *client = ATTACHMENT(key);
-    buffer * b = (key->fd == client->client_fd)? &client->reading_buffer_destiny : &client->reading_buffer_client;
+    buffer * b = (key->fd == client->client_fd)? &client->destiny_buffer : &client->client_buffer;
     size_t readable;
     uint8_t *read_ptr = buffer_read_ptr(b, &readable);
 
@@ -33,7 +33,7 @@ unsigned forward_write(struct selector_key *key) {
 unsigned forward_read(struct selector_key *key) {
 
     client_t *client = ATTACHMENT(key);
-    buffer * b = (key->fd == client->client_fd)? &client->reading_buffer_client : &client->reading_buffer_destiny;
+    buffer * b = (key->fd == client->client_fd)? &client->client_buffer : &client->destiny_buffer;
     
     if (!buffer_can_write(b)) {
         selector_set_interest(key->s, key->fd, OP_READ | OP_WRITE);

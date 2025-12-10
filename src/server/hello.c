@@ -91,6 +91,7 @@ unsigned hello_read(struct selector_key *key) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return HELLO_READ;
     }
+    selector_set_interest(key->s,client->client_fd, OP_WRITE);
     return ERROR;
   }
   

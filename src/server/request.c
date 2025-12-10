@@ -258,7 +258,7 @@ unsigned request_read(struct selector_key *key) {
         break;
       
       case REQUEST_STATE_ATYP:
-        if(e->data[0] != SOCKS_ATYP_IPV4 || e->data[0] != SOCKS_ATYP_IPV6 || e->data[0] != SOCKS_ATYP_DOMAINNAME) {
+        if(e->data[0] != SOCKS_ATYP_IPV4 && e->data[0] != SOCKS_ATYP_IPV6 && e->data[0] != SOCKS_ATYP_DOMAINNAME) {
           selector_set_interest_key(key, OP_WRITE);
           rp->reply_status = SOCKS_REPLY_ATYP_NOT_SUPPORTED;
           return REQUEST_WRITE;
@@ -443,8 +443,6 @@ unsigned dns_lookup(struct selector_key *key) {
   free((void *)client->dns_req->ar_name);
   free(client->dns_req);
   client->dns_req = NULL;
-
-  
 
   selector_set_interest_key(key, OP_WRITE);
   return DEST_CONNECT;

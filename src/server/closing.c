@@ -16,8 +16,9 @@ void end_connection(const unsigned state, struct selector_key *key) {
     if (client->parser.request_parser.p != NULL) {
         parser_destroy(client->parser.request_parser.p);
     }
+
     free(key->data);
-    free(key);
+
 }
 
 void error_handler(const unsigned state, struct selector_key *key) {}
