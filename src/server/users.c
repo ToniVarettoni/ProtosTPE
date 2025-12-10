@@ -220,6 +220,22 @@ user_status user_login(char *username, char *password,
   }
 }
 
+user_status valid_user(char *username, char *password) {
+  char *c = username;
+  while (c != NULL) {
+    if (*c < MINIMUN_PRINTABLE_ASCII) {
+      return USERS_UNKOWN_ERROR;
+    }
+  }
+  c = password;
+  while (c != NULL) {
+    if (*c < MINIMUN_PRINTABLE_ASCII) {
+      return USERS_UNKOWN_ERROR;
+    }
+  }
+  return USERS_OK;
+}
+
 user_status user_change_password(char *username, char *password) {
   if (username == NULL) {
     return USERS_INVALID_USERNAME;

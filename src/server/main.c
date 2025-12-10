@@ -6,6 +6,7 @@
 #include "../lib/logger/logger.h"
 #include "../lib/selector/selector.h"
 #include "include/master_utils.h"
+#include "include/passive_monitor.h"
 #include "include/users.h"
 #include <arpa/inet.h> //close
 #include <errno.h>
@@ -58,7 +59,7 @@ int main(int argc, char *argv[]) {
   int master_socket;
   struct sockaddr_in6 address6;
 
-  // create a master socket, listening for IPv6 AND IPv4 
+  // create a master socket, listening for IPv6 AND IPv4
   if ((master_socket = socket(AF_INET6, SOCK_STREAM, 0)) == 0) {
     perror("socket failed");
     exit(EXIT_FAILURE);
@@ -86,8 +87,8 @@ int main(int argc, char *argv[]) {
   // type of socket created
   memset(&address6, 0, sizeof(address6));
   address6.sin6_family = AF_INET6;
-  address6.sin6_port = htons(args.socks_port);
-  if (inet_pton(AF_INET6, args.socks_addr, &address6.sin6_addr) <= 0) {
+  address6.sin6_port = htons(args.mng_port);
+  if (inet_pton(AF_INET6, args.mng_addr, &address6.sin6_addr) <= 0) {
     // default to any if provided addr is not valid IPv6 (e.g., IPv4 string)
     address6.sin6_addr = in6addr_any;
   }
@@ -113,7 +114,7 @@ int main(int argc, char *argv[]) {
 
   int monitor_socket;
 
-  // create a master socket, listening for IPv6 AND IPv4 
+  // create a master socket, listening for IPv6 AND IPv4
   if ((monitor_socket = socket(AF_INET6, SOCK_STREAM, 0)) == 0) {
     perror("socket failed");
     exit(EXIT_FAILURE);
@@ -148,7 +149,8 @@ int main(int argc, char *argv[]) {
   }
 
   // bind the socket to the port
-  if (bind(monitor_socket, (struct sockaddr *)&address6, sizeof(address6)) < 0) {
+  if (bind(monitor_socket, (struct sockaddr *)&address6, sizeof(address6)) <
+      0) {
     perror("bind failed");
     exit(EXIT_FAILURE);
   }
@@ -189,7 +191,6 @@ int main(int argc, char *argv[]) {
   close(master_socket);
   selector_destroy(fds);
   selector_close();
-  cleanup_stats();
 
   return 0;
 }

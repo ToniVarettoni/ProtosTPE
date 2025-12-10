@@ -55,6 +55,8 @@ user_status user_change_password(char *username, char *password);
 
 user_status user_delete(char *user_username_to_delete);
 
+user_status valid_user(char *username, char *password);
+
 user_status users_shutdown();
 
 #endif
