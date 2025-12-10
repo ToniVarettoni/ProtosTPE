@@ -20,7 +20,6 @@ void error_handler(unsigned state, struct selector_key * key){
     send(key->fd, monitor->error, 1, 0);
   }
 
-  
   if (monitor->active_parser == AUTH_PARSER){
     parser_destroy(monitor->parser.auth_parser.p);
   }
