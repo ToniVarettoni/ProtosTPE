@@ -5,6 +5,9 @@
 
 #include "args_monitor.h"
 
+#define ADMIN_ACCESS_LEVEL 0
+#define USER_ACCESS_LEVEL 1
+
 static void usage(const char *progname) {
   fprintf(stderr,
           "Usage: %s <direction:port> [OPTION]... -l <user:pass>\n"
@@ -12,7 +15,8 @@ static void usage(const char *progname) {
           "   <direction:port>  Destination address and port for the proxy "
           "server (required unless -h).\n"
           "   -l <user:pass>     Login credentials (required).\n"
-          "   -a <user:pass>     Add a user with the provided password.\n"
+          "   -a <user:pass>     Add a user with regular access.\n"
+          "   -A <user:pass>     Add a user with admin access.\n"
           "   -d <user>          Delete a user.\n"
           "   -c <user:newpass>  Change the password for an existing user.\n"
           "   -s                 Fetch server statistics.\n"
@@ -54,7 +58,7 @@ static void parse_direction_port(char *arg, management_args_t *args) {
   args->port = parse_port(sep + 1);
 }
 
-static user_t parse_userpass(char *arg, bool expect_access_level) {
+static user_t parse_userpass(char *arg) {
   char *separator = strchr(arg, ':');
   if (separator == NULL || separator == arg || *(separator + 1) == '\0') {
     fprintf(stderr, "Invalid user:pass format.\n");
@@ -66,24 +70,6 @@ static user_t parse_userpass(char *arg, bool expect_access_level) {
   char *password_out = separator + 1;
 
   uint8_t access_level = 0;
-  if (expect_access_level) {
-    size_t passlen = strlen(password_out);
-    if (passlen == 0) {
-      fprintf(stderr, "Password cannot be empty.\n");
-      exit(1);
-    }
-    char level = password_out[passlen - 1];
-    if (level == '#') {
-      access_level = 1; // USER
-      password_out[passlen - 1] = '\0';
-    } else if (level == '@') {
-      access_level = 0; // ADMIN
-      password_out[passlen - 1] = '\0';
-    } else {
-      fprintf(stderr, "Missing access level (# for user, @ for admin).\n");
-      exit(1);
-    }
-  }
 
   user_t user_out = {
       .username = username_out,
@@ -95,13 +81,13 @@ static user_t parse_userpass(char *arg, bool expect_access_level) {
 }
 
 static void login(management_args_t *args, char *user) {
-  user_t logging_user = parse_userpass(user, false);
+  user_t logging_user = parse_userpass(user);
 
   args->managing_user = logging_user;
 }
 
 static void add_user_to_modify(management_args_t *args, char *user) {
-  user_t added_user = parse_userpass(user, true);
+  user_t added_user = parse_userpass(user);
 
   args->user_to_modify = added_user;
 }
@@ -133,7 +119,7 @@ void parse_monitor_args(const int argc, char **argv, management_args_t *args) {
     int option_index = 0;
     static struct option long_options[] = {{0, 0, 0, 0}};
 
-    c = getopt_long(argc, argv, "l:a:d:c:sh", long_options, &option_index);
+    c = getopt_long(argc, argv, "l:a:A:d:c:sh", long_options, &option_index);
     if (c == -1)
       break;
 
@@ -148,6 +134,12 @@ void parse_monitor_args(const int argc, char **argv, management_args_t *args) {
     case 'a':
       ensure_single_action(args, ACTION_ADD_USER);
       add_user_to_modify(args, optarg);
+      args->user_to_modify.access_level = USER_ACCESS_LEVEL;
+      break;
+    case 'A':
+      ensure_single_action(args, ACTION_ADD_USER);
+      add_user_to_modify(args, optarg);
+      args->user_to_modify.access_level = ADMIN_ACCESS_LEVEL;
       break;
     case 'd':
       ensure_single_action(args, ACTION_DELETE_USER);

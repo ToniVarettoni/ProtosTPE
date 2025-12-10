@@ -24,8 +24,7 @@ typedef enum {
 #define MAX_ARGUMENT_LENGTH 255
 
 typedef enum {
-  MONITOR_REQ_STATE_TYPE =
-      0, // reading first byte that determins the type of the request
+  MONITOR_REQ_STATE_TYPE = 0,        // reading first byte that determins the type of the request
   MONITOR_REQ_STATE_ARGUMENT_LENGTH, // reading next argument length
   MONITOR_REQ_STATE_ARGUMENT,        // reading argument
   MONITOR_REQ_STATE_DONE,            // done

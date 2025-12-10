@@ -14,4 +14,8 @@ bool read_monitor_auth_reply(int sockfd);
 
 size_t write_monitor_user_add_request(uint8_t *buffer, size_t buffer_len, const user_t *user_to_add);
 
+size_t write_monitor_user_delete_request(uint8_t *buffer, size_t buffer_len, const user_t *user_to_delete);
+
+size_t write_monitor_change_pass_request(uint8_t *buffer, size_t buffer_len, const user_t *user_to_change);
+
 #endif

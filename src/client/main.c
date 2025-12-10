@@ -68,22 +68,38 @@ int main(int argc, char **argv) {
     printf("Server accepted authentication.\n");
   } else {
     printf("Server rejected authentication or no reply received.\n");
+    close(sockfd);
+    return 1;
   }
 
   uint8_t req_buf[512];
   size_t req_len = 0;
-  if(args.action == ACTION_ADD_USER) {
-    req_len = write_monitor_user_add_request(req_buf, sizeof(req_buf), &args.user_to_modify);
-  } // else if (args.action == ACTION_DELETE_USER) {
-  //   size_t req_len = write_monitor_user_delete_request(req_buf, sizeof(req_buf), &args.user_to_modify);
-  // } else if (args.action == ACTION_STATS) {
-  //   size_t req_len = write_monitor_get_stats_request(req_buf, sizeof(req_buf));
+  if (args.action == ACTION_ADD_USER) {
+    req_len = write_monitor_user_add_request(req_buf, sizeof(req_buf),
+                                             &args.user_to_modify);
+  } else if (args.action == ACTION_DELETE_USER) {
+    req_len = write_monitor_user_delete_request(req_buf, sizeof(req_buf),
+                                                &args.user_to_modify);
+  } else if (args.action == ACTION_CHANGE_PASSWORD) {
+    req_len = write_monitor_change_pass_request(req_buf, sizeof(req_buf),
+                                                &args.user_to_modify);
+  }
+  // else if (args.action == ACTION_STATS) {
+  //   req_len = write_monitor_get_stats_request(req_buf, sizeof(req_buf));
   // }
   if(req_len == 0) {
     fprintf(stderr, "Failed to build action request.\n");
     close(sockfd);
     return 1;
   }
+
+  ssize_t req_sent = send(sockfd, req_buf, req_len, 0);
+  if (req_sent < 0) {
+    fprintf(stderr, "Failed to send action request: %s\n", strerror(errno));
+    close(sockfd);
+    return 1;
+  }
+  printf("Sent action request (%zd bytes)\n", req_sent);
 
   return 0;
 }
