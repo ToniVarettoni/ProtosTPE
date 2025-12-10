@@ -93,6 +93,10 @@ void monitor_auth_init(const unsigned state, struct selector_key *key) {
 
 void monitor_auth_finalize(const unsigned state, struct selector_key *key) {
   monitor_t *monitor = ATTACHMENT(key);
+
+  uint8_t status = (monitor->user_access_level == ADMIN) ? 0x00 : 0x01;
+  send(key->fd, &status, 1, MSG_NOSIGNAL); // sends success or failure, depending on access level
+
   parser_destroy(monitor->parser.auth_parser.p);
 }
 
@@ -143,10 +147,13 @@ unsigned monitor_auth_read(struct selector_key *key) {
         if (user_login(map->uname, map->passwd, &monitor->user_access_level) !=
                 USERS_OK ||
             monitor->user_access_level) {
+          uint8_t status = 0x01; // auth failure
+          send(key->fd, &status, 1, MSG_NOSIGNAL);
           return MONITOR_ERROR;
         }
         log_to_stdout("Successfully logged in user %s\n", map->uname);
         parser_set_state(map->p, MONITOR_AUTH_STATE_DONE);
+        return MONITOR_REQ_READ; // move to next stage immediately after success
       }
       break;
     case MONITOR_AUTH_EVENT_DONE:

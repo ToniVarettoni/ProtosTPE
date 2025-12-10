@@ -1,7 +1,10 @@
 #include "include/monitor_utils.h"
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <stdio.h>
 
-size_t build_monitor_auth_request(uint8_t *buffer, size_t buffer_len,
+size_t write_monitor_auth_request(uint8_t *buffer, size_t buffer_len,
                                   const user_t *login_user) {
   if (buffer == NULL || login_user == NULL || login_user->username == NULL ||
       login_user->password == NULL) {
@@ -29,4 +32,13 @@ size_t build_monitor_auth_request(uint8_t *buffer, size_t buffer_len,
   pos += plen;
 
   return pos;
+}
+
+bool read_monitor_auth_reply(int sockfd) {
+  uint8_t status = 0xFF;
+  ssize_t n = recv(sockfd, &status, 1, 0); // blocking read for single byte
+  if (n <= 0) {
+    return false;
+  }
+  return status == 0x00;
 }

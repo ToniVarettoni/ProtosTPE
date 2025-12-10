@@ -11,7 +11,7 @@
 
 static char *buffer = NULL;
 static size_t size = 0;
-2 static fd_selector selector = NULL;
+static fd_selector selector = NULL;
 
 static int log_fd = -1;
 

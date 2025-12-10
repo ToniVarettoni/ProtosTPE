@@ -36,6 +36,10 @@ typedef struct {
   } parser;
 } monitor_t;
 
+unsigned ignore_read_monitor(struct selector_key *key);
+
+unsigned ignore_write_monitor(struct selector_key *key);
+
 static const struct state_definition monitor_states[] = {
     {.state = MONITOR_AUTH,
      .on_arrival = monitor_auth_init,
@@ -50,17 +54,15 @@ static const struct state_definition monitor_states[] = {
      .on_read_ready = monitor_res_write,
      .on_departure = monitor_res_write_finalize},
     {.state = MONITOR_DONE},
-    {.state = MONITOR_ERROR}};
+    {.state = MONITOR_ERROR,
+     .on_read_ready = ignore_read_monitor,
+     .on_write_ready = ignore_write_monitor}};
 
 void handle_read_monitor(struct selector_key *key);
 
 void handle_write_monitor(struct selector_key *key);
 
 void handle_close_monitor(struct selector_key *key);
-
-unsigned ignore_read_monitor(struct selector_key *key);
-
-unsigned ignore_write_monitor(struct selector_key *key);
 
 const fd_handler *get_active_monitor_handler();
 

@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 
   uint8_t auth_buf[512];
   size_t auth_len =
-      build_monitor_auth_request(auth_buf, sizeof(auth_buf), &args.managing_user);
+      write_monitor_auth_request(auth_buf, sizeof(auth_buf), &args.managing_user);
   if (auth_len == 0) {
     fprintf(stderr, "Failed to build auth request.\n");
     close(sockfd);
@@ -63,6 +63,13 @@ int main(int argc, char **argv) {
     return 1;
   }
   printf("Sent auth request (%zd bytes)\n", sent);
+
+  bool auth_ok = read_monitor_auth_reply(sockfd);
+  if (auth_ok) {
+    printf("Server accepted authentication.\n");
+  } else {
+    printf("Server rejected authentication or no reply received.\n");
+  }
 
   return 0;
 }
