@@ -25,7 +25,7 @@
 #define TRUE 1
 #define FALSE 0
 
-#define DEFAULT_MAX_CLIENTS 100
+#define DEFAULT_MAX_CLIENTS 1000
 
 static int running = true;
 

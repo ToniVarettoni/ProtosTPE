@@ -226,15 +226,17 @@ unsigned request_read(struct selector_key *key) {
 
   n = recv(key->fd, buffer, sizeof(buffer), 0);
 
-  if (n <= 0) {
-    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+  if (n < 0) {
+    printf("n = %d\n", n);
+    if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINPROGRESS) {
       return REQUEST_READ;
-    }
-    log_to_stdout("Error parsing the request.\n");
+    } 
+    log_to_stdout("Error parsing the request with errno = %s.\n", strerror(errno));
     selector_set_interest_key(key, OP_WRITE);
     client->err = 0x01;
     return ERROR;
   }
+  
 
   for (size_t i = 0; i < n; i++) {
     const struct parser_event *e = parser_feed(rp->p, buffer[i]);
