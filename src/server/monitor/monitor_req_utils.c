@@ -28,6 +28,9 @@ monitor_req_status_t handle_request(monitor_req_parser_t *mrq) {
     break;
   case STATISTICS:
     memcpy(&mrq->stats, get_stats(), sizeof(stats));
+    log_to_stdout("historic: %d\ncurrent: %d\ntransferred bytes: %d\n",
+                  mrq->stats.historic_connections,
+                  mrq->stats.current_connections, mrq->stats.transferred_bytes);
     break;
   default:
     return MONITOR_REQ_STATUS_ERR;

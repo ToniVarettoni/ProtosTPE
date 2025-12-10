@@ -121,13 +121,20 @@ unsigned monitor_req_read(struct selector_key *key) {
 
     case MONITOR_REQ_EVENT_TYPE:
       mrq->type = ev->data[0];
-      log_to_stdout("Received event of type: %d\n", mrq->type);
       break;
     case MONITOR_REQ_EVENT_ARGUMENT_LENGTH:
+      if (ev->data[0] == 0) {
+        if (mrq->arguments_read != max_arguments[mrq->type]) {
+          return MONITOR_ERROR;
+        }
+        if (handle_request(mrq) != MONITOR_REQ_STATUS_OK) {
+          return MONITOR_ERROR;
+        }
+        return MONITOR_RES_WRITE;
+      }
       mrq->current_argument_length = ev->data[0];
       mrq->current_argument_read = 0;
       mrq->arguments_read++;
-      log_to_stdout("Next argument of length: %d\n", ev->data[0]);
       break;
     case MONITOR_REQ_EVENT_ARGUMENT:
       if (mrq->current_argument_read < mrq->current_argument_length) {
@@ -149,14 +156,7 @@ unsigned monitor_req_read(struct selector_key *key) {
         }
       }
       if (mrq->current_argument_read == mrq->current_argument_length) {
-        if (mrq->arguments_read < max_arguments[mrq->type]) {
-          parser_set_state(mrq->p, MONITOR_REQ_STATE_ARGUMENT_LENGTH);
-        } else {
-          if (handle_request(mrq) != MONITOR_REQ_STATUS_OK) {
-            return MONITOR_ERROR;
-          }
-          return MONITOR_RES_WRITE;
-        }
+        parser_set_state(mrq->p, MONITOR_REQ_STATE_ARGUMENT_LENGTH);
       }
       break;
     case MONITOR_REQ_EVENT_DONE:
