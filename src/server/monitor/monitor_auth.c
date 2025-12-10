@@ -73,7 +73,7 @@ static const struct parser_definition monitor_auth_parser_def = {
     .states_n = states_n,
     .start_state = MONITOR_AUTH_STATE_ULEN};
 
-static monitor_auth_status_t 
+static monitor_auth_status_t
 monitor_auth_parser_init(monitor_auth_parser_t *map) {
   memset(map, 0, sizeof(monitor_auth_parser_t));
   map->p = parser_init(parser_no_classes(), &monitor_auth_parser_def);
@@ -95,7 +95,8 @@ void monitor_auth_finalize(const unsigned state, struct selector_key *key) {
   monitor_t *monitor = ATTACHMENT(key);
 
   uint8_t status = (monitor->user_access_level == ADMIN) ? 0x00 : 0x01;
-  send(key->fd, &status, 1, MSG_NOSIGNAL); // sends success or failure, depending on access level
+  send(key->fd, &status, 1,
+       MSG_NOSIGNAL); // sends success or failure, depending on access level
 
   parser_destroy(monitor->parser.auth_parser.p);
 }
@@ -120,7 +121,8 @@ unsigned monitor_auth_read(struct selector_key *key) {
     case MONITOR_AUTH_EVENT_ULEN:
       map->ulen = ev->data[0];
       map->uname_read = 0;
-      log_to_stdout("Started monitor authentication. Username length: %d\n", map->ulen);
+      log_to_stdout("Started monitor authentication. Username length: %d\n",
+                    map->ulen);
       break;
 
     case MONITOR_AUTH_EVENT_UNAME:
@@ -151,12 +153,11 @@ unsigned monitor_auth_read(struct selector_key *key) {
           send(key->fd, &status, 1, MSG_NOSIGNAL);
           return MONITOR_ERROR;
         }
-        log_to_stdout("Successfully logged in user %s\n", map->uname);
-        return MONITOR_REQ_READ; // move to next stage immediately after success
+        return MONITOR_REQ; // move to next stage immediately after success
       }
       break;
     case MONITOR_AUTH_EVENT_DONE:
-      return MONITOR_REQ_READ;
+      return MONITOR_REQ;
     default:
       return MONITOR_ERROR;
     }

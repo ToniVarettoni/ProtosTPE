@@ -4,7 +4,6 @@
 #include "../../lib/stm/stm.h"
 #include "monitor_auth.h"
 #include "monitor_req.h"
-#include "monitor_res.h"
 #include "users.h"
 
 const fd_handler *get_passive_monitor_handler();

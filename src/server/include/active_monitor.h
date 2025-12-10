@@ -10,14 +10,12 @@
 
 #include "monitor_auth.h"
 #include "monitor_req.h"
-#include "monitor_res.h"
 
 typedef enum {
-  MONITOR_AUTH = 0,  // waiting for user&password for authentication
-  MONITOR_REQ_READ,  // waiting for req from client
-  MONITOR_RES_WRITE, // writing response to client
-  MONITOR_DONE,      // done
-  MONITOR_ERROR      // error during monitoring
+  MONITOR_AUTH = 0, // waiting for user&password for authentication
+  MONITOR_REQ,      // waiting for req from client
+  MONITOR_DONE,     // done
+  MONITOR_ERROR     // error during monitoring
 } monitor_state_t;
 
 typedef struct {
@@ -38,14 +36,11 @@ static const struct state_definition monitor_states[] = {
      .on_arrival = monitor_auth_init,
      .on_read_ready = monitor_auth_read,
      .on_departure = monitor_auth_finalize},
-    {.state = MONITOR_REQ_READ,
+    {.state = MONITOR_REQ,
      .on_arrival = monitor_req_init,
      .on_read_ready = monitor_req_read,
+     .on_write_ready = monitor_req_write,
      .on_departure = monitor_req_finalize},
-    {.state = MONITOR_RES_WRITE,
-     .on_arrival = monitor_res_write_init,
-     .on_read_ready = monitor_res_write,
-     .on_departure = monitor_res_write_finalize},
     {.state = MONITOR_DONE},
     {.state = MONITOR_ERROR,
      .on_read_ready = ignore_read_monitor,

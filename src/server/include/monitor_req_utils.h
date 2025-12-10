@@ -3,6 +3,8 @@
 
 #include "monitor_req.h"
 
-monitor_req_status_t handle_request(monitor_req_parser_t *mrq);
+monitor_req_status_t handle_request(struct selector_key *key);
+
+monitor_req_status_t send_response(struct selector_key *key);
 
 #endif

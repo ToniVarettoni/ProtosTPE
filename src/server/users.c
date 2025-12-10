@@ -207,15 +207,15 @@ user_status user_login(char *username, char *password,
                        access_level_t *output_level) {
   int i;
   if ((i = get_user_index(username)) < 0) {
-    log_to_stdout("user %s not found\n", username);
+    log_to_stdout("User %s not found\n", username);
     return USERS_USER_NOT_FOUND;
   } else {
     if (strcmp(users[i].password, password) == 0) {
-      log_to_stdout("user %s logged in successfully\n", username);
+      log_to_stdout("User %s logged in successfully\n", username);
       *output_level = users[i].access_level;
       return USERS_OK;
     }
-    log_to_stdout("wrong password for user %s\n", username);
+    log_to_stdout("Wrong password for user %s\n", username);
     return USERS_WRONG_PASSWORD;
   }
 }

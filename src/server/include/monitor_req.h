@@ -39,11 +39,17 @@ typedef enum {
   MONITOR_REQ_EVENT_ERROR
 } monitor_req_event_t;
 
+typedef enum {
+  MONITOR_REQ_STATUS_OK = 0,
+  MONITOR_REQ_STATUS_ERR
+} monitor_req_status_t;
+
 typedef struct {
   uint8_t type;
   uint8_t arguments_read;
   uint8_t current_argument_length;
   uint8_t current_argument_read;
+  monitor_req_status_t req_status;
   char uname[MAX_ARGUMENT_LENGTH + 1];
   char passwd[MAX_ARGUMENT_LENGTH + 1];
   access_level_t access_level;
@@ -52,14 +58,11 @@ typedef struct {
   struct parser *p;
 } monitor_req_parser_t;
 
-typedef enum {
-  MONITOR_REQ_STATUS_OK = 0,
-  MONITOR_REQ_STATUS_ERR
-} monitor_req_status_t;
-
 void monitor_req_init(const unsigned state, struct selector_key *key);
 
 unsigned monitor_req_read(struct selector_key *key);
+
+unsigned monitor_req_write(struct selector_key *key);
 
 void monitor_req_finalize(const unsigned state, struct selector_key *key);
 

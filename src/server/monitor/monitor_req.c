@@ -109,8 +109,7 @@ unsigned monitor_req_read(struct selector_key *key) {
   ssize_t n = recv(key->fd, &c, 1, 0);
   if (n <= 0) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
-      log_to_stdout("Still reading...\n");
-      return MONITOR_REQ_READ;
+      return MONITOR_REQ;
     }
     log_to_stdout("Something went wrong.\n");
     return MONITOR_ERROR;
@@ -122,7 +121,6 @@ unsigned monitor_req_read(struct selector_key *key) {
 
       case MONITOR_REQ_EVENT_TYPE:
         mrq->type = ev->data[0];
-        log_to_stdout("Monitor req type: 0x%02X\n", mrq->type);
         break;
 
       case MONITOR_REQ_EVENT_ARGUMENT_LENGTH:
@@ -133,54 +131,55 @@ unsigned monitor_req_read(struct selector_key *key) {
           if (handle_request(mrq) != MONITOR_REQ_STATUS_OK) {
             return MONITOR_ERROR;
           }
-          return MONITOR_RES_WRITE;
+          return MONITOR_DONE;
         }
-        mrq->current_argument_length = ev->data[0];
-        mrq->current_argument_read = 0;
-        mrq->arguments_read++;
-        log_to_stdout("Arg %d length: %d\n", mrq->arguments_read,
-                      mrq->current_argument_length);
-        break;
-
+        if ((mrq->req_status = handle_request(key)) != MONITOR_REQ_STATUS_OK) {
+          return MONITOR_ERROR;
+        }
+        return MONITOR_REQ;
+      
+      mrq->current_argument_length = ev->data[0];
+      mrq->current_argument_read = 0;
+      mrq->arguments_read++;
+      break;
       case MONITOR_REQ_EVENT_ARGUMENT:
-        if (mrq->current_argument_read < mrq->current_argument_length) {
-          switch (mrq->arguments_read) {
-          case 1:
-            mrq->uname[mrq->current_argument_read++] = ev->data[0];
-            mrq->uname[mrq->current_argument_read] = '\0';
-            if (mrq->current_argument_read == mrq->current_argument_length) {
-              log_to_stdout("Parsed username: %s\n", mrq->uname);
-            }
-            break;
-          case 2:
-            mrq->passwd[mrq->current_argument_read++] = ev->data[0];
-            mrq->passwd[mrq->current_argument_read] = '\0';
-            if (mrq->current_argument_read == mrq->current_argument_length) {
-              log_to_stdout("Parsed password: %s\n", mrq->passwd);
-            }
-            break;
-          case 3:
-            mrq->access_level = ev->data[0];
-            mrq->current_argument_read++;
-            log_to_stdout("Parsed access level: %d\n", mrq->access_level);
-            break;
-          default:
-            return MONITOR_ERROR;
-          }
+      if (mrq->current_argument_read < mrq->current_argument_length) {
+        switch (mrq->arguments_read) {
+        case 1:
+          mrq->uname[mrq->current_argument_read++] = ev->data[0];
+          mrq->uname[mrq->current_argument_read] = '\0';
+          break;
+        case 2:
+          mrq->passwd[mrq->current_argument_read++] = ev->data[0];
+          mrq->passwd[mrq->current_argument_read] = '\0';
+          break;
+        case 3:
+          mrq->access_level = ev->data[0];
+          mrq->current_argument_read++;
+          break;
+        default:
+          return MONITOR_ERROR;
         }
-        if (mrq->current_argument_read == mrq->current_argument_length) {
-          parser_set_state(mrq->p, MONITOR_REQ_STATE_ARGUMENT_LENGTH);
-        }
-        break;
-
-      case MONITOR_REQ_EVENT_DONE:
-        return MONITOR_RES_WRITE;
-
-      case MONITOR_REQ_EVENT_ERROR:
-        return MONITOR_ERROR;
-      default:
-        return MONITOR_ERROR;
+      }
+      if (mrq->current_argument_read == mrq->current_argument_length) {
+        parser_set_state(mrq->p, MONITOR_REQ_STATE_ARGUMENT_LENGTH);
+      }
+      break;
+    case MONITOR_REQ_EVENT_DONE:
+      return MONITOR_REQ;
+    case MONITOR_REQ_EVENT_ERROR:
+      return MONITOR_ERROR;
+    default:
+      return MONITOR_ERROR;
     }
   }
-  return MONITOR_REQ_READ;
+  return MONITOR_REQ;
+}
+
+unsigned monitor_req_write(struct selector_key *key) {
+  if (send_response(key) != MONITOR_REQ_STATUS_OK) {
+    log_to_stdout("Failed to send response to monitor client\n");
+    return MONITOR_ERROR;
+  }
+  return MONITOR_DONE;
 }
