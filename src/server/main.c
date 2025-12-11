@@ -22,6 +22,8 @@
 #include <sys/types.h>
 #include <unistd.h> //close
 
+#include "include/auth_utils.h"
+
 #define TRUE 1
 #define FALSE 0
 
@@ -58,6 +60,8 @@ int main(int argc, char *argv[]) {
 
   fd_selector fds = selector_new(DEFAULT_MAX_CLIENTS);
   selector_status error;
+
+  change_auth_methods(NULL);
 
   int opt = TRUE;
   int master_socket;

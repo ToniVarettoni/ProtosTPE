@@ -1,7 +1,6 @@
 #include "include/auth.h"
 #include "../lib/logger/logger.h"
 #include "../lib/selector/selector.h"
-#include "include/auth_utils.h"
 #include "include/client_utils.h"
 
 #define AUTH_VERSION 0x01
@@ -99,9 +98,6 @@ void auth_read_init(const unsigned state, struct selector_key *key) {
   auth_status_t status = auth_parser_init(&client->parser.auth_parser);
   client->active_parser = AUTH_PARSER;
   if (status != AUTH_OK) {
-    error_handler(state, key);
-  }
-  if ((status = change_auth_methods(key, NULL)) != AUTH_OK) {
     error_handler(state, key);
   }
 }

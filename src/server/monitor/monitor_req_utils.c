@@ -42,7 +42,7 @@ monitor_req_status_t handle_request(struct selector_key *key) {
     memcpy(&mrq->stats, get_stats(), sizeof(stats_t));
     break;
   case CHANGE_AUTH_METHODS:
-    if (change_auth_methods(key, mrq->arguments) != AUTH_OK) {
+    if (change_auth_methods(mrq->arguments) != AUTH_OK) {
       return MONITOR_REQ_STATUS_ERR;
     }
     break;
