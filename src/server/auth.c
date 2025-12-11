@@ -1,7 +1,7 @@
 #include "include/auth.h"
-#include "include/client_utils.h"
-#include "../lib/selector/selector.h"
 #include "../lib/logger/logger.h"
+#include "../lib/selector/selector.h"
+#include "include/client_utils.h"
 
 #define AUTH_VERSION 0x01
 #define AUTH_REPLY_SIZE 2
@@ -97,7 +97,7 @@ void auth_read_init(const unsigned state, struct selector_key *key) {
   auth_status_t status = auth_parser_init(&client->parser.auth_parser);
   client->active_parser = AUTH_PARSER;
   if (status != AUTH_OK) {
-    close_connection(key);
+    error_handler(state, key);
   }
 }
 
@@ -113,68 +113,69 @@ unsigned auth_read(struct selector_key *key) {
     }
     return ERROR;
   }
-  
+
   const struct parser_event *ev = parser_feed(ap->p, c);
 
   for (; ev != NULL; ev = ev->next) {
-      switch (ev->type) {
+    switch (ev->type) {
 
-      case AUTH_EVENT_VER:
-        ap->ver = ev->data[0];
-        log_to_stdout("Authentication version: %d\n", ap->ver);
-        if (ap->ver != AUTH_VERSION) {
-          return ERROR;
-        }
-        break;
-
-      case AUTH_EVENT_ULEN:
-        ap->ulen = ev->data[0];
-        log_to_stdout("Username length: %d\n", ap->ulen);
-        ap->uname_read = 0;
-        break;
-
-      case AUTH_EVENT_UNAME:
-        if (ap->uname_read < ap->ulen) {
-          ap->uname[ap->uname_read++] = ev->data[0];
-          ap->uname[ap->uname_read] = '\0';
-        }
-        if (ap->uname_read == ap->ulen) {
-          parser_set_state(ap->p, AUTH_STATE_PLEN);
-        }
-        log_to_stdout("Username read: %s\n", ap->uname);
-        break;
-
-      case AUTH_EVENT_PLEN:
-        ap->plen = ev->data[0];
-        log_to_stdout("Password length: %d\n", ap->plen);
-        ap->passwd_read = 0;
-        break;
-
-      case AUTH_EVENT_PASSWD:
-        if (ap->passwd_read < ap->plen) {
-          ap->passwd[ap->passwd_read++] = ev->data[0];
-          ap->passwd[ap->passwd_read] = '\0';
-          log_to_stdout("Password read: %s\n", ap->passwd);
-        }
-        if (ap->passwd_read == ap->plen && !ap->auth_done) {
-          access_level_t access_level;
-          log_to_stdout("Username and password combination: %s and %s\n", ap->uname, ap->passwd);
-          if (user_login((char *)ap->uname, (char *)ap->passwd, &access_level) ==
-              USERS_OK) {
-            ap->auth_status = AUTH_SUCCESS;
-          } else {
-            ap->auth_status = AUTH_FAILURE;
-          }
-          ap->auth_done = true;
-          selector_set_interest_key(key, OP_WRITE);
-          return AUTH_WRITE;
-        }
-        break;
-
-      default:
+    case AUTH_EVENT_VER:
+      ap->ver = ev->data[0];
+      log_to_stdout("Authentication version: %d\n", ap->ver);
+      if (ap->ver != AUTH_VERSION) {
         return ERROR;
       }
+      break;
+
+    case AUTH_EVENT_ULEN:
+      ap->ulen = ev->data[0];
+      log_to_stdout("Username length: %d\n", ap->ulen);
+      ap->uname_read = 0;
+      break;
+
+    case AUTH_EVENT_UNAME:
+      if (ap->uname_read < ap->ulen) {
+        ap->uname[ap->uname_read++] = ev->data[0];
+        ap->uname[ap->uname_read] = '\0';
+      }
+      if (ap->uname_read == ap->ulen) {
+        parser_set_state(ap->p, AUTH_STATE_PLEN);
+      }
+      log_to_stdout("Username read: %s\n", ap->uname);
+      break;
+
+    case AUTH_EVENT_PLEN:
+      ap->plen = ev->data[0];
+      log_to_stdout("Password length: %d\n", ap->plen);
+      ap->passwd_read = 0;
+      break;
+
+    case AUTH_EVENT_PASSWD:
+      if (ap->passwd_read < ap->plen) {
+        ap->passwd[ap->passwd_read++] = ev->data[0];
+        ap->passwd[ap->passwd_read] = '\0';
+        log_to_stdout("Password read: %s\n", ap->passwd);
+      }
+      if (ap->passwd_read == ap->plen && !ap->auth_done) {
+        access_level_t access_level;
+        log_to_stdout("Username and password combination: %s and %s\n",
+                      ap->uname, ap->passwd);
+        if (user_login((char *)ap->uname, (char *)ap->passwd, &access_level) ==
+            USERS_OK) {
+          ap->auth_status = AUTH_SUCCESS;
+        } else {
+          ap->auth_status = AUTH_FAILURE;
+        }
+        ap->auth_done = true;
+        selector_set_interest_key(key, OP_WRITE);
+        return AUTH_WRITE;
+      }
+      break;
+
+    default:
+      return ERROR;
     }
+  }
   return AUTH_READ;
 }
 
@@ -193,7 +194,7 @@ unsigned auth_write(struct selector_key *key) {
   } else if (ap->auth_status == AUTH_SUCCESS) {
     log_to_stdout("Passed authentication!\n");
     selector_set_interest_key(key, OP_READ);
-    return REQUEST_READ; 
+    return REQUEST_READ;
   }
   return ERROR;
 }
