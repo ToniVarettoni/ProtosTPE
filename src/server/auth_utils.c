@@ -6,6 +6,8 @@
 
 #define DEFAULT_METHOD HELLO_AUTH_USER_PASS
 
+static int8_t accepted_methods[MAX_BUFFER_SIZE];
+
 static bool supported_method(int8_t method) {
   if (method != HELLO_AUTH_NO_AUTH && method != HELLO_AUTH_USER_PASS) {
     return false;

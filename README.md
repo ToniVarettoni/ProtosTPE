@@ -82,12 +82,14 @@ La herramienta de monitoreo permite realizar cambios en tiempo de ejecución (co
 #### Acciones disponibles
 
 ```bash
--a <user:pass>      Da de alta un usuario con privilegios estándar.
--A <user:pass>      Da de alta un usuario con privilegios de administrador.
--d <user>           Elimina un usuario existente.
--c <user:newpass>   Modifica la contraseña de un usuario.
--s                  Muestra estadísticas del servidor (bytes, conexiones, etc.).
--h                  Muestra la ayuda.
+-a <user:pass>                      Da de alta un usuario con privilegios estándar.
+-A <user:pass>                      Da de alta un usuario con privilegios de administrador.
+-d <user>                           Elimina un usuario existente.
+-c <user:newpass>                   Modifica la contraseña de un usuario.
+-m <method_1> ... <method_n>        Modifica los métodos de autenticación aceptados en tiempo de ejecución. 
+                                    (Valores RFC: 0 = No Auth, 2 = User/Pass).
+-s                                  Muestra estadísticas del servidor (bytes, conexiones, etc.).
+-h                                  Muestra la ayuda.
 ```
 
 #### Ejemplo - Ver estadísticas
@@ -100,4 +102,17 @@ La herramienta de monitoreo permite realizar cambios en tiempo de ejecución (co
 
 ```bash
 ./bin/client 127.0.0.1:8081 -l admin:admin123 -a kaladin:stormblessed
+```
+
+#### Ejemplo - Cambiar método de autenticación
+
+```bash
+# Cambiar a NO AUTH (Permitir acceso libre)
+./bin/client 127.0.0.1:8081 -l admin:admin123 -m 0
+
+# Volver a requerir usuario y contraseña
+./bin/client 127.0.0.1:8081 -l admin:admin123 -m 2
+
+# Permitir ambas opciones
+./bin/client 127.0.0.1:8081 -l admin:admin123 -m 0 2
 ```
