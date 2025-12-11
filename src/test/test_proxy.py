@@ -9,7 +9,7 @@ USERNAME = b"username"
 PASSWORD = b"password"
 TARGET_HOST = "example.org"
 TARGET_PORT = 80
-TIMEOUT = 5
+TIMEOUT = 10
 
 CONCURRENT_CLIENTS = 50   # <<< ajustá este número para stress-test
 results = []              # lista global con resultados de cada hilo

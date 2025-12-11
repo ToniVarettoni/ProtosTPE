@@ -72,7 +72,7 @@ unsigned forward_read(struct selector_key *key) {
     if (n <= 0) {
         if (errno == 0 && n == 0){
             printf("EOF recibido en fd %d\n", key->fd);
-            if (key->fd == client->client_fd) {
+            if (from_client) {
                 client->client_closed = true;
                 if (client->dest_closed){
                     return DONE;
@@ -84,6 +84,7 @@ unsigned forward_read(struct selector_key *key) {
                 }
             }
             selector_set_interest(key->s, (from_client ? client->destination_fd : client->client_fd), OP_WRITE);
+            selector_set_interest_key(key, OP_NOOP);
             return FORWARDING;
         }
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
