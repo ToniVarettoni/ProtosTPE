@@ -1,9 +1,120 @@
+#include "../lib/args_monitor/args_monitor.h"
+#include "include/monitor_utils.h"
+#include <arpa/inet.h>
+#include <errno.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
-#include "logs.h"
-#include "protocol.h"
+static int create_monitor_socket(const char *direction, unsigned short port) {
+  if (direction != NULL && strcmp(direction, "localhost") == 0) {
+    direction = "127.0.0.1";
+  }
 
-int main() {
-  LOG("Hello Client!\n");
-  return test();
+  struct sockaddr_in addr;
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(port);
+  if (inet_pton(AF_INET, direction, &addr.sin_addr) != 1) {
+    fprintf(stderr, "Invalid address for monitor: %s\n", direction);
+    return -1;
+  }
+
+  int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfd < 0) {
+    fprintf(stderr, "socket failed: %s\n", strerror(errno));
+    return -1;
+  }
+
+  if (connect(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+    fprintf(stderr, "connect failed: %s\n", strerror(errno));
+    close(sockfd);
+    return -1;
+  }
+
+  return sockfd;
+}
+
+int main(int argc, char **argv) {
+  management_args_t args;
+  parse_monitor_args(argc, argv, &args);
+
+  printf("Connecting to %s:%hu\n", args.direction, args.port);
+  int sockfd = create_monitor_socket(args.direction, args.port);
+  if (sockfd < 0) {
+    return 1;
+  }
+  printf("Client connected to monitor!\n");
+
+  uint8_t auth_buf[512];
+  size_t auth_len = write_monitor_auth_request(auth_buf, sizeof(auth_buf),
+                                               &args.managing_user);
+  if (auth_len == 0) {
+    fprintf(stderr, "Failed to build auth request.\n");
+    close(sockfd);
+    return 1;
+  }
+
+  ssize_t sent = send(sockfd, auth_buf, auth_len, 0);
+  if (sent < 0) {
+    fprintf(stderr, "Failed to send auth request: %s\n", strerror(errno));
+    close(sockfd);
+    return 1;
+  }
+  printf("Sent auth request (%zd bytes)\n", sent);
+
+  bool auth_ok = read_monitor_auth_reply(sockfd);
+  if (auth_ok) {
+    printf("Server accepted authentication.\n");
+  } else {
+    printf("Server rejected authentication or no reply received.\n");
+    close(sockfd);
+    return 1;
+  }
+
+  uint8_t req_buf[512];
+  size_t req_len = 0;
+  if (args.action == ACTION_ADD_USER) {
+    req_len = write_monitor_user_add_request(req_buf, sizeof(req_buf),
+                                             &args.user_to_modify);
+  } else if (args.action == ACTION_DELETE_USER) {
+    req_len = write_monitor_user_delete_request(req_buf, sizeof(req_buf),
+                                                &args.user_to_modify);
+  } else if (args.action == ACTION_CHANGE_PASSWORD) {
+    req_len = write_monitor_change_pass_request(req_buf, sizeof(req_buf),
+                                                &args.user_to_modify);
+  } else if (args.action == ACTION_STATS) {
+    req_len = write_monitor_get_stats_request(req_buf, sizeof(req_buf));
+  } else if (args.action == ACTION_CHANGE_AUTH_METHODS) {
+    req_len = write_monitor_change_auth_methods_request(
+        req_buf, sizeof(req_buf), args.auth_methods);
+  }
+  if (req_len == 0) {
+    fprintf(stderr, "Failed to build action request.\n");
+    close(sockfd);
+    return 1;
+  }
+
+  ssize_t req_sent = send(sockfd, req_buf, req_len, 0);
+  if (req_sent < 0) {
+    fprintf(stderr, "Failed to send action request: %s\n", strerror(errno));
+    close(sockfd);
+    return 1;
+  }
+  printf("Sent action request (%zd bytes)\n", req_sent);
+
+  if (args.action == ACTION_STATS) {
+    stats_t stats;
+    if (!read_monitor_stats_reply(sockfd, &stats)) {
+      fprintf(stderr, "Failed to read stats reply.\n");
+      close(sockfd);
+      return 1;
+    }
+    printf("Historic connections: %zu\n", stats.historic_connections);
+    printf("Current connections: %zu\n", stats.current_connections);
+    printf("Bytes transferred: %zu\n", stats.transferred_bytes);
+  }
+
+  return 0;
 }

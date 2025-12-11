@@ -7,10 +7,10 @@ server: bin
 client: bin
 	@$(MAKE) -C src/client all
 
-all: server client
+all: server client manager
 
 clean:
 	$(MAKE) -C src/server clean
 	$(MAKE) -C src/client clean
 
-.PHONY: bin server client clean all
+.PHONY: bin server client manager clean all

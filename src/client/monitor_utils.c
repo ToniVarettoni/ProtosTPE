@@ -1,0 +1,224 @@
+#include "include/monitor_utils.h"
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+
+#include "../lib/logger/logger.h"
+
+#define ACCESS_LEVEL_ARG_LENGTH 0x01
+
+#define ADD_USER_ACTION_TYPE 0x00
+#define DELETE_USER_ACTION_TYPE 0x01
+#define CHANGE_PASS_ACTION_TYPE 0x02
+#define GET_STATS_ACTION_TYPE 0x03
+#define CHANGE_AUTH_METHODS_TYPE 0x04
+
+#define TERMINATOR 0x00
+
+static uint64_t ntohll_u64(uint64_t x) {
+  uint32_t high = ntohl((uint32_t)(x >> 32));
+  uint32_t low = ntohl((uint32_t)(x & 0xFFFFFFFFULL));
+  return ((uint64_t)high << 32) | low;
+}
+
+size_t write_monitor_auth_request(uint8_t *buffer, size_t buffer_len,
+                                  const user_t *login_user) {
+  if (buffer == NULL || login_user == NULL || login_user->username == NULL ||
+      login_user->password == NULL) {
+    return 0;
+  }
+
+  size_t ulen = strlen(login_user->username);
+  size_t plen = strlen(login_user->password);
+
+  if (ulen == 0 || ulen > UINT8_MAX || plen == 0 || plen > UINT8_MAX) {
+    return 0;
+  }
+
+  size_t needed = 2 + ulen + plen;
+  if (needed > buffer_len) {
+    return 0;
+  }
+
+  size_t pos = 0;
+  buffer[pos++] = (uint8_t)ulen;
+  memcpy(buffer + pos, login_user->username, ulen);
+  pos += ulen;
+  buffer[pos++] = (uint8_t)plen;
+  memcpy(buffer + pos, login_user->password, plen);
+  pos += plen;
+
+  return pos;
+}
+
+bool read_monitor_auth_reply(int sockfd) {
+  uint8_t status = 0xFF;
+  ssize_t n = recv(sockfd, &status, 1, 0);
+  if (n <= 0) {
+    return false;
+  }
+  return status == 0x00;
+}
+
+size_t write_monitor_user_add_request(uint8_t *buffer, size_t buffer_len,
+                                      const user_t *user_to_add) {
+  if (buffer == NULL || user_to_add == NULL || user_to_add->username == NULL ||
+      user_to_add->password == NULL) {
+    return 0;
+  }
+
+  size_t ulen = strlen(user_to_add->username);
+  size_t plen = strlen(user_to_add->password);
+
+  if (ulen == 0 || ulen > UINT8_MAX || plen == 0 || plen > UINT8_MAX) {
+    return 0;
+  }
+
+  // type + len(uname) + uname + len(pass) + pass + len(access) + access +
+  // terminator
+  size_t needed = 6 + ulen + plen;
+  if (needed > buffer_len) {
+    return 0;
+  }
+
+  size_t pos = 0;
+  buffer[pos++] = ADD_USER_ACTION_TYPE;
+  buffer[pos++] = (uint8_t)ulen;
+  memcpy(buffer + pos, user_to_add->username, ulen);
+  pos += ulen;
+  buffer[pos++] = (uint8_t)plen;
+  memcpy(buffer + pos, user_to_add->password, plen);
+  pos += plen;
+  buffer[pos++] = ACCESS_LEVEL_ARG_LENGTH;
+  buffer[pos++] = user_to_add->access_level;
+  buffer[pos++] = TERMINATOR;
+
+  return pos;
+}
+
+size_t write_monitor_user_delete_request(uint8_t *buffer, size_t buffer_len,
+                                         const user_t *user_to_delete) {
+  if (buffer == NULL || user_to_delete == NULL ||
+      user_to_delete->username == NULL) {
+    return 0;
+  }
+
+  size_t ulen = strlen(user_to_delete->username);
+
+  if (ulen == 0 || ulen > UINT8_MAX) {
+    return 0;
+  }
+
+  // type + len(uname) + uname + terminator
+  size_t needed = 3 + ulen;
+  if (needed > buffer_len) {
+    return 0;
+  }
+
+  size_t pos = 0;
+  buffer[pos++] = DELETE_USER_ACTION_TYPE;
+  buffer[pos++] = (uint8_t)ulen;
+  memcpy(buffer + pos, user_to_delete->username, ulen);
+  pos += ulen;
+  buffer[pos++] = TERMINATOR;
+
+  return pos;
+}
+
+size_t write_monitor_change_pass_request(uint8_t *buffer, size_t buffer_len,
+                                         const user_t *user_to_change) {
+  if (buffer == NULL || user_to_change == NULL ||
+      user_to_change->username == NULL || user_to_change->password == NULL) {
+    return 0;
+  }
+
+  size_t ulen = strlen(user_to_change->username);
+  size_t plen = strlen(user_to_change->password);
+
+  if (ulen == 0 || ulen > UINT8_MAX || plen == 0 || plen > UINT8_MAX) {
+    return 0;
+  }
+
+  // type + len(uname) + uname + len(pass) + pass + terminator
+  size_t needed = 5 + ulen + plen;
+  if (needed > buffer_len) {
+    return 0;
+  }
+
+  size_t pos = 0;
+  buffer[pos++] = CHANGE_PASS_ACTION_TYPE;
+  buffer[pos++] = (uint8_t)ulen;
+  memcpy(buffer + pos, user_to_change->username, ulen);
+  pos += ulen;
+  buffer[pos++] = (uint8_t)plen;
+  memcpy(buffer + pos, user_to_change->password, plen);
+  pos += plen;
+  buffer[pos++] = TERMINATOR;
+
+  return pos;
+}
+
+size_t write_monitor_get_stats_request(uint8_t *buffer, size_t buffer_len) {
+  if (buffer == NULL || buffer_len < 2) {
+    return 0;
+  }
+  buffer[0] = GET_STATS_ACTION_TYPE;
+  buffer[1] = TERMINATOR;
+  return 2;
+}
+
+size_t write_monitor_change_auth_methods_request(uint8_t *buffer,
+                                                 size_t buffer_len,
+                                                 int8_t *auth_methods) {
+  if (buffer == NULL || buffer_len < 1) {
+    return 0;
+  }
+  uint16_t i = 0, j = 0;
+  buffer[i++] = CHANGE_AUTH_METHODS_TYPE;
+  int8_t current_method = auth_methods[j++];
+  while (current_method != -1) {
+    buffer[i++] = 1; // length of methods is always 1
+    buffer[i++] = current_method;
+    current_method = auth_methods[j++];
+  }
+  buffer[i++] = '\0';
+  return i;
+}
+
+bool read_monitor_stats_reply(int sockfd, stats_t *out_stats) {
+  if (out_stats == NULL) {
+    return false;
+  }
+  uint8_t status;
+  ssize_t n = recv(sockfd, &status, 1, 0);
+  if (n <= 0 || status != 0x00) {
+    log_to_stdout("recv of status %d in stats reply failing. Read %ld bytes\n",
+                  status, n);
+    return false;
+  }
+
+  uint64_t values[3] = {0};
+  size_t needed = sizeof(values);
+  size_t read_total = 0;
+  uint8_t *ptr = (uint8_t *)values;
+  while (read_total < needed) {
+    n = recv(sockfd, ptr + read_total, needed - read_total, 0);
+    if (n <= 0) {
+      log_to_stdout("recv of stats in stats reply failing. Read %ld bytes\n",
+                    n);
+      return false;
+    }
+    read_total += (size_t)n;
+  }
+
+  uint64_t hc = ntohll_u64(values[0]);
+  uint64_t bytes = ntohll_u64(values[1]);
+  uint64_t cc = ntohll_u64(values[2]);
+
+  out_stats->historic_connections = (size_t)hc;
+  out_stats->transferred_bytes = (size_t)bytes;
+  out_stats->current_connections = (size_t)cc;
+  return true;
+}

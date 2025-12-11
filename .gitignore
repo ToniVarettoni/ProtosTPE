@@ -3,3 +3,17 @@ bin/
 
 .idea
 .vscode
+
+*.iml
+
+cmake-build-debug/
+
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+.DS_Store
+Thumbs.db
+
+logs.txt
+src/server/users.txt

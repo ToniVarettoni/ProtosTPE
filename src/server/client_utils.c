@@ -1,5 +1,9 @@
+#define _GNU_SOURCE
+#include <netdb.h>
 #include "include/client_utils.h"
-#include "include/selector.h"
+#include "../lib/selector/selector.h"
+#include "include/stats.h"
+#include <netdb.h>
 #include <arpa/inet.h> //close
 #include <errno.h>
 #include <netinet/in.h>
@@ -12,43 +16,101 @@
 #include <unistd.h> //close
 
 void handle_read_client(struct selector_key *key) {
-  // Check if it was for closing , and also read the incoming message
-  int addr_len, valread;
-  struct sockaddr_in address;
+  stm_handler_read(&((client_t *)ATTACHMENT(key))->stm, key);
+}
 
-  char buffer[1025]; // data buffer of 1K
-  selector_status error;
-
-  if ((valread = read(key->fd, buffer, 1024)) == 0) {
-    // Somebody disconnected , get his details and print
-    getpeername(key->fd, (struct sockaddr *)&address, (socklen_t *)&addr_len);
-    printf("Host disconnected , ip %s , port %d \n",
-           inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-
-    // Close the socket and mark as 0 in list for reuse
-    close(key->fd);
-    if ((error = selector_unregister_fd(key->s, key->fd)) != SELECTOR_SUCCESS) {
-      printf("%s\n", selector_error(error));
-    }
+void destroy_active_parser(client_t *client) {
+  if (client == NULL) {
+    return;
   }
 
-  // Echo back the message that came in
-  else {
-    // set the string terminating NULL byte on the end of the data read
-    buffer[valread] = '\0';
-    send(key->fd, buffer, strlen(buffer), 0);
+  switch (client->active_parser) {
+  case HELLO_PARSER:
+    if (client->parser.hello_parser.p != NULL) {
+      parser_destroy(client->parser.hello_parser.p);
+      client->parser.hello_parser.p = NULL;
+    }
+    break;
+  case AUTH_PARSER:
+    if (client->parser.auth_parser.p != NULL) {
+      parser_destroy(client->parser.auth_parser.p);
+      client->parser.auth_parser.p = NULL;
+    }
+    break;
+  case REQUEST_PARSER:
+    if (client->parser.request_parser.p != NULL) {
+      parser_destroy(client->parser.request_parser.p);
+      client->parser.request_parser.p = NULL;
+    }
+    break;
+  default:
+    break;
+  }
+  client->active_parser = NO_PARSER;
+}
+
+void free_destination(client_t *client) {
+  if (client == NULL || client->dest_addr_base == NULL) {
+    return;
+  }
+
+  if (client->dest_addr_from_gai) {
+    freeaddrinfo(client->dest_addr_base);
+  } else {
+    free(client->dest_addr_base);
+  }
+
+  client->dest_addr = NULL;
+  client->dest_addr_base = NULL;
+  client->dest_addr_from_gai = false;
+}
+
+void free_dns_request(client_t *client) {
+  if (client == NULL || client->dns_req == NULL) {
+    return;
+  }
+  if (client->dns_req->ar_request != NULL) {
+    free((void *)client->dns_req->ar_request);
+  }
+  if (client->dns_req->ar_service != NULL) {
+    free((void *)client->dns_req->ar_service);
+  }
+  if (client->dns_req->ar_name != NULL) {
+    free((void *)client->dns_req->ar_name);
+  }
+  free(client->dns_req);
+  client->dns_req = NULL;
+}
+
+void handle_write_client(struct selector_key *key) {
+  stm_handler_write(&((client_t *)ATTACHMENT(key))->stm, key);
+}
+
+void handle_close_client(struct selector_key *key) {
+  client_t *client = ATTACHMENT(key);
+  stm_handler_close(&client->stm, key);
+
+  if (key->fd == client->client_fd) {
+    decrement_current_connections();
   }
 }
 
-void handle_write(struct selector_key *key) {}
+unsigned ignore_read(struct selector_key *key) {
+  client_t *client = ATTACHMENT(key);
+  return stm_state(&client->stm);
+}
 
-void handle_close(struct selector_key *key) { return; }
+unsigned ignore_write(struct selector_key *key) {
+  client_t *client = ATTACHMENT(key);
+  return stm_state(&client->stm);
+}
 
 static const fd_handler CLIENT_HANDLER = {.handle_read = handle_read_client,
-                                          .handle_close = handle_close};
+                                          .handle_write = handle_write_client,
+                                          .handle_close = handle_close_client};
 
 const fd_handler *get_client_handler() { return &CLIENT_HANDLER; }
 
-const fd_interest CLIENT_INTERESTS = OP_READ;
+const fd_interest INITIAL_CLIENT_INTERESTS = OP_READ;
 
-const fd_interest get_client_interests() { return CLIENT_INTERESTS; }
+const fd_interest get_client_interests() { return INITIAL_CLIENT_INTERESTS; }

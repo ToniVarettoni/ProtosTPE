@@ -1,7 +1,7 @@
 #ifndef _MASTER_UTILS_
 #define _MASTER_UTILS_
 
-#include "selector.h"
+#include "../../lib/selector/selector.h"
 
 const int MASTER_INTERESTS = OP_READ;
 

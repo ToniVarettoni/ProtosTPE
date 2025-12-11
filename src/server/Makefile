@@ -1,6 +1,6 @@
 include ../../Makefile.inc
 
-SRCS = $(wildcard *.c) $(wildcard selector/*.c)
+SRCS = $(wildcard *.c) $(wildcard monitor/*.c) $(wildcard ../lib/selector/*.c) $(wildcard ../lib/logger/*.c) $(wildcard ../lib/stm/*.c) $(wildcard ../lib/buffer/*.c) $(wildcard ../lib/netutils/*.c) $(wildcard ../lib/parser/*.c) $(wildcard ../lib/stats/*.c) $(wildcard ../lib/stm/*.c) $(wildcard ../lib/args/*.c)
 OBJECTS = $(SRCS:.c=.o)
 EXEC = $(BIN_PATH)/server
 HDRS = ./include
@@ -13,6 +13,11 @@ all: $(OBJECTS)
 	$(CC) $(CFLAGS) -I $(HDRS) -c $< -o $@
 
 clean:
-	rm -f $(EXEC) $(OBJECTS)
+	rm -rf $(EXEC) \
+	       $(OBJECTS) \
+	       **/*.o \
+	       **/*.d \
+	       *.o \
+	       *.d
 
 .PHONY: clean all
