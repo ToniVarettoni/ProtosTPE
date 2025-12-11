@@ -236,6 +236,11 @@ unsigned request_read(struct selector_key *key) {
     client->err = 0x01;
     return ERROR;
   }
+
+  if (n == 0){
+    log_to_stdout("client sent end of line\n");
+  }
+  
   
 
   for (size_t i = 0; i < n; i++) {

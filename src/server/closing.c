@@ -3,26 +3,43 @@
 
 void end_connection(const unsigned state, struct selector_key *key) {
     client_t *client = ATTACHMENT(key);
-    selector_unregister_fd(key->s, client->client_fd);
-    selector_unregister_fd(key->s, client->destination_fd);
-    if (client->client_fd != -1){
-        close(client->client_fd);
-    }
+    printf("client closed: %d\n", client->client_closed);
+    printf("dest closed: %d\n", client->dest_closed);
+    printf("client buffer can read: %d\n", buffer_can_read(&client->client_buffer));
+    printf("dest buffer can read: %d\n", buffer_can_read(&client->destiny_buffer));
+    printf("client fd: %d\n", client->client_fd);
+    printf("dest fd: %d\n", client->destination_fd);
+    selector_set_interest_key(key, OP_NOOP);
 
-    if (client->destination_fd != -1){
-        close(client->destination_fd);
-    }
-    if (client->active_parser == HELLO_PARSER) {
-        parser_destroy(client->parser.hello_parser.p);
-    }
-    if (client->active_parser == AUTH_PARSER) {
-        parser_destroy(client->parser.auth_parser.p);
-    }
-    if (client->active_parser == REQUEST_PARSER) {
-        parser_destroy(client->parser.request_parser.p);
-    }
+    if (client->client_closed && client->dest_closed && !buffer_can_read(&client->client_buffer) && !buffer_can_read(&client->destiny_buffer)){
+        printf("cerrando conexion en el socket pair: %d - %d\n", client->client_fd, client->destination_fd);
 
-    free(key->data);
+        if (client->client_fd != -1){
+            close(client->client_fd);
+        }
+
+        if (client->destination_fd != -1){
+            close(client->destination_fd);
+        }
+
+        if (client->active_parser == HELLO_PARSER) {
+            parser_destroy(client->parser.hello_parser.p);
+        }
+
+        if (client->active_parser == AUTH_PARSER) {
+            parser_destroy(client->parser.auth_parser.p);
+        }
+
+        if (client->active_parser == REQUEST_PARSER) {
+            parser_destroy(client->parser.request_parser.p);
+        }
+
+        selector_unregister_fd(key->s, client->client_fd);
+        selector_unregister_fd(key->s, client->destination_fd);
+        free(key->data);
+        printf("a\n");
+
+    }
 }
 
 void error_handler(const unsigned state, struct selector_key *key) {

@@ -39,6 +39,8 @@ typedef struct {
   struct addrinfo *dest_addr;
   struct gaicb * dns_req;
   uint8_t err;
+  uint8_t client_closed;
+  uint8_t dest_closed;
 } client_t;
 
 typedef enum {
@@ -83,10 +85,11 @@ static const struct state_definition client_states[] = {
     {.state = REQUEST_WRITE,
      .on_write_ready = request_write},
     {.state = FORWARDING,
+     .on_arrival = forward_setup,
      .on_write_ready = forward_write,
      .on_read_ready = forward_read},
     {.state = DONE,
-     .on_arrival = end_connection},
+     .on_arrival = end_connection,},
     {.state = ERROR,
      .on_arrival = error_handler}};
 
@@ -94,6 +97,5 @@ const fd_interest get_client_interests();
 
 const fd_handler *get_client_handler();
 
-void close_connection(struct selector_key *key);
 
 #endif
