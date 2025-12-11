@@ -20,7 +20,6 @@ void handle_read_passive_monitor(struct selector_key *key) {
   struct sockaddr_storage address;
   socklen_t addr_len = sizeof(address);
   int new_socket;
-  char *message = "ECHO Daemon v1.0 \r\n";
 
   do {
     addr_len = sizeof(address);

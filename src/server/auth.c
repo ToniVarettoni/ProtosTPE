@@ -142,12 +142,10 @@ unsigned auth_read(struct selector_key *key) {
       if (ap->uname_read == ap->ulen) {
         parser_set_state(ap->p, AUTH_STATE_PLEN);
       }
-      log_to_stdout("Username read: %s\n", ap->uname);
       break;
 
     case AUTH_EVENT_PLEN:
       ap->plen = ev->data[0];
-      log_to_stdout("Password length: %d\n", ap->plen);
       ap->passwd_read = 0;
       break;
 
@@ -155,7 +153,6 @@ unsigned auth_read(struct selector_key *key) {
       if (ap->passwd_read < ap->plen) {
         ap->passwd[ap->passwd_read++] = ev->data[0];
         ap->passwd[ap->passwd_read] = '\0';
-        log_to_stdout("Password read: %s\n", ap->passwd);
       }
       if (ap->passwd_read == ap->plen && !ap->auth_done) {
         access_level_t access_level;

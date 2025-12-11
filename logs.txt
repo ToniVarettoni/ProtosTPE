@@ -1,0 +1,312 @@
+2025-12-11 01:01:58 Listener on port 1080 
+2025-12-11 01:01:58 Users loaded successfully from src/server/users.txt
+2025-12-11 01:01:58 Listener on port 8080
+2025-12-11 01:02:24 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 41970 
+2025-12-11 01:02:24 Reading the protocol version: 5 for client: 6
+2025-12-11 01:02:24 Amount of methods in greeting request: 3
+2025-12-11 01:02:24 Method #1: 0
+2025-12-11 01:02:24 Method #2: 1
+2025-12-11 01:02:24 Method #3: 2
+2025-12-11 01:02:24 Passing to write...
+2025-12-11 01:02:24 Authentication version: 1
+2025-12-11 01:02:24 Username length: 8
+2025-12-11 01:02:24 Username read: u
+2025-12-11 01:02:24 Username read: us
+2025-12-11 01:02:24 Username read: use
+2025-12-11 01:02:24 Username read: user
+2025-12-11 01:02:24 Username read: usern
+2025-12-11 01:02:24 Username read: userna
+2025-12-11 01:02:24 Username read: usernam
+2025-12-11 01:02:24 Username read: username
+2025-12-11 01:02:24 Password length: 8
+2025-12-11 01:02:24 Password read: p
+2025-12-11 01:02:24 Password read: pa
+2025-12-11 01:02:24 Password read: pas
+2025-12-11 01:02:24 Password read: pass
+2025-12-11 01:02:24 Password read: passw
+2025-12-11 01:02:24 Password read: passwo
+2025-12-11 01:02:24 Password read: passwor
+2025-12-11 01:02:24 Password read: password
+2025-12-11 01:02:24 Username and password combination: username and password
+2025-12-11 01:02:24 User username logged in successfully
+2025-12-11 01:02:24 Passed authentication!
+2025-12-11 01:02:24 Protocol version (request): 5
+2025-12-11 01:02:24 Correctly parsed cmd: 1
+2025-12-11 01:02:24 Passing reserved byte...
+2025-12-11 01:02:24 Address type: 4
+2025-12-11 01:02:24 Destination port is 0
+2025-12-11 01:02:24 Second read of destination port is 80
+2025-12-11 01:02:24 Request parsed! Remember, the address type is 4
+2025-12-11 01:02:24 Started IPv6 connection...
+2025-12-11 01:02:24 Succesfully read 77 bytes from client: 6
+2025-12-11 01:02:24 Successfully sent 77 bytes to client 7
+2025-12-11 01:02:24 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:02:24 Successfully sent 4096 bytes to client 6
+2025-12-11 01:02:24 Succesfully read 1877 bytes from client: 7
+2025-12-11 01:02:24 Successfully sent 1877 bytes to client 6
+2025-12-11 01:02:24 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:02:24 Successfully sent 4096 bytes to client 6
+2025-12-11 01:02:24 Succesfully read 1944 bytes from client: 7
+2025-12-11 01:02:24 Successfully sent 1944 bytes to client 6
+2025-12-11 01:02:24 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:02:24 Successfully sent 4096 bytes to client 6
+2025-12-11 01:02:24 Succesfully read 2328 bytes from client: 7
+2025-12-11 01:02:24 Successfully sent 2328 bytes to client 6
+2025-12-11 01:02:24 Succesfully read 714 bytes from client: 7
+2025-12-11 01:02:24 Successfully sent 714 bytes to client 6
+2025-12-11 01:03:27 Listener on port 1080 
+2025-12-11 01:03:27 Users loaded successfully from src/server/users.txt
+2025-12-11 01:03:27 Listener on port 8080
+2025-12-11 01:03:31 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 37928 
+2025-12-11 01:03:31 Reading the protocol version: 5 for client: 6
+2025-12-11 01:03:31 Amount of methods in greeting request: 3
+2025-12-11 01:03:31 Method #1: 0
+2025-12-11 01:03:31 Method #2: 1
+2025-12-11 01:03:31 Method #3: 2
+2025-12-11 01:03:31 Passing to write...
+2025-12-11 01:03:31 Authentication version: 1
+2025-12-11 01:03:31 Username length: 8
+2025-12-11 01:03:31 Password read: p
+2025-12-11 01:03:31 Password read: pa
+2025-12-11 01:03:31 Password read: pas
+2025-12-11 01:03:31 Password read: pass
+2025-12-11 01:03:31 Password read: passw
+2025-12-11 01:03:31 Password read: passwo
+2025-12-11 01:03:31 Password read: passwor
+2025-12-11 01:03:31 Password read: password
+2025-12-11 01:03:31 Username and password combination: username and password
+2025-12-11 01:03:31 User username logged in successfully
+2025-12-11 01:03:31 Passed authentication!
+2025-12-11 01:03:31 Protocol version (request): 5
+2025-12-11 01:03:31 Correctly parsed cmd: 1
+2025-12-11 01:03:31 Passing reserved byte...
+2025-12-11 01:03:31 Address type: 4
+2025-12-11 01:03:31 Destination port is 0
+2025-12-11 01:03:31 Second read of destination port is 80
+2025-12-11 01:03:31 Request parsed! Remember, the address type is 4
+2025-12-11 01:03:31 Started IPv6 connection...
+2025-12-11 01:03:31 Succesfully read 77 bytes from client: 6
+2025-12-11 01:03:31 Successfully sent 77 bytes to client 7
+2025-12-11 01:03:31 Succesfully read 1208 bytes from client: 7
+2025-12-11 01:03:31 Successfully sent 1208 bytes to client 6
+2025-12-11 01:03:31 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:03:31 Successfully sent 4096 bytes to client 6
+2025-12-11 01:03:31 Succesfully read 646 bytes from client: 7
+2025-12-11 01:03:31 Successfully sent 646 bytes to client 6
+2025-12-11 01:03:31 Succesfully read 2667 bytes from client: 7
+2025-12-11 01:03:31 Successfully sent 2667 bytes to client 6
+2025-12-11 01:03:31 Succesfully read 1208 bytes from client: 7
+2025-12-11 01:03:31 Successfully sent 1208 bytes to client 6
+2025-12-11 01:03:31 Succesfully read 1208 bytes from client: 7
+2025-12-11 01:03:31 Successfully sent 1208 bytes to client 6
+2025-12-11 01:03:31 Succesfully read 959 bytes from client: 7
+2025-12-11 01:03:31 Successfully sent 959 bytes to client 6
+2025-12-11 01:03:31 Succesfully read 2416 bytes from client: 7
+2025-12-11 01:03:31 Successfully sent 2416 bytes to client 6
+2025-12-11 01:03:31 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:03:31 Successfully sent 4096 bytes to client 6
+2025-12-11 01:03:31 Succesfully read 717 bytes from client: 7
+2025-12-11 01:03:31 Successfully sent 717 bytes to client 6
+2025-12-11 01:04:30 Listener on port 1080 
+2025-12-11 01:04:30 Users loaded successfully from src/server/users.txt
+2025-12-11 01:04:30 Listener on port 8080
+2025-12-11 01:04:32 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 48936 
+2025-12-11 01:04:32 Reading the protocol version: 5 for client: 6
+2025-12-11 01:04:32 Amount of methods in greeting request: 3
+2025-12-11 01:04:32 Method #1: 0
+2025-12-11 01:04:32 Method #2: 1
+2025-12-11 01:04:32 Method #3: 2
+2025-12-11 01:04:32 Passing to write...
+2025-12-11 01:04:32 Authentication version: 1
+2025-12-11 01:04:32 Username length: 8
+2025-12-11 01:04:32 Password read: p
+2025-12-11 01:04:32 Password read: pa
+2025-12-11 01:04:32 Password read: pas
+2025-12-11 01:04:32 Password read: pass
+2025-12-11 01:04:32 Password read: passw
+2025-12-11 01:04:32 Password read: passwo
+2025-12-11 01:04:32 Password read: passwor
+2025-12-11 01:04:32 Password read: password
+2025-12-11 01:04:32 Username and password combination: username and password
+2025-12-11 01:04:32 User username logged in successfully
+2025-12-11 01:04:32 Passed authentication!
+2025-12-11 01:04:32 Protocol version (request): 5
+2025-12-11 01:04:32 Correctly parsed cmd: 1
+2025-12-11 01:04:32 Passing reserved byte...
+2025-12-11 01:04:32 Address type: 4
+2025-12-11 01:04:32 Destination port is 0
+2025-12-11 01:04:32 Second read of destination port is 80
+2025-12-11 01:04:32 Request parsed! Remember, the address type is 4
+2025-12-11 01:04:32 Started IPv6 connection...
+2025-12-11 01:04:32 Succesfully read 77 bytes from client: 6
+2025-12-11 01:04:32 Successfully sent 77 bytes to client 7
+2025-12-11 01:04:32 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:04:32 Successfully sent 4096 bytes to client 6
+2025-12-11 01:04:32 Succesfully read 1660 bytes from client: 7
+2025-12-11 01:04:32 Successfully sent 1660 bytes to client 6
+2025-12-11 01:04:32 Succesfully read 2663 bytes from client: 7
+2025-12-11 01:04:32 Successfully sent 2663 bytes to client 6
+2025-12-11 01:04:32 Succesfully read 1208 bytes from client: 7
+2025-12-11 01:04:32 Successfully sent 1208 bytes to client 6
+2025-12-11 01:04:32 Succesfully read 1208 bytes from client: 7
+2025-12-11 01:04:32 Successfully sent 1208 bytes to client 6
+2025-12-11 01:04:32 Succesfully read 971 bytes from client: 7
+2025-12-11 01:04:32 Successfully sent 971 bytes to client 6
+2025-12-11 01:04:32 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:04:32 Successfully sent 4096 bytes to client 6
+2025-12-11 01:04:32 Succesfully read 3033 bytes from client: 7
+2025-12-11 01:04:32 Successfully sent 3033 bytes to client 6
+2025-12-11 01:04:43 Listener on port 1080 
+2025-12-11 01:04:43 Users loaded successfully from src/server/users.txt
+2025-12-11 01:04:43 Listener on port 8080
+2025-12-11 01:04:46 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 53632 
+2025-12-11 01:04:46 Reading the protocol version: 5 for client: 6
+2025-12-11 01:04:46 Amount of methods in greeting request: 3
+2025-12-11 01:04:46 Method #1: 0
+2025-12-11 01:04:46 Method #2: 1
+2025-12-11 01:04:46 Method #3: 2
+2025-12-11 01:04:46 Passing to write...
+2025-12-11 01:04:46 Authentication version: 1
+2025-12-11 01:04:46 Username length: 8
+2025-12-11 01:04:46 Username and password combination: username and password
+2025-12-11 01:04:46 User username logged in successfully
+2025-12-11 01:04:46 Passed authentication!
+2025-12-11 01:04:46 Protocol version (request): 5
+2025-12-11 01:04:46 Correctly parsed cmd: 1
+2025-12-11 01:04:46 Passing reserved byte...
+2025-12-11 01:04:46 Address type: 4
+2025-12-11 01:04:46 Destination port is 0
+2025-12-11 01:04:46 Second read of destination port is 80
+2025-12-11 01:04:46 Request parsed! Remember, the address type is 4
+2025-12-11 01:04:46 Started IPv6 connection...
+2025-12-11 01:04:46 Succesfully read 77 bytes from client: 6
+2025-12-11 01:04:46 Successfully sent 77 bytes to client 7
+2025-12-11 01:04:46 Succesfully read 1208 bytes from client: 7
+2025-12-11 01:04:46 Successfully sent 1208 bytes to client 6
+2025-12-11 01:04:46 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:04:46 Successfully sent 4096 bytes to client 6
+2025-12-11 01:04:46 Succesfully read 410 bytes from client: 7
+2025-12-11 01:04:46 Successfully sent 410 bytes to client 6
+2025-12-11 01:04:46 Succesfully read 3624 bytes from client: 7
+2025-12-11 01:04:46 Successfully sent 3624 bytes to client 6
+2025-12-11 01:04:46 Succesfully read 2403 bytes from client: 7
+2025-12-11 01:04:46 Successfully sent 2403 bytes to client 6
+2025-12-11 01:04:46 Succesfully read 1208 bytes from client: 7
+2025-12-11 01:04:46 Successfully sent 1208 bytes to client 6
+2025-12-11 01:04:46 Succesfully read 1208 bytes from client: 7
+2025-12-11 01:04:46 Successfully sent 1208 bytes to client 6
+2025-12-11 01:04:46 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:04:46 Successfully sent 4096 bytes to client 6
+2025-12-11 01:04:46 Succesfully read 753 bytes from client: 7
+2025-12-11 01:04:46 Successfully sent 753 bytes to client 6
+2025-12-11 01:05:09 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 56002 
+2025-12-11 01:05:09 Reading the protocol version: 5 for client: 6
+2025-12-11 01:05:09 Amount of methods in greeting request: 3
+2025-12-11 01:05:09 Method #1: 0
+2025-12-11 01:05:09 Method #2: 1
+2025-12-11 01:05:09 Method #3: 2
+2025-12-11 01:05:09 Passing to write...
+2025-12-11 01:05:09 Authentication version: 1
+2025-12-11 01:05:09 Username length: 8
+2025-12-11 01:05:09 Username and password combination: username and password
+2025-12-11 01:05:09 User username logged in successfully
+2025-12-11 01:05:09 Passed authentication!
+2025-12-11 01:05:09 Protocol version (request): 5
+2025-12-11 01:05:09 Correctly parsed cmd: 1
+2025-12-11 01:05:09 Passing reserved byte...
+2025-12-11 01:05:09 Address type: 4
+2025-12-11 01:05:09 Destination port is 0
+2025-12-11 01:05:09 Second read of destination port is 80
+2025-12-11 01:05:09 Request parsed! Remember, the address type is 4
+2025-12-11 01:05:09 Started IPv6 connection...
+2025-12-11 01:05:09 Succesfully read 77 bytes from client: 6
+2025-12-11 01:05:09 Successfully sent 77 bytes to client 7
+2025-12-11 01:05:09 Succesfully read 3624 bytes from client: 7
+2025-12-11 01:05:09 Successfully sent 3624 bytes to client 6
+2025-12-11 01:05:09 Succesfully read 2332 bytes from client: 7
+2025-12-11 01:05:09 Successfully sent 2332 bytes to client 6
+2025-12-11 01:05:09 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:05:09 Successfully sent 4096 bytes to client 6
+2025-12-11 01:05:09 Succesfully read 1944 bytes from client: 7
+2025-12-11 01:05:09 Successfully sent 1944 bytes to client 6
+2025-12-11 01:05:09 Succesfully read 1208 bytes from client: 7
+2025-12-11 01:05:09 Successfully sent 1208 bytes to client 6
+2025-12-11 01:05:09 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:05:09 Successfully sent 4096 bytes to client 6
+2025-12-11 01:05:09 Succesfully read 1101 bytes from client: 7
+2025-12-11 01:05:09 Successfully sent 1101 bytes to client 6
+2025-12-11 01:05:09 Succesfully read 812 bytes from client: 7
+2025-12-11 01:05:09 Successfully sent 812 bytes to client 6
+2025-12-11 01:05:12 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 56004 
+2025-12-11 01:05:12 Reading the protocol version: 5 for client: 6
+2025-12-11 01:05:12 Amount of methods in greeting request: 3
+2025-12-11 01:05:12 Method #1: 0
+2025-12-11 01:05:12 Method #2: 1
+2025-12-11 01:05:12 Method #3: 2
+2025-12-11 01:05:12 Passing to write...
+2025-12-11 01:05:12 Authentication version: 1
+2025-12-11 01:05:12 Username length: 8
+2025-12-11 01:05:12 Username and password combination: username and password
+2025-12-11 01:05:12 User username logged in successfully
+2025-12-11 01:05:12 Passed authentication!
+2025-12-11 01:05:12 Protocol version (request): 5
+2025-12-11 01:05:12 Correctly parsed cmd: 1
+2025-12-11 01:05:12 Passing reserved byte...
+2025-12-11 01:05:12 Address type: 4
+2025-12-11 01:05:12 Destination port is 0
+2025-12-11 01:05:12 Second read of destination port is 80
+2025-12-11 01:05:12 Request parsed! Remember, the address type is 4
+2025-12-11 01:05:12 Started IPv6 connection...
+2025-12-11 01:05:12 Succesfully read 77 bytes from client: 6
+2025-12-11 01:05:12 Successfully sent 77 bytes to client 7
+2025-12-11 01:05:12 Succesfully read 2416 bytes from client: 7
+2025-12-11 01:05:12 Successfully sent 2416 bytes to client 6
+2025-12-11 01:05:12 Succesfully read 3344 bytes from client: 7
+2025-12-11 01:05:12 Successfully sent 3344 bytes to client 6
+2025-12-11 01:05:12 Succesfully read 2416 bytes from client: 7
+2025-12-11 01:05:12 Successfully sent 2416 bytes to client 6
+2025-12-11 01:05:12 Succesfully read 3624 bytes from client: 7
+2025-12-11 01:05:12 Successfully sent 3624 bytes to client 6
+2025-12-11 01:05:12 Succesfully read 2416 bytes from client: 7
+2025-12-11 01:05:12 Successfully sent 2416 bytes to client 6
+2025-12-11 01:05:12 Succesfully read 3999 bytes from client: 7
+2025-12-11 01:05:12 Successfully sent 3999 bytes to client 6
+2025-12-11 01:05:12 Succesfully read 712 bytes from client: 7
+2025-12-11 01:05:12 Successfully sent 712 bytes to client 6
+2025-12-11 01:13:17 Listener on port 1080 
+2025-12-11 01:13:17 Users loaded successfully from src/server/users.txt
+2025-12-11 01:13:17 Listener on port 8080
+2025-12-11 01:13:21 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 46256 
+2025-12-11 01:13:21 Reading the protocol version: 5 for client: 6
+2025-12-11 01:13:21 Amount of methods in greeting request: 3
+2025-12-11 01:13:21 Passing to write...
+2025-12-11 01:13:21 Authentication version: 1
+2025-12-11 01:13:21 Username length: 8
+2025-12-11 01:13:21 Username and password combination: username and password
+2025-12-11 01:13:21 User username logged in successfully
+2025-12-11 01:13:21 Passed authentication!
+2025-12-11 01:13:21 Protocol version (request): 5
+2025-12-11 01:13:21 Correctly parsed cmd: 1
+2025-12-11 01:13:21 Passing reserved byte...
+2025-12-11 01:13:21 Address type: 4
+2025-12-11 01:13:21 Destination port is 0
+2025-12-11 01:13:21 Second read of destination port is 80
+2025-12-11 01:13:21 Request parsed! Remember, the address type is 4
+2025-12-11 01:13:21 Started IPv6 connection...
+2025-12-11 01:13:21 Succesfully read 77 bytes from client: 6
+2025-12-11 01:13:21 Successfully sent 77 bytes to client 7
+2025-12-11 01:13:21 Succesfully read 3624 bytes from client: 7
+2025-12-11 01:13:21 Successfully sent 3624 bytes to client 6
+2025-12-11 01:13:21 Succesfully read 3080 bytes from client: 7
+2025-12-11 01:13:21 Successfully sent 3080 bytes to client 6
+2025-12-11 01:13:21 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:13:21 Successfully sent 4096 bytes to client 6
+2025-12-11 01:13:21 Succesfully read 736 bytes from client: 7
+2025-12-11 01:13:21 Successfully sent 736 bytes to client 6
+2025-12-11 01:13:21 Succesfully read 1208 bytes from client: 7
+2025-12-11 01:13:21 Successfully sent 1208 bytes to client 6
+2025-12-11 01:13:21 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:13:21 Successfully sent 4096 bytes to client 6
+2025-12-11 01:13:21 Succesfully read 2088 bytes from client: 7
+2025-12-11 01:13:21 Successfully sent 2088 bytes to client 6
+2025-12-11 01:13:21 cerrando conexion en el socket pair: 6 - 7
