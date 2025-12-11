@@ -35,9 +35,10 @@ static void user(char *s, struct users *user) {
 }
 
 static void version(void) {
-  fprintf(stderr, "\nsocksv5 version 0.0\n"
-                  "ITBA Protocolos de ComunicaciÃ³n 2025/1 -- Grupo X\n"
-                  "AQUI VA LA LICENCIA\n\n");
+  fprintf(stderr, "\nSocksv5 version 5.0\n"
+                  "ITBA Protocolos de ComunicaciÃ³n 2025/1 -- Grupo 10\n"
+                  "Dream Team\n"
+                  "Toni, Mitch, Bruno y PIZZA\n");
 }
 
 static void usage(const char *progname) {
@@ -52,7 +53,7 @@ static void usage(const char *progname) {
           "   -P <conf port>   Puerto entrante conexiones configuracion\n"
           "   -u <name>:<pass> Usuario y contraseÃ±a de usuario que puede usar "
           "el proxy. Hasta 10.\n"
-          "   -v               Imprime informaciÃ³n sobre la versiÃ³n versiÃ³n "
+          "   -v               Imprime informaciÃ³n sobre la versiÃ³n "
           "y termina.\n"
 
           "\n",
