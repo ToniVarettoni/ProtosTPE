@@ -310,3 +310,96 @@
 2025-12-11 01:13:21 Succesfully read 2088 bytes from client: 7
 2025-12-11 01:13:21 Successfully sent 2088 bytes to client 6
 2025-12-11 01:13:21 cerrando conexion en el socket pair: 6 - 7
+2025-12-11 01:35:57 Listener on port 1080 
+2025-12-11 01:35:57 Users loaded successfully from src/server/users.txt
+2025-12-11 01:35:57 Listener on port 8080
+2025-12-11 01:36:24 Listener on port 1080 
+2025-12-11 01:36:24 Users loaded successfully from src/server/users.txt
+2025-12-11 01:36:24 Listener on port 8080
+2025-12-11 01:36:26 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 32772 
+2025-12-11 01:36:26 Client connected to monitor!
+2025-12-11 01:36:26 Started monitor authentication. Username length: 5
+2025-12-11 01:36:26 Read username: mitch
+2025-12-11 01:36:26 Password read: password
+2025-12-11 01:36:26 User mitch logged in successfully
+2025-12-11 01:36:26 Created user with username bruni and password password
+2025-12-11 01:36:26 Sending 1 bytes
+2025-12-11 01:36:35 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 55826 
+2025-12-11 01:36:35 Reading the protocol version: 5 for client: 6
+2025-12-11 01:36:35 Amount of methods in greeting request: 3
+2025-12-11 01:36:35 Passing to write...
+2025-12-11 01:36:35 Authentication version: 1
+2025-12-11 01:36:35 Username length: 8
+2025-12-11 01:36:35 Username and password combination: username and password
+2025-12-11 01:36:35 User username logged in successfully
+2025-12-11 01:36:35 Passed authentication!
+2025-12-11 01:36:35 Protocol version (request): 5
+2025-12-11 01:36:35 Correctly parsed cmd: 1
+2025-12-11 01:36:35 Passing reserved byte...
+2025-12-11 01:36:35 Address type: 4
+2025-12-11 01:36:35 Destination port is 0
+2025-12-11 01:36:35 Second read of destination port is 80
+2025-12-11 01:36:35 Request parsed! Remember, the address type is 4
+2025-12-11 01:36:35 Started IPv6 connection...
+2025-12-11 01:36:35 Succesfully read 77 bytes from client: 6
+2025-12-11 01:36:35 Successfully sent 77 bytes to client 7
+2025-12-11 01:36:35 Succesfully read 3002 bytes from client: 7
+2025-12-11 01:36:35 Successfully sent 3002 bytes to client 6
+2025-12-11 01:36:35 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:36:35 Successfully sent 4096 bytes to client 6
+2025-12-11 01:36:35 Succesfully read 1308 bytes from client: 7
+2025-12-11 01:36:35 Successfully sent 1308 bytes to client 6
+2025-12-11 01:36:35 Succesfully read 2416 bytes from client: 7
+2025-12-11 01:36:35 Successfully sent 2416 bytes to client 6
+2025-12-11 01:36:35 Succesfully read 1208 bytes from client: 7
+2025-12-11 01:36:35 Successfully sent 1208 bytes to client 6
+2025-12-11 01:36:35 Succesfully read 4096 bytes from client: 7
+2025-12-11 01:36:35 Successfully sent 4096 bytes to client 6
+2025-12-11 01:36:35 Succesfully read 1944 bytes from client: 7
+2025-12-11 01:36:35 Successfully sent 1944 bytes to client 6
+2025-12-11 01:36:35 Succesfully read 818 bytes from client: 7
+2025-12-11 01:36:35 Successfully sent 818 bytes to client 6
+2025-12-11 01:36:35 cerrando conexion en el socket pair: 6 - 7
+2025-12-11 01:37:31 Listener on port 1080 
+2025-12-11 01:37:31 Users loaded successfully from src/server/users.txt
+2025-12-11 01:37:31 Listener on port 8080
+2025-12-11 01:37:32 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 56976 
+2025-12-11 01:37:32 Reading the protocol version: 5 for client: 6
+2025-12-11 01:37:32 Amount of methods in greeting request: 1
+2025-12-11 01:37:32 Passing to write...
+2025-12-11 01:37:32 cerrando conexion en el socket pair: 6 - -1
+2025-12-11 01:37:38 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 55902 
+2025-12-11 01:37:38 Reading the protocol version: 5 for client: 6
+2025-12-11 01:37:38 Amount of methods in greeting request: 1
+2025-12-11 01:37:38 Passing to write...
+2025-12-11 01:37:38 cerrando conexion en el socket pair: 6 - -1
+2025-12-11 01:37:38 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 55912 
+2025-12-11 01:37:38 Reading the protocol version: 5 for client: 6
+2025-12-11 01:37:38 Amount of methods in greeting request: 1
+2025-12-11 01:37:38 Passing to write...
+2025-12-11 01:37:38 cerrando conexion en el socket pair: 6 - -1
+2025-12-11 01:37:38 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 55924 
+2025-12-11 01:37:38 Reading the protocol version: 5 for client: 6
+2025-12-11 01:37:38 Amount of methods in greeting request: 1
+2025-12-11 01:37:38 Passing to write...
+2025-12-11 01:37:38 cerrando conexion en el socket pair: 6 - -1
+2025-12-11 01:37:38 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 55940 
+2025-12-11 01:37:38 Reading the protocol version: 5 for client: 6
+2025-12-11 01:37:38 Amount of methods in greeting request: 1
+2025-12-11 01:37:38 Passing to write...
+2025-12-11 01:37:38 cerrando conexion en el socket pair: 6 - -1
+2025-12-11 01:37:39 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 55952 
+2025-12-11 01:37:39 Reading the protocol version: 5 for client: 6
+2025-12-11 01:37:39 Amount of methods in greeting request: 1
+2025-12-11 01:37:39 Passing to write...
+2025-12-11 01:37:39 cerrando conexion en el socket pair: 6 - -1
+2025-12-11 01:37:39 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 55966 
+2025-12-11 01:37:39 Reading the protocol version: 5 for client: 6
+2025-12-11 01:37:39 Amount of methods in greeting request: 1
+2025-12-11 01:37:39 Passing to write...
+2025-12-11 01:37:39 cerrando conexion en el socket pair: 6 - -1
+2025-12-11 01:37:39 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 55978 
+2025-12-11 01:37:39 Reading the protocol version: 5 for client: 6
+2025-12-11 01:37:39 Amount of methods in greeting request: 1
+2025-12-11 01:37:39 Passing to write...
+2025-12-11 01:37:39 cerrando conexion en el socket pair: 6 - -1

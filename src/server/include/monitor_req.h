@@ -18,13 +18,15 @@ typedef enum {
   ADD_USER = 0x00,
   REMOVE_USER = 0x01,
   CHANGE_PASSWD = 0x02,
-  STATISTICS = 0x03
+  STATISTICS = 0x03,
+  CHANGE_AUTH_METHODS = 0x04
 } monitor_request_t;
 
 #define MAX_ARGUMENT_LENGTH 255
 
 typedef enum {
-  MONITOR_REQ_STATE_TYPE = 0,        // reading first byte that determins the type of the request
+  MONITOR_REQ_STATE_TYPE =
+      0, // reading first byte that determins the type of the request
   MONITOR_REQ_STATE_ARGUMENT_LENGTH, // reading next argument length
   MONITOR_REQ_STATE_ARGUMENT,        // reading argument
   MONITOR_REQ_STATE_DONE,            // done
