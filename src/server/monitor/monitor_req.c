@@ -93,7 +93,9 @@ void monitor_req_init(const unsigned state, struct selector_key *key) {
   monitor_t *monitor = ATTACHMENT(key);
   if (monitor_req_parser_init(&monitor->parser.req_parser) !=
       MONITOR_REQ_STATUS_OK) {
-    error_handler(MONITOR_REQ, key);
+    monitor->error = MONITOR_IO_ERROR;
+    monitor_error_arrival(MONITOR_ERROR, key);
+    return;
   }
   monitor->active_parser = REQ_PARSER;
 }

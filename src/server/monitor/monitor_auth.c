@@ -87,9 +87,11 @@ void monitor_auth_init(const unsigned state, struct selector_key *key) {
   monitor_t *monitor = ATTACHMENT(key);
   if (monitor_auth_parser_init(&monitor->parser.auth_parser) !=
       MONITOR_AUTH_STATUS_OK) {
-    error_handler(MONITOR_AUTH, key);
+    monitor->error = MONITOR_IO_ERROR;
+    monitor_error_arrival(MONITOR_ERROR, key);
+    return;
   }
-  monitor->active_parser = AUTH_PARSER;
+  monitor->active_parser = AUTH_PARSER_MONITOR;
 }
 
 void monitor_auth_finalize(const unsigned state, struct selector_key *key) {

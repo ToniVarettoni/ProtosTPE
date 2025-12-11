@@ -17,11 +17,13 @@
 #include <unistd.h> //close
 
 void handle_read_passive_monitor(struct selector_key *key) {
-  struct sockaddr_in address;
-  int new_socket, addr_len = 0;
+  struct sockaddr_storage address;
+  socklen_t addr_len = sizeof(address);
+  int new_socket;
   char *message = "ECHO Daemon v1.0 \r\n";
 
   do {
+    addr_len = sizeof(address);
     new_socket = accept(key->fd, (struct sockaddr *)&address, (socklen_t *)&addr_len);
     if (new_socket < 0) {
       if (errno == EINTR)
@@ -40,7 +42,7 @@ void handle_read_passive_monitor(struct selector_key *key) {
   if (monitor == NULL) {
     log_to_stdout(
         "Failed to load client with ip: %s, in port: %d: Calloc failed\n",
-        inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+        "unknown", 0);
     close(new_socket);
     return;
   }
@@ -67,7 +69,7 @@ void handle_read_passive_monitor(struct selector_key *key) {
   if (status != SELECTOR_SUCCESS) {
     log_to_stdout("Failed to load client with ip: %s, in port: %d: Selector "
                   "register failed\n",
-                  inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+                  "unknown", 0);
     close(new_socket);
     free(monitor);
     return;
@@ -76,9 +78,19 @@ void handle_read_passive_monitor(struct selector_key *key) {
   // inform user of socket number - used in send and receive commands
   // printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
   //        new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+  char host[INET6_ADDRSTRLEN] = {0};
+  uint16_t port = 0;
+  if (address.ss_family == AF_INET) {
+    struct sockaddr_in *addr4 = (struct sockaddr_in *)&address;
+    inet_ntop(AF_INET, &addr4->sin_addr, host, sizeof(host));
+    port = ntohs(addr4->sin_port);
+  } else if (address.ss_family == AF_INET6) {
+    struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)&address;
+    inet_ntop(AF_INET6, &addr6->sin6_addr, host, sizeof(host));
+    port = ntohs(addr6->sin6_port);
+  }
   log_to_stdout("New connection , socket fd is %d , ip is : %s , port : %d \n",
-                new_socket, inet_ntoa(address.sin_addr),
-                ntohs(address.sin_port));
+                new_socket, host, port);
   log_to_stdout("Client connected to monitor!\n");
 
   // send new connection greeting message

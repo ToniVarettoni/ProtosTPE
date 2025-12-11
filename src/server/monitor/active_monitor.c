@@ -1,5 +1,7 @@
 #include "active_monitor.h"
 #include "../include/stats.h"
+#include <sys/socket.h>
+#include <unistd.h>
 
 void handle_read_monitor(struct selector_key *key) {
   stm_handler_read(&((monitor_t *)ATTACHMENT(key))->stm, key);
@@ -10,22 +12,24 @@ void handle_write_monitor(struct selector_key *key) {
 }
 
 void handle_close_monitor(struct selector_key *key) {
-  stm_handler_close(&((monitor_t *)ATTACHMENT(key))->stm, key);
+  monitor_t *monitor = ATTACHMENT(key);
+  stm_handler_close(&monitor->stm, key);
+  close(key->fd);
+  free(monitor);
 }
 
-void monitor_error_handler(unsigned state, struct selector_key * key){
+void monitor_error_arrival(unsigned state, struct selector_key * key){
   monitor_t *monitor = ATTACHMENT(key);
   if (monitor->error != 0){
     send(key->fd, &monitor->error, 1, 0);
   }
 
-  if (monitor->active_parser == AUTH_PARSER_MONITOR){
-    parser_destroy(monitor->parser.auth_parser.p);
-  }
-  if (monitor->active_parser == REQ_PARSER){
-    parser_destroy(monitor->parser.req_parser.p);
-  }
-  free(key->data);
+  selector_set_interest_key(key, OP_NOOP);
+  selector_unregister_fd(key->s, key->fd);
+}
+
+void monitor_done_arrival(unsigned state, struct selector_key * key){
+  selector_set_interest_key(key, OP_NOOP);
   selector_unregister_fd(key->s, key->fd);
 }
 
