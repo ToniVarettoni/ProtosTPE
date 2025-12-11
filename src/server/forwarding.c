@@ -9,7 +9,6 @@ unsigned forward_write(struct selector_key *key) {
     buffer * b = this_is_client? &client->destiny_buffer : &client->client_buffer;
 
     if (!buffer_can_read(b)) {
-        printf("WRITE vacío en fd %d\n", key->fd);
         if (this_is_client){
             if (client->client_closed){
                 return DONE;
@@ -71,7 +70,6 @@ unsigned forward_read(struct selector_key *key) {
     size_t n = recv(key->fd, write_ptr, nbytes, 0);
     if (n <= 0) {
         if (errno == 0 && n == 0){
-            printf("EOF recibido en fd %d\n", key->fd);
             if (from_client) {
                 client->client_closed = true;
                 if (client->dest_closed){

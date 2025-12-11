@@ -3,13 +3,6 @@
 
 void end_connection(const unsigned state, struct selector_key *key) {
     client_t *client = ATTACHMENT(key);
-    printf("client closed: %d\n", client->client_closed);
-    printf("dest closed: %d\n", client->dest_closed);
-    printf("client buffer can read: %d\n", buffer_can_read(&client->client_buffer));
-    printf("dest buffer can read: %d\n", buffer_can_read(&client->destiny_buffer));
-    printf("client fd: %d\n", client->client_fd);
-    printf("dest fd: %d\n", client->destination_fd);
-    selector_set_interest_key(key, OP_NOOP);
 
     if (client->client_closed && client->dest_closed && !buffer_can_read(&client->client_buffer) && !buffer_can_read(&client->destiny_buffer)){
         printf("cerrando conexion en el socket pair: %d - %d\n", client->client_fd, client->destination_fd);
@@ -37,8 +30,6 @@ void end_connection(const unsigned state, struct selector_key *key) {
         selector_unregister_fd(key->s, client->client_fd);
         selector_unregister_fd(key->s, client->destination_fd);
         free(key->data);
-        printf("a\n");
-
     }
 }
 
@@ -59,6 +50,9 @@ void error_handler(const unsigned state, struct selector_key *key) {
         }
 
     }
-    
+    client->client_closed = true;
+    client->dest_closed = true;
+    client->client_buffer.read = client->client_buffer.write;
+    client->destiny_buffer.read = client->destiny_buffer.write;
     end_connection(state, key);
 }
