@@ -80,5 +80,6 @@ monitor_req_status_t send_response(struct selector_key *key) {
     return MONITOR_REQ_STATUS_ERR;
   }
 
+  selector_set_interest_key(key, OP_NOOP);
   return MONITOR_REQ_STATUS_OK;
 }

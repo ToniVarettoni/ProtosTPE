@@ -30,10 +30,10 @@ typedef enum {
 } monitor_error_t;
 
 typedef enum {
-  NO_PARSER = 0,
-  AUTH_PARSER,
+  NO_PARSER_MONITOR = 0,
+  AUTH_PARSER_MONITOR,
   REQ_PARSER
-} parser_state_t;
+} monitor_parser_state_t;
 
 typedef struct {
   struct state_machine stm;
@@ -46,9 +46,9 @@ typedef struct {
   } parser;
 } monitor_t;
 
-unsigned ignore_read_monitor(struct selector_key *key);
+void monitor_error_arrival(unsigned state, struct selector_key *key);
 
-unsigned ignore_write_monitor(struct selector_key *key);
+void monitor_done_arrival(unsigned state, struct selector_key *key);
 
 static const struct state_definition monitor_states[] = {
     {.state = MONITOR_AUTH,
@@ -60,10 +60,10 @@ static const struct state_definition monitor_states[] = {
      .on_read_ready = monitor_req_read,
      .on_write_ready = monitor_req_write,
      .on_departure = monitor_req_finalize},
-    {.state = MONITOR_DONE},
+    {.state = MONITOR_DONE,
+     .on_arrival = monitor_done_arrival},
     {.state = MONITOR_ERROR,
-     .on_read_ready = ignore_read_monitor,
-     .on_write_ready = ignore_write_monitor}};
+     .on_arrival = monitor_error_arrival}};
 
 void handle_read_monitor(struct selector_key *key);
 

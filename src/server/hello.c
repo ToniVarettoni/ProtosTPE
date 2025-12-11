@@ -129,7 +129,6 @@ unsigned hello_read(struct selector_key *key) {
         hp->method_selected = HELLO_AUTH_NO_METHOD_ACCEPTED;
 
         for (int i = 0; i < hp->nmethods && !found; i++) {
-          log_to_stdout("Method #%d: %d\n", i + 1, hp->methods[i]);
           if (hp->methods[i] == HELLO_AUTH_USER_PASS) {
             hp->method_selected = HELLO_AUTH_USER_PASS;
             found = true;

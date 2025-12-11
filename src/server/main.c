@@ -28,7 +28,10 @@
 #define PORT 1080
 #define MONITOR_PORT 8080
 
-#define DEFAULT_MAX_CLIENTS 30
+#define DEFAULT_MAX_CLIENTS 1000
+#define LISTEN_BACKLOG 512
+
+#define log_file "logs.txt"
 
 static int running = true;
 
@@ -99,8 +102,8 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  // try to specify maximum of 3 pending connections for the master socket
-  if (listen(master_socket, 3) < 0) {
+  // allow a large backlog to tolerate connection spikes
+  if (listen(master_socket, LISTEN_BACKLOG) < 0) {
     perror("listen");
     exit(EXIT_FAILURE);
   }
@@ -155,8 +158,7 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  // try to specify maximum of 3 pending connections for the master socket
-  if (listen(monitor_socket, 3) < 0) {
+  if (listen(monitor_socket, LISTEN_BACKLOG) < 0) {
     perror("listen");
     exit(EXIT_FAILURE);
   }
@@ -168,7 +170,7 @@ int main(int argc, char *argv[]) {
   }
 
   // initialize my logger with my selector
-  logger_initialize(fds);
+  logger_initialize(fds, log_file);
 
   if (user_init_status != USERS_OK) {
     log_to_stdout(
