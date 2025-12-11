@@ -25,6 +25,7 @@ typedef struct addrinfo addrinfo;
 typedef struct {
   struct state_machine stm;
   uint8_t client_fd;
+  uint8_t active_parser;
   union {
     hello_parser_t hello_parser;
     auth_parser_t auth_parser;
@@ -38,8 +39,16 @@ typedef struct {
   struct addrinfo *dest_addr;
   struct gaicb * dns_req;
   uint8_t err;
-
+  uint8_t client_closed;
+  uint8_t dest_closed;
 } client_t;
+
+typedef enum {
+  NO_PARSER = 0,
+  HELLO_PARSER,
+  AUTH_PARSER,
+  REQUEST_PARSER
+} parser_state_t;
 
 typedef enum {
   HELLO_READ = 0,
@@ -71,15 +80,17 @@ static const struct state_definition client_states[] = {
     {.state = DEST_CONNECT, .on_write_ready = try_connect},
     {.state = REQUEST_WRITE, .on_write_ready = request_write},
     {.state = FORWARDING,
+     .on_arrival = forward_setup,
      .on_write_ready = forward_write,
      .on_read_ready = forward_read},
-    {.state = DONE, .on_arrival = end_connection},
-    {.state = ERROR, .on_arrival = error_handler}};
+    {.state = DONE,
+     .on_arrival = end_connection,},
+    {.state = ERROR,
+     .on_arrival = error_handler}};
 
 const fd_interest get_client_interests();
 
 const fd_handler *get_client_handler();
 
-void close_connection(struct selector_key *key);
 
 #endif

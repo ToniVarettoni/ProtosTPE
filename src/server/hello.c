@@ -76,8 +76,9 @@ hello_status_t hello_parser_init(hello_parser_t *hp) {
 void hello_read_init(const unsigned state, struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
   hello_status_t status = hello_parser_init(&client->parser.hello_parser);
+  client->active_parser = HELLO_PARSER;
   if (status != HELLO_OK) {
-    close_connection(key);
+    error_handler(state, key);
   }
 }
 
@@ -91,69 +92,71 @@ unsigned hello_read(struct selector_key *key) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return HELLO_READ;
     }
-    selector_set_interest(key->s,client->client_fd, OP_WRITE);
+    selector_set_interest(key->s, client->client_fd, OP_WRITE);
     return ERROR;
   }
-  
+
   const struct parser_event *ev = parser_feed(hp->p, c);
 
   for (; ev != NULL; ev = ev->next) {
-      switch (ev->type) {
+    switch (ev->type) {
 
-      case HELLO_EVENT_VER:
-        hp->ver = ev->data[0];
-        log_to_stdout("Reading the protocol version: %d for client: %d\n", hp->ver, key->fd);
-        if (hp->ver != HELLO_PROTOCOL_VERSION) {
-          return ERROR;
-        }
-        break;
-
-      case HELLO_EVENT_NMETHODS:
-        if (ev->data[0] == 0) {
-          return ERROR;
-        }
-        hp->nmethods = ev->data[0];
-        hp->methods_read = 0;
-        log_to_stdout("Amount of methods in greeting request: %d\n", hp->nmethods);
-        break;
-
-      case HELLO_EVENT_METHOD:
-        if (hp->methods_read < hp->nmethods) {
-          hp->methods[hp->methods_read++] = ev->data[0];
-        }
-        if (hp->methods_read == hp->nmethods) {
-          bool found = false;
-          hp->method_selected = HELLO_AUTH_NO_METHOD_ACCEPTED;
-
-          for (int i = 0; i < hp->nmethods && !found; i++) {
-            log_to_stdout("Method #%d: %d\n", i+1, hp->methods[i]);
-            if (hp->methods[i] == HELLO_AUTH_USER_PASS) {
-              hp->method_selected = HELLO_AUTH_USER_PASS;
-              found = true;
-            }
-          }
-
-          if (!found) {
-            hp->method_selected = HELLO_NO_ACCEPTABLE_METHODS;
-          }
-
-          parser_reset(hp->p);
-          selector_set_interest_key(key, OP_WRITE);
-          log_to_stdout("Passing to write...\n");
-          return HELLO_WRITE;
-        }
-        break;
-
-      case HELLO_EVENT_UNEXPECTED:
-        return ERROR;
-
-      case HELLO_EVENT_DONE:
-        break;
-
-      default:
+    case HELLO_EVENT_VER:
+      hp->ver = ev->data[0];
+      log_to_stdout("Reading the protocol version: %d for client: %d\n",
+                    hp->ver, key->fd);
+      if (hp->ver != HELLO_PROTOCOL_VERSION) {
         return ERROR;
       }
+      break;
+
+    case HELLO_EVENT_NMETHODS:
+      if (ev->data[0] == 0) {
+        return ERROR;
+      }
+      hp->nmethods = ev->data[0];
+      hp->methods_read = 0;
+      log_to_stdout("Amount of methods in greeting request: %d\n",
+                    hp->nmethods);
+      break;
+
+    case HELLO_EVENT_METHOD:
+      if (hp->methods_read < hp->nmethods) {
+        hp->methods[hp->methods_read++] = ev->data[0];
+      }
+      if (hp->methods_read == hp->nmethods) {
+        bool found = false;
+        hp->method_selected = HELLO_AUTH_NO_METHOD_ACCEPTED;
+
+        for (int i = 0; i < hp->nmethods && !found; i++) {
+          log_to_stdout("Method #%d: %d\n", i + 1, hp->methods[i]);
+          if (hp->methods[i] == HELLO_AUTH_USER_PASS) {
+            hp->method_selected = HELLO_AUTH_USER_PASS;
+            found = true;
+          }
+        }
+
+        if (!found) {
+          hp->method_selected = HELLO_NO_ACCEPTABLE_METHODS;
+        }
+
+        parser_reset(hp->p);
+        selector_set_interest_key(key, OP_WRITE);
+        log_to_stdout("Passing to write...\n");
+        return HELLO_WRITE;
+      }
+      break;
+
+    case HELLO_EVENT_UNEXPECTED:
+      return ERROR;
+
+    case HELLO_EVENT_DONE:
+      break;
+
+    default:
+      return ERROR;
     }
+  }
 
   return HELLO_READ;
 }
@@ -161,7 +164,8 @@ unsigned hello_read(struct selector_key *key) {
 unsigned hello_write(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
   hello_parser_t *hp = &client->parser.hello_parser;
-  uint8_t reply[HELLO_REPLY_SIZE] = {HELLO_PROTOCOL_VERSION, hp->method_selected};
+  uint8_t reply[HELLO_REPLY_SIZE] = {HELLO_PROTOCOL_VERSION,
+                                     hp->method_selected};
 
   if (send(key->fd, reply, HELLO_REPLY_SIZE, 0) != HELLO_REPLY_SIZE) {
     return ERROR;

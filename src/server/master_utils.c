@@ -51,6 +51,7 @@ void handle_read_master(struct selector_key *key) {
   client->stm.max_state = ERROR;
   client->stm.states = client_states;
   client->destination_fd = -1;
+  client->active_parser = NO_PARSER;
   buffer_init(&client->client_buffer, MAX_BUFFER,
               client->client_buffer_storage);
   buffer_init(&client->destiny_buffer, MAX_BUFFER,

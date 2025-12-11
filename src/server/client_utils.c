@@ -48,7 +48,3 @@ const fd_handler *get_client_handler() { return &CLIENT_HANDLER; }
 const fd_interest INITIAL_CLIENT_INTERESTS = OP_READ;
 
 const fd_interest get_client_interests() { return INITIAL_CLIENT_INTERESTS; }
-
-void close_connection(struct selector_key *key) {
-  // TODO
-}
