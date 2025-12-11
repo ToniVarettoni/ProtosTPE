@@ -13,6 +13,7 @@
 #define DELETE_USER_ACTION_TYPE 0x01
 #define CHANGE_PASS_ACTION_TYPE 0x02
 #define GET_STATS_ACTION_TYPE 0x03
+#define CHANGE_AUTH_METHODS_TYPE 0x04
 
 #define TERMINATOR 0x00
 
@@ -166,6 +167,24 @@ size_t write_monitor_get_stats_request(uint8_t *buffer, size_t buffer_len) {
   buffer[0] = GET_STATS_ACTION_TYPE;
   buffer[1] = TERMINATOR;
   return 2;
+}
+
+size_t write_monitor_change_auth_methods_request(uint8_t *buffer,
+                                                 size_t buffer_len,
+                                                 int8_t *auth_methods) {
+  if (buffer == NULL || buffer_len < 1) {
+    return 0;
+  }
+  uint16_t i = 0, j = 0;
+  buffer[i++] = CHANGE_AUTH_METHODS_TYPE;
+  int8_t current_method = auth_methods[j++];
+  while (current_method != -1) {
+    buffer[i++] = 1; // length of methods is always 1
+    buffer[i++] = current_method;
+    current_method = auth_methods[j++];
+  }
+  buffer[i++] = '\0';
+  return i;
 }
 
 bool read_monitor_stats_reply(int sockfd, stats_t *out_stats) {

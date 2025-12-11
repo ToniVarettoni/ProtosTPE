@@ -97,11 +97,20 @@ void monitor_req_init(const unsigned state, struct selector_key *key) {
     monitor_error_arrival(MONITOR_ERROR, key);
     return;
   }
+  monitor->parser.req_parser.arguments =
+      malloc(sizeof(char *) * MAX_BUFFER_SIZE);
   monitor->active_parser = REQ_PARSER;
 }
 
 void monitor_req_finalize(const unsigned state, struct selector_key *key) {
   monitor_t *monitor = ATTACHMENT(key);
+  uint8_t i = 0;
+  char *current = (char *)monitor->parser.req_parser.arguments[i++];
+  while (current != NULL) {
+    free(current);
+    current = (char *)monitor->parser.req_parser.arguments[i++];
+  }
+  free(monitor->parser.req_parser.arguments);
   parser_destroy(monitor->parser.req_parser.p);
 }
 
@@ -126,40 +135,32 @@ unsigned monitor_req_read(struct selector_key *key) {
       mrq->type = ev->data[0];
       break;
 
-      case MONITOR_REQ_EVENT_ARGUMENT_LENGTH:
-        if (ev->data[0] == 0) {
-          if (mrq->arguments_read != max_arguments[mrq->type]) {
-            return MONITOR_ERROR;
-          }
-          mrq->req_status = handle_request(key);
-          if (mrq->req_status != MONITOR_REQ_STATUS_OK) {
-            return MONITOR_ERROR;
-          }
-          return MONITOR_REQ;
-        }
-        mrq->current_argument_length = ev->data[0];
-        mrq->current_argument_read = 0;
-        mrq->arguments_read++;
-        break;
-      case MONITOR_REQ_EVENT_ARGUMENT:
-      if (mrq->current_argument_read < mrq->current_argument_length) {
-        switch (mrq->arguments_read) {
-        case 1:
-          mrq->uname[mrq->current_argument_read++] = ev->data[0];
-          mrq->uname[mrq->current_argument_read] = '\0';
-          break;
-        case 2:
-          mrq->passwd[mrq->current_argument_read++] = ev->data[0];
-          mrq->passwd[mrq->current_argument_read] = '\0';
-          break;
-        case 3:
-          mrq->access_level = ev->data[0];
-          mrq->current_argument_read++;
-          break;
-        default:
-          monitor->error = MONITOR_UNKNOWN_ERROR;
+    case MONITOR_REQ_EVENT_ARGUMENT_LENGTH:
+      if (ev->data[0] == 0) {
+        mrq->arguments[mrq->arguments_read] = NULL;
+        if (mrq->type != CHANGE_AUTH_METHODS &&
+            mrq->arguments_read != max_arguments[mrq->type]) {
           return MONITOR_ERROR;
         }
+        mrq->req_status = handle_request(key);
+        if (mrq->req_status != MONITOR_REQ_STATUS_OK) {
+          return MONITOR_ERROR;
+        }
+        return MONITOR_REQ;
+      }
+      mrq->current_argument_length = ev->data[0];
+      mrq->current_argument_read = 0;
+      mrq->arguments[mrq->arguments_read] =
+          malloc(sizeof(char) * (mrq->current_argument_length + 1));
+      mrq->arguments_read++;
+      mrq->arguments[mrq->arguments_read] = NULL;
+      break;
+    case MONITOR_REQ_EVENT_ARGUMENT:
+      if (mrq->current_argument_read < mrq->current_argument_length) {
+        mrq->arguments[mrq->arguments_read - 1][mrq->current_argument_read++] =
+            ev->data[0];
+        mrq->arguments[mrq->arguments_read - 1][mrq->current_argument_read] =
+            '\0';
       }
       if (mrq->current_argument_read == mrq->current_argument_length) {
         parser_set_state(mrq->p, MONITOR_REQ_STATE_ARGUMENT_LENGTH);

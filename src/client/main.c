@@ -1,11 +1,11 @@
 #include "../lib/args_monitor/args_monitor.h"
+#include "include/monitor_utils.h"
 #include <arpa/inet.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "include/monitor_utils.h"
 
 static int create_monitor_socket(const char *direction, unsigned short port) {
   if (direction != NULL && strcmp(direction, "localhost") == 0) {
@@ -48,7 +48,8 @@ int main(int argc, char **argv) {
   printf("Client connected to monitor!\n");
 
   uint8_t auth_buf[512];
-  size_t auth_len = write_monitor_auth_request(auth_buf, sizeof(auth_buf), &args.managing_user);
+  size_t auth_len = write_monitor_auth_request(auth_buf, sizeof(auth_buf),
+                                               &args.managing_user);
   if (auth_len == 0) {
     fprintf(stderr, "Failed to build auth request.\n");
     close(sockfd);
@@ -85,8 +86,11 @@ int main(int argc, char **argv) {
                                                 &args.user_to_modify);
   } else if (args.action == ACTION_STATS) {
     req_len = write_monitor_get_stats_request(req_buf, sizeof(req_buf));
+  } else if (args.action == ACTION_CHANGE_AUTH_METHODS) {
+    req_len = write_monitor_change_auth_methods_request(
+        req_buf, sizeof(req_buf), args.auth_methods);
   }
-  if(req_len == 0) {
+  if (req_len == 0) {
     fprintf(stderr, "Failed to build action request.\n");
     close(sockfd);
     return 1;

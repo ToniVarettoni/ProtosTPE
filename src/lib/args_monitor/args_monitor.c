@@ -9,20 +9,23 @@
 #define USER_ACCESS_LEVEL 1
 
 static void usage(const char *progname) {
-  fprintf(stderr,
-          "Usage: %s <direction:port> [OPTION]... -l <user:pass>\n"
-          "\n"
-          "   <direction:port>  Destination address and port for the proxy "
-          "server (required unless -h).\n"
-          "   -l <user:pass>     Login credentials (required).\n"
-          "   -a <user:pass>     Add a user with regular access.\n"
-          "   -A <user:pass>     Add a user with admin access.\n"
-          "   -d <user>          Delete a user.\n"
-          "   -c <user:newpass>  Change the password for an existing user.\n"
-          "   -s                 Fetch server statistics.\n"
-          "   -h                 Print this help message and exit.\n"
-          "\n",
-          progname);
+  fprintf(
+      stderr,
+      "Usage: %s <direction:port> [OPTION]... -l <user:pass>\n"
+      "\n"
+      "   <direction:port>  Destination address and port for the proxy "
+      "server (required unless -h).\n"
+      "   -l <user:pass>     Login credentials (required).\n"
+      "   -a <user:pass>     Add a user with regular access.\n"
+      "   -A <user:pass>     Add a user with admin access.\n"
+      "   -d <user>          Delete a user.\n"
+      "   -c <user:newpass>  Change the password for an existing user.\n"
+      "   -s                 Fetch server statistics.\n"
+      "   -m <method_1> ... <method_N>     Change accepted auth methods. "
+      "Methods are represented by their numeric value, example: NO_AUTH = 0\n"
+      "   -h                 Print this help message and exit.\n"
+      "\n",
+      progname);
   exit(1);
 }
 
@@ -119,13 +122,14 @@ void parse_monitor_args(const int argc, char **argv, management_args_t *args) {
     int option_index = 0;
     static struct option long_options[] = {{0, 0, 0, 0}};
 
-    c = getopt_long(argc, argv, "l:a:A:d:c:sh", long_options, &option_index);
+    c = getopt_long(argc, argv, "l:a:A:d:c:m:sh", long_options, &option_index);
     if (c == -1)
       break;
 
     switch (c) {
     case 'l':
-      if (args->managing_user.username != NULL || args->managing_user.password != NULL) {
+      if (args->managing_user.username != NULL ||
+          args->managing_user.password != NULL) {
         fprintf(stderr, "Login (-l) provided more than once.\n");
         exit(1);
       }
@@ -156,6 +160,25 @@ void parse_monitor_args(const int argc, char **argv, management_args_t *args) {
     case 's':
       ensure_single_action(args, ACTION_STATS);
       break;
+    case 'm':
+      ensure_single_action(args, ACTION_CHANGE_AUTH_METHODS);
+
+      args->auth_methods_count = 0;
+
+      // Primer método viene en optarg
+      args->auth_methods[args->auth_methods_count++] = (int8_t)atoi(optarg);
+
+      // Ahora consumimos argumentos que no sean opciones (-x)
+      while (optind < argc && argv[optind][0] != '-') {
+        if (args->auth_methods_count >= MAX_METHODS) {
+          fprintf(stderr, "Too many authentication methods.\n");
+          exit(1);
+        }
+        args->auth_methods[args->auth_methods_count++] =
+            (int8_t)atoi(argv[optind++]);
+      }
+      args->auth_methods[args->auth_methods_count] = -1;
+      break;
     case 'h':
       usage(argv[0]);
       break;
@@ -174,7 +197,8 @@ void parse_monitor_args(const int argc, char **argv, management_args_t *args) {
     exit(1);
   }
 
-  if (args->managing_user.username == NULL || args->managing_user.password == NULL) {
+  if (args->managing_user.username == NULL ||
+      args->managing_user.password == NULL) {
     fprintf(stderr, "Missing required login (-l <user:pass>).\n");
     usage(argv[0]);
   }

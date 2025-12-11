@@ -1,4 +1,3 @@
 #username:password
 @alice:secret
-@mitch:password
-@bruni:password
+@jose:jose

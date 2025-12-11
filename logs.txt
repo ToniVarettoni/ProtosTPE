@@ -403,3 +403,678 @@
 2025-12-11 01:37:39 Amount of methods in greeting request: 1
 2025-12-11 01:37:39 Passing to write...
 2025-12-11 01:37:39 cerrando conexion en el socket pair: 6 - -1
+2025-12-11 02:50:10 Listener on port 1080 
+2025-12-11 02:50:10 Users loaded successfully from src/server/users.txt
+2025-12-11 02:50:10 Listener on port 8080
+2025-12-11 02:51:27 Listener on port 1080 
+2025-12-11 02:51:27 Users loaded successfully from src/server/users.txt
+2025-12-11 02:51:27 Listener on port 8080
+2025-12-11 02:52:03 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 54030 
+2025-12-11 02:52:03 Client connected to monitor!
+2025-12-11 02:52:03 Started monitor authentication. Username length: 5
+2025-12-11 02:52:03 Read username: mitch
+2025-12-11 02:52:03 Password read: password
+2025-12-11 02:52:03 User mitch logged in successfully
+2025-12-11 02:52:50 Listener on port 1080 
+2025-12-11 02:52:50 Users loaded successfully from src/server/users.txt
+2025-12-11 02:52:50 Listener on port 8080
+2025-12-11 02:52:52 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 44572 
+2025-12-11 02:52:52 Client connected to monitor!
+2025-12-11 02:52:52 Started monitor authentication. Username length: 5
+2025-12-11 02:52:52 Read username: mitch
+2025-12-11 02:52:52 Password read: password
+2025-12-11 02:52:52 User mitch logged in successfully
+2025-12-11 02:53:32 Listener on port 1080 
+2025-12-11 02:53:32 Users loaded successfully from src/server/users.txt
+2025-12-11 02:53:32 Listener on port 8080
+2025-12-11 02:53:33 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 40486 
+2025-12-11 02:53:33 Client connected to monitor!
+2025-12-11 02:53:33 Started monitor authentication. Username length: 5
+2025-12-11 02:53:33 Read username: mitch
+2025-12-11 02:53:33 Password read: password
+2025-12-11 02:53:33 User mitch logged in successfully
+2025-12-11 02:55:19 Listener on port 1080 
+2025-12-11 02:55:19 Users loaded successfully from src/server/users.txt
+2025-12-11 02:55:19 Listener on port 8080
+2025-12-11 02:55:21 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 53382 
+2025-12-11 02:55:21 Client connected to monitor!
+2025-12-11 02:55:21 Started monitor authentication. Username length: 5
+2025-12-11 02:55:21 Read username: mitch
+2025-12-11 02:55:21 Password read: password
+2025-12-11 02:55:21 User mitch logged in successfully
+2025-12-11 02:55:21 Created user with username jose and password jose
+2025-12-11 02:55:21 Sending 1 bytes
+2025-12-11 02:55:49 Listener on port 1080 
+2025-12-11 02:55:49 Users loaded successfully from src/server/users.txt
+2025-12-11 02:55:49 Listener on port 8080
+2025-12-11 02:55:50 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 54736 
+2025-12-11 02:55:50 Client connected to monitor!
+2025-12-11 02:55:50 Started monitor authentication. Username length: 5
+2025-12-11 02:55:50 Read username: mitch
+2025-12-11 02:55:50 Password read: password
+2025-12-11 02:55:50 User mitch logged in successfully
+2025-12-11 02:56:27 Listener on port 1080 
+2025-12-11 02:56:27 Users loaded successfully from src/server/users.txt
+2025-12-11 02:56:27 Listener on port 8080
+2025-12-11 02:56:29 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 46336 
+2025-12-11 02:56:29 Client connected to monitor!
+2025-12-11 02:56:29 Started monitor authentication. Username length: 5
+2025-12-11 02:56:29 Read username: mitch
+2025-12-11 02:56:29 Password read: password
+2025-12-11 02:56:29 User mitch logged in successfully
+2025-12-11 02:56:46 Listener on port 1080 
+2025-12-11 02:56:46 Users loaded successfully from src/server/users.txt
+2025-12-11 02:56:46 Listener on port 8080
+2025-12-11 02:57:19 Listener on port 1080 
+2025-12-11 02:57:19 Users loaded successfully from src/server/users.txt
+2025-12-11 02:57:19 Listener on port 8080
+2025-12-11 02:57:20 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 40116 
+2025-12-11 02:57:20 Client connected to monitor!
+2025-12-11 02:57:20 Started monitor authentication. Username length: 5
+2025-12-11 02:57:20 Read username: mitch
+2025-12-11 02:57:20 Password read: password
+2025-12-11 02:57:20 User mitch logged in successfully
+2025-12-11 02:58:07 Listener on port 1080 
+2025-12-11 02:58:07 Users loaded successfully from src/server/users.txt
+2025-12-11 02:58:07 Listener on port 8080
+2025-12-11 02:58:09 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 58700 
+2025-12-11 02:58:09 Client connected to monitor!
+2025-12-11 02:58:09 Started monitor authentication. Username length: 5
+2025-12-11 02:58:09 Read username: mitch
+2025-12-11 02:58:09 Password read: password
+2025-12-11 02:58:09 User mitch logged in successfully
+2025-12-11 02:58:09 Sending 25 bytes
+2025-12-11 02:59:10 Listener on port 1080 
+2025-12-11 02:59:10 Users loaded successfully from src/server/users.txt
+2025-12-11 02:59:10 Listener on port 8080
+2025-12-11 02:59:11 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 34928 
+2025-12-11 02:59:11 Client connected to monitor!
+2025-12-11 02:59:11 Started monitor authentication. Username length: 5
+2025-12-11 02:59:11 Read username: mitch
+2025-12-11 02:59:11 Password read: password
+2025-12-11 02:59:11 User mitch logged in successfully
+2025-12-11 02:59:11 Sending 25 bytes
+2025-12-11 02:59:21 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 38282 
+2025-12-11 02:59:21 Client connected to monitor!
+2025-12-11 02:59:21 Started monitor authentication. Username length: 5
+2025-12-11 02:59:21 Read username: mitch
+2025-12-11 02:59:21 Password read: password
+2025-12-11 02:59:21 User mitch logged in successfully
+2025-12-11 02:59:21 Deleted user mitch
+2025-12-11 02:59:21 Sending 1 bytes
+2025-12-11 03:02:03 Listener on port 1080 
+2025-12-11 03:02:03 Users loaded successfully from src/server/users.txt
+2025-12-11 03:02:03 Listener on port 8080
+2025-12-11 03:02:05 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 43060 
+2025-12-11 03:02:05 Client connected to monitor!
+2025-12-11 03:02:05 Started monitor authentication. Username length: 5
+2025-12-11 03:02:05 Read username: mitch
+2025-12-11 03:02:05 Password read: password
+2025-12-11 03:02:05 User mitch logged in successfully
+2025-12-11 03:02:05 Deleted user mitch
+2025-12-11 03:02:05 Sending 1 bytes
+2025-12-11 03:02:39 Listener on port 1080 
+2025-12-11 03:02:39 Users loaded successfully from src/server/users.txt
+2025-12-11 03:02:39 Listener on port 8080
+2025-12-11 03:02:42 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 39196 
+2025-12-11 03:02:42 Client connected to monitor!
+2025-12-11 03:02:42 Started monitor authentication. Username length: 5
+2025-12-11 03:02:42 Read username: mitch
+2025-12-11 03:02:42 Password read: password
+2025-12-11 03:02:42 User mitch logged in successfully
+2025-12-11 03:02:42 Created user with username jose and password jose
+2025-12-11 03:02:42 Sending 1 bytes
+2025-12-11 03:02:51 Listener on port 1080 
+2025-12-11 03:02:51 Users loaded successfully from src/server/users.txt
+2025-12-11 03:02:51 Listener on port 8080
+2025-12-11 03:02:53 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 51074 
+2025-12-11 03:02:53 Client connected to monitor!
+2025-12-11 03:02:53 Started monitor authentication. Username length: 5
+2025-12-11 03:02:53 Read username: mitch
+2025-12-11 03:02:53 Password read: password
+2025-12-11 03:02:53 User mitch logged in successfully
+2025-12-11 03:02:53 user already exists
+2025-12-11 03:02:57 Listener on port 1080 
+2025-12-11 03:02:57 Users loaded successfully from src/server/users.txt
+2025-12-11 03:02:57 Listener on port 8080
+2025-12-11 03:03:00 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 55714 
+2025-12-11 03:03:00 Client connected to monitor!
+2025-12-11 03:03:00 Started monitor authentication. Username length: 5
+2025-12-11 03:03:00 Read username: mitch
+2025-12-11 03:03:00 Password read: password
+2025-12-11 03:03:00 User mitch logged in successfully
+2025-12-11 03:03:00 Deleted user mitch
+2025-12-11 03:03:00 Sending 1 bytes
+2025-12-11 03:03:13 Listener on port 1080 
+2025-12-11 03:03:13 Users loaded successfully from src/server/users.txt
+2025-12-11 03:03:13 Listener on port 8080
+2025-12-11 03:03:14 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 38586 
+2025-12-11 03:03:14 Client connected to monitor!
+2025-12-11 03:03:14 Started monitor authentication. Username length: 5
+2025-12-11 03:03:14 Read username: mitch
+2025-12-11 03:03:14 Password read: password
+2025-12-11 03:03:14 User mitch logged in successfully
+2025-12-11 03:03:14 Created user with username jose and password jose
+2025-12-11 03:03:14 Sending 1 bytes
+2025-12-11 03:03:22 Listener on port 1080 
+2025-12-11 03:03:22 Users loaded successfully from src/server/users.txt
+2025-12-11 03:03:22 Listener on port 8080
+2025-12-11 03:03:25 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 39960 
+2025-12-11 03:03:25 Client connected to monitor!
+2025-12-11 03:03:25 Started monitor authentication. Username length: 5
+2025-12-11 03:03:25 Read username: mitch
+2025-12-11 03:03:25 Password read: password
+2025-12-11 03:03:25 User mitch logged in successfully
+2025-12-11 03:03:25 Deleted user mitch
+2025-12-11 03:03:25 Sending 1 bytes
+2025-12-11 03:03:56 Listener on port 1080 
+2025-12-11 03:03:56 Users loaded successfully from src/server/users.txt
+2025-12-11 03:03:56 Listener on port 8080
+2025-12-11 03:04:00 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 59294 
+2025-12-11 03:04:00 Client connected to monitor!
+2025-12-11 03:04:00 Started monitor authentication. Username length: 5
+2025-12-11 03:04:00 Read username: mitch
+2025-12-11 03:04:00 Password read: password
+2025-12-11 03:04:00 User mitch logged in successfully
+2025-12-11 03:04:00 Created user with username jose and password jose
+2025-12-11 03:04:00 Sending 1 bytes
+2025-12-11 03:04:07 Listener on port 1080 
+2025-12-11 03:04:07 Users loaded successfully from src/server/users.txt
+2025-12-11 03:04:07 Listener on port 8080
+2025-12-11 03:04:10 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 59260 
+2025-12-11 03:04:10 Client connected to monitor!
+2025-12-11 03:04:10 Started monitor authentication. Username length: 5
+2025-12-11 03:04:10 Read username: mitch
+2025-12-11 03:04:10 Password read: password
+2025-12-11 03:04:10 User mitch logged in successfully
+2025-12-11 03:04:10 Deleted user mitch
+2025-12-11 03:04:10 Sending 1 bytes
+2025-12-11 03:04:39 Listener on port 1080 
+2025-12-11 03:04:39 Users loaded successfully from src/server/users.txt
+2025-12-11 03:04:39 Listener on port 8080
+2025-12-11 03:04:43 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 33630 
+2025-12-11 03:04:43 Client connected to monitor!
+2025-12-11 03:04:43 Started monitor authentication. Username length: 5
+2025-12-11 03:04:43 Read username: mitch
+2025-12-11 03:04:43 Password read: password
+2025-12-11 03:04:43 User mitch logged in successfully
+2025-12-11 03:04:43 Created user with username jose and password jose
+2025-12-11 03:04:43 Sending 1 bytes
+2025-12-11 03:04:50 Listener on port 1080 
+2025-12-11 03:04:50 Users loaded successfully from src/server/users.txt
+2025-12-11 03:04:50 Listener on port 8080
+2025-12-11 03:04:53 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 45956 
+2025-12-11 03:04:53 Client connected to monitor!
+2025-12-11 03:04:53 Started monitor authentication. Username length: 5
+2025-12-11 03:04:53 Read username: mitch
+2025-12-11 03:04:53 Password read: password
+2025-12-11 03:04:53 User mitch logged in successfully
+2025-12-11 03:04:53 Deleted user mitch
+2025-12-11 03:04:53 Sending 1 bytes
+2025-12-11 03:06:39 Listener on port 1080 
+2025-12-11 03:06:39 Users loaded successfully from src/server/users.txt
+2025-12-11 03:06:39 Listener on port 8080
+2025-12-11 03:06:42 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 57636 
+2025-12-11 03:06:42 Client connected to monitor!
+2025-12-11 03:06:42 Started monitor authentication. Username length: 5
+2025-12-11 03:06:42 Read username: mitch
+2025-12-11 03:06:42 Password read: password
+2025-12-11 03:06:42 User mitch logged in successfully
+2025-12-11 03:06:42 Created user with username jose and password jose
+2025-12-11 03:06:42 Sending 1 bytes
+2025-12-11 03:06:48 Listener on port 1080 
+2025-12-11 03:06:48 Users loaded successfully from src/server/users.txt
+2025-12-11 03:06:48 Listener on port 8080
+2025-12-11 03:06:50 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 59366 
+2025-12-11 03:06:50 Client connected to monitor!
+2025-12-11 03:06:50 Started monitor authentication. Username length: 5
+2025-12-11 03:06:50 Read username: mitch
+2025-12-11 03:06:50 Password read: password
+2025-12-11 03:06:50 User mitch logged in successfully
+2025-12-11 03:06:50 Deleted user mitch
+2025-12-11 03:06:50 Sending 1 bytes
+2025-12-11 03:43:10 Listener on port 1080 
+2025-12-11 03:43:10 Users loaded successfully from src/server/users.txt
+2025-12-11 03:43:10 Listener on port 8080
+2025-12-11 03:45:00 Listener on port 1080 
+2025-12-11 03:45:00 Users loaded successfully from src/server/users.txt
+2025-12-11 03:45:00 Listener on port 8080
+2025-12-11 03:45:01 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 47612 
+2025-12-11 03:45:01 Client connected to monitor!
+2025-12-11 03:45:01 Started monitor authentication. Username length: 4
+2025-12-11 03:45:01 Read username: jose
+2025-12-11 03:45:01 Password read: jose
+2025-12-11 03:45:01 User jose logged in successfully
+2025-12-11 03:45:22 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 47730 
+2025-12-11 03:45:22 cerrando conexion en el socket pair: 6 - -1
+2025-12-11 03:46:07 Listener on port 1080 
+2025-12-11 03:46:07 Users loaded successfully from src/server/users.txt
+2025-12-11 03:46:07 Listener on port 8080
+2025-12-11 03:46:09 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 38724 
+2025-12-11 03:46:09 Client connected to monitor!
+2025-12-11 03:46:09 Started monitor authentication. Username length: 4
+2025-12-11 03:46:09 Read username: jose
+2025-12-11 03:46:09 Password read: jose
+2025-12-11 03:46:09 User jose logged in successfully
+2025-12-11 03:48:30 Listener on port 1080 
+2025-12-11 03:48:30 Users loaded successfully from src/server/users.txt
+2025-12-11 03:48:30 Listener on port 8080
+2025-12-11 03:48:31 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 60200 
+2025-12-11 03:48:31 Client connected to monitor!
+2025-12-11 03:48:31 Started monitor authentication. Username length: 4
+2025-12-11 03:48:31 Read username: jose
+2025-12-11 03:48:31 Password read: jose
+2025-12-11 03:48:31 User jose logged in successfully
+2025-12-11 03:48:31 ENTRE
+2025-12-11 03:49:32 Listener on port 1080 
+2025-12-11 03:49:32 Users loaded successfully from src/server/users.txt
+2025-12-11 03:49:32 Listener on port 8080
+2025-12-11 03:49:33 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 44616 
+2025-12-11 03:49:33 Client connected to monitor!
+2025-12-11 03:49:33 Started monitor authentication. Username length: 4
+2025-12-11 03:49:33 Read username: jose
+2025-12-11 03:49:33 Password read: jose
+2025-12-11 03:49:33 User jose logged in successfully
+2025-12-11 03:49:59 Listener on port 1080 
+2025-12-11 03:49:59 Users loaded successfully from src/server/users.txt
+2025-12-11 03:49:59 Listener on port 8080
+2025-12-11 03:50:01 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 39930 
+2025-12-11 03:50:01 Client connected to monitor!
+2025-12-11 03:50:01 Started monitor authentication. Username length: 4
+2025-12-11 03:50:01 Read username: jose
+2025-12-11 03:50:01 Password read: jose
+2025-12-11 03:50:01 User jose logged in successfully
+2025-12-11 03:50:01 ENTRE
+2025-12-11 03:50:21 Listener on port 1080 
+2025-12-11 03:50:21 Users loaded successfully from src/server/users.txt
+2025-12-11 03:50:21 Listener on port 8080
+2025-12-11 03:50:22 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 42528 
+2025-12-11 03:50:22 Client connected to monitor!
+2025-12-11 03:50:22 Started monitor authentication. Username length: 4
+2025-12-11 03:50:22 Read username: jose
+2025-12-11 03:50:22 Password read: jose
+2025-12-11 03:50:22 User jose logged in successfully
+2025-12-11 03:50:22 ENTRE
+2025-12-11 03:51:05 Listener on port 1080 
+2025-12-11 03:51:05 Users loaded successfully from src/server/users.txt
+2025-12-11 03:51:05 Listener on port 8080
+2025-12-11 03:51:07 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 38606 
+2025-12-11 03:51:07 Client connected to monitor!
+2025-12-11 03:51:07 Started monitor authentication. Username length: 4
+2025-12-11 03:51:07 Read username: jose
+2025-12-11 03:51:07 Password read: jose
+2025-12-11 03:51:07 User jose logged in successfully
+2025-12-11 03:51:07 ENTRE
+2025-12-11 03:52:28 Listener on port 1080 
+2025-12-11 03:52:28 Users loaded successfully from src/server/users.txt
+2025-12-11 03:52:28 Listener on port 8080
+2025-12-11 03:52:30 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 43814 
+2025-12-11 03:52:30 Client connected to monitor!
+2025-12-11 03:52:30 Started monitor authentication. Username length: 4
+2025-12-11 03:52:30 Read username: jose
+2025-12-11 03:52:30 Password read: jose
+2025-12-11 03:52:30 User jose logged in successfully
+2025-12-11 03:52:30 ENTRE
+2025-12-11 03:57:59 Listener on port 1080 
+2025-12-11 03:57:59 Users loaded successfully from src/server/users.txt
+2025-12-11 03:57:59 Listener on port 8080
+2025-12-11 03:58:05 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 49412 
+2025-12-11 03:58:05 Client connected to monitor!
+2025-12-11 03:58:05 Started monitor authentication. Username length: 4
+2025-12-11 03:58:05 Read username: jose
+2025-12-11 03:58:05 Password read: jose
+2025-12-11 03:58:05 User jose logged in successfully
+2025-12-11 03:58:05 ENTRE
+2025-12-11 03:59:27 Listener on port 1080 
+2025-12-11 03:59:27 Users loaded successfully from src/server/users.txt
+2025-12-11 03:59:27 Listener on port 8080
+2025-12-11 03:59:29 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 59004 
+2025-12-11 03:59:29 Client connected to monitor!
+2025-12-11 03:59:29 Started monitor authentication. Username length: 4
+2025-12-11 03:59:29 Read username: jose
+2025-12-11 03:59:29 Password read: jose
+2025-12-11 03:59:29 User jose logged in successfully
+2025-12-11 03:59:29 ENTRE
+2025-12-11 04:00:25 Listener on port 1080 
+2025-12-11 04:00:25 Users loaded successfully from src/server/users.txt
+2025-12-11 04:00:25 Listener on port 8080
+2025-12-11 04:00:26 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 57512 
+2025-12-11 04:00:26 Client connected to monitor!
+2025-12-11 04:00:26 Started monitor authentication. Username length: 4
+2025-12-11 04:00:26 Read username: jose
+2025-12-11 04:00:26 Password read: jose
+2025-12-11 04:00:26 User jose logged in successfully
+2025-12-11 04:00:26 ENTRE
+2025-12-11 04:00:54 Listener on port 1080 
+2025-12-11 04:00:54 Users loaded successfully from src/server/users.txt
+2025-12-11 04:00:54 Listener on port 8080
+2025-12-11 04:00:55 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 49754 
+2025-12-11 04:00:55 Client connected to monitor!
+2025-12-11 04:00:55 Started monitor authentication. Username length: 4
+2025-12-11 04:00:55 Read username: jose
+2025-12-11 04:00:55 Password read: jose
+2025-12-11 04:00:55 User jose logged in successfully
+2025-12-11 04:00:55 ENTRE
+2025-12-11 04:02:11 Listener on port 1080 
+2025-12-11 04:02:11 Users loaded successfully from src/server/users.txt
+2025-12-11 04:02:11 Listener on port 8080
+2025-12-11 04:02:12 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 43168 
+2025-12-11 04:02:12 Client connected to monitor!
+2025-12-11 04:02:12 Started monitor authentication. Username length: 4
+2025-12-11 04:02:12 Read username: jose
+2025-12-11 04:02:12 Password read: jose
+2025-12-11 04:02:12 User jose logged in successfully
+2025-12-11 04:02:12 ENTRE
+2025-12-11 04:04:05 Listener on port 1080 
+2025-12-11 04:04:05 Users loaded successfully from src/server/users.txt
+2025-12-11 04:04:05 Listener on port 8080
+2025-12-11 04:04:07 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 44890 
+2025-12-11 04:04:07 Client connected to monitor!
+2025-12-11 04:04:07 Started monitor authentication. Username length: 4
+2025-12-11 04:04:07 Read username: jose
+2025-12-11 04:04:07 Password read: jose
+2025-12-11 04:04:07 User jose logged in successfully
+2025-12-11 04:04:07 ENTRE
+2025-12-11 04:04:29 Listener on port 1080 
+2025-12-11 04:04:29 Users loaded successfully from src/server/users.txt
+2025-12-11 04:04:29 Listener on port 8080
+2025-12-11 04:04:30 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 47892 
+2025-12-11 04:04:30 Client connected to monitor!
+2025-12-11 04:04:30 Started monitor authentication. Username length: 4
+2025-12-11 04:04:30 Read username: jose
+2025-12-11 04:04:30 Password read: jose
+2025-12-11 04:04:30 User jose logged in successfully
+2025-12-11 04:04:30 ENTRE
+2025-12-11 04:05:52 Listener on port 1080 
+2025-12-11 04:05:52 Users loaded successfully from src/server/users.txt
+2025-12-11 04:05:52 Listener on port 8080
+2025-12-11 04:05:53 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 57446 
+2025-12-11 04:05:53 Client connected to monitor!
+2025-12-11 04:05:53 Started monitor authentication. Username length: 4
+2025-12-11 04:05:53 Read username: jose
+2025-12-11 04:05:53 Password read: jose
+2025-12-11 04:05:53 User jose logged in successfully
+2025-12-11 04:05:53 4
+2025-12-11 04:07:29 Listener on port 1080 
+2025-12-11 04:07:29 Users loaded successfully from src/server/users.txt
+2025-12-11 04:07:29 Listener on port 8080
+2025-12-11 04:07:32 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 56964 
+2025-12-11 04:07:32 Client connected to monitor!
+2025-12-11 04:07:32 Started monitor authentication. Username length: 4
+2025-12-11 04:07:32 Read username: jose
+2025-12-11 04:07:32 Password read: jose
+2025-12-11 04:07:32 User jose logged in successfully
+2025-12-11 04:08:16 Listener on port 1080 
+2025-12-11 04:08:16 Users loaded successfully from src/server/users.txt
+2025-12-11 04:08:16 Listener on port 8080
+2025-12-11 04:08:17 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 59732 
+2025-12-11 04:08:17 Client connected to monitor!
+2025-12-11 04:08:17 Started monitor authentication. Username length: 4
+2025-12-11 04:08:17 Read username: jose
+2025-12-11 04:08:17 Password read: jose
+2025-12-11 04:08:17 User jose logged in successfully
+2025-12-11 04:08:51 Listener on port 1080 
+2025-12-11 04:08:51 Users loaded successfully from src/server/users.txt
+2025-12-11 04:08:51 Listener on port 8080
+2025-12-11 04:08:52 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 59846 
+2025-12-11 04:08:52 Client connected to monitor!
+2025-12-11 04:08:52 Started monitor authentication. Username length: 4
+2025-12-11 04:08:52 Read username: jose
+2025-12-11 04:08:52 Password read: jose
+2025-12-11 04:08:52 User jose logged in successfully
+2025-12-11 04:09:16 Listener on port 1080 
+2025-12-11 04:09:16 Users loaded successfully from src/server/users.txt
+2025-12-11 04:09:16 Listener on port 8080
+2025-12-11 04:09:17 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 36140 
+2025-12-11 04:09:17 Client connected to monitor!
+2025-12-11 04:09:17 Started monitor authentication. Username length: 4
+2025-12-11 04:09:17 Read username: jose
+2025-12-11 04:09:17 Password read: jose
+2025-12-11 04:09:17 User jose logged in successfully
+2025-12-11 04:09:45 Listener on port 1080 
+2025-12-11 04:09:45 Users loaded successfully from src/server/users.txt
+2025-12-11 04:09:45 Listener on port 8080
+2025-12-11 04:09:46 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 59730 
+2025-12-11 04:09:46 Client connected to monitor!
+2025-12-11 04:09:46 Started monitor authentication. Username length: 4
+2025-12-11 04:09:46 Read username: jose
+2025-12-11 04:09:46 Password read: jose
+2025-12-11 04:09:46 User jose logged in successfully
+2025-12-11 04:10:12 Listener on port 1080 
+2025-12-11 04:10:12 Users loaded successfully from src/server/users.txt
+2025-12-11 04:10:12 Listener on port 8080
+2025-12-11 04:10:12 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 60648 
+2025-12-11 04:10:12 Client connected to monitor!
+2025-12-11 04:10:12 Started monitor authentication. Username length: 4
+2025-12-11 04:10:12 Read username: jose
+2025-12-11 04:10:12 Password read: jose
+2025-12-11 04:10:12 User jose logged in successfully
+2025-12-11 04:12:25 Listener on port 1080 
+2025-12-11 04:12:25 Users loaded successfully from src/server/users.txt
+2025-12-11 04:12:25 Listener on port 8080
+2025-12-11 04:12:27 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 35552 
+2025-12-11 04:12:27 Client connected to monitor!
+2025-12-11 04:12:27 Started monitor authentication. Username length: 4
+2025-12-11 04:12:27 Read username: jose
+2025-12-11 04:12:27 Password read: jose
+2025-12-11 04:12:27 User jose logged in successfully
+2025-12-11 04:12:27 AAA
+2025-12-11 04:12:27 ENTRE
+2025-12-11 04:12:27 adding auth method 1519723616
+2025-12-11 04:12:27 adding auth method 1519726656
+2025-12-11 04:12:27 adding auth method 1519726688
+2025-12-11 04:12:27 Sending 1 bytes
+2025-12-11 04:13:08 Listener on port 1080 
+2025-12-11 04:13:08 Users loaded successfully from src/server/users.txt
+2025-12-11 04:13:08 Listener on port 8080
+2025-12-11 04:13:10 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 49744 
+2025-12-11 04:13:10 Client connected to monitor!
+2025-12-11 04:13:10 Started monitor authentication. Username length: 4
+2025-12-11 04:13:10 Read username: jose
+2025-12-11 04:13:10 Password read: jose
+2025-12-11 04:13:10 User jose logged in successfully
+2025-12-11 04:13:10 ENTRE
+2025-12-11 04:13:10 adding auth method 2016724064
+2025-12-11 04:13:10 adding auth method 2016727104
+2025-12-11 04:13:10 adding auth method 2016727136
+2025-12-11 04:13:10 Sending 1 bytes
+2025-12-11 04:13:32 Listener on port 1080 
+2025-12-11 04:13:32 Users loaded successfully from src/server/users.txt
+2025-12-11 04:13:32 Listener on port 8080
+2025-12-11 04:13:35 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 47386 
+2025-12-11 04:13:35 Client connected to monitor!
+2025-12-11 04:13:35 Started monitor authentication. Username length: 4
+2025-12-11 04:13:35 Read username: jose
+2025-12-11 04:13:35 Password read: jose
+2025-12-11 04:13:35 User jose logged in successfully
+2025-12-11 04:13:35 ENTRE
+2025-12-11 04:13:35 adding auth method -556878752
+2025-12-11 04:13:35 adding auth method -556875712
+2025-12-11 04:13:35 adding auth method -556875680
+2025-12-11 04:13:35 Sending 1 bytes
+2025-12-11 04:14:59 Listener on port 1080 
+2025-12-11 04:14:59 Users loaded successfully from src/server/users.txt
+2025-12-11 04:14:59 Listener on port 8080
+2025-12-11 04:15:00 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 56770 
+2025-12-11 04:15:00 Client connected to monitor!
+2025-12-11 04:15:00 Started monitor authentication. Username length: 4
+2025-12-11 04:15:00 Read username: jose
+2025-12-11 04:15:00 Password read: jose
+2025-12-11 04:15:00 User jose logged in successfully
+2025-12-11 04:15:00 ENTRE
+2025-12-11 04:15:00 adding auth method 1341502560
+2025-12-11 04:15:00 adding auth method 1341505600
+2025-12-11 04:15:00 adding auth method 1341505632
+2025-12-11 04:15:00 Sending 1 bytes
+2025-12-11 04:16:25 Listener on port 1080 
+2025-12-11 04:16:25 Users loaded successfully from src/server/users.txt
+2025-12-11 04:16:25 Listener on port 8080
+2025-12-11 04:16:26 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 55232 
+2025-12-11 04:16:26 Client connected to monitor!
+2025-12-11 04:16:26 Started monitor authentication. Username length: 4
+2025-12-11 04:16:26 Read username: jose
+2025-12-11 04:16:26 Password read: jose
+2025-12-11 04:16:26 User jose logged in successfully
+2025-12-11 04:16:26 ENTRE
+2025-12-11 04:16:26 adding auth method -168385440
+2025-12-11 04:16:26 adding auth method -168382400
+2025-12-11 04:16:26 adding auth method -168382368
+2025-12-11 04:16:26 Sending 1 bytes
+2025-12-11 04:17:05 Listener on port 1080 
+2025-12-11 04:17:05 Users loaded successfully from src/server/users.txt
+2025-12-11 04:17:05 Listener on port 8080
+2025-12-11 04:17:06 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 44730 
+2025-12-11 04:17:06 Client connected to monitor!
+2025-12-11 04:17:06 Started monitor authentication. Username length: 4
+2025-12-11 04:17:06 Read username: jose
+2025-12-11 04:17:06 Password read: jose
+2025-12-11 04:17:06 User jose logged in successfully
+2025-12-11 04:17:06 ENTRE
+2025-12-11 04:17:06 adding auth method 887743584
+2025-12-11 04:17:06 adding auth method 887746624
+2025-12-11 04:17:06 adding auth method 887746656
+2025-12-11 04:17:06 Sending 1 bytes
+2025-12-11 04:17:17 Listener on port 1080 
+2025-12-11 04:17:17 Users loaded successfully from src/server/users.txt
+2025-12-11 04:17:17 Listener on port 8080
+2025-12-11 04:17:19 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 53138 
+2025-12-11 04:17:19 Client connected to monitor!
+2025-12-11 04:17:19 Started monitor authentication. Username length: 4
+2025-12-11 04:17:19 Read username: jose
+2025-12-11 04:17:19 Password read: jose
+2025-12-11 04:17:19 User jose logged in successfully
+2025-12-11 04:17:19 ENTRE
+2025-12-11 04:17:19 adding auth method 1043141728
+2025-12-11 04:17:19 adding auth method 1043144768
+2025-12-11 04:17:19 adding auth method 1043144800
+2025-12-11 04:17:19 Sending 1 bytes
+2025-12-11 04:17:48 Listener on port 1080 
+2025-12-11 04:17:48 Users loaded successfully from src/server/users.txt
+2025-12-11 04:17:48 Listener on port 8080
+2025-12-11 04:17:49 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 50530 
+2025-12-11 04:17:49 Client connected to monitor!
+2025-12-11 04:17:49 Started monitor authentication. Username length: 4
+2025-12-11 04:17:49 Read username: jose
+2025-12-11 04:17:49 Password read: jose
+2025-12-11 04:17:49 User jose logged in successfully
+2025-12-11 04:17:49 ENTRE
+2025-12-11 04:17:49 adding auth method -385112992
+2025-12-11 04:17:49 adding auth method -385109952
+2025-12-11 04:17:49 adding auth method -385109920
+2025-12-11 04:17:49 Sending 1 bytes
+2025-12-11 04:18:10 Listener on port 1080 
+2025-12-11 04:18:10 Users loaded successfully from src/server/users.txt
+2025-12-11 04:18:10 Listener on port 8080
+2025-12-11 04:18:16 Listener on port 1080 
+2025-12-11 04:18:16 Users loaded successfully from src/server/users.txt
+2025-12-11 04:18:16 Listener on port 8080
+2025-12-11 04:18:17 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 34306 
+2025-12-11 04:18:17 Client connected to monitor!
+2025-12-11 04:18:17 Started monitor authentication. Username length: 4
+2025-12-11 04:18:17 Read username: jose
+2025-12-11 04:18:17 Password read: jose
+2025-12-11 04:18:17 User jose logged in successfully
+2025-12-11 04:18:17 ENTRE
+2025-12-11 04:18:17 adding auth method 1494766688
+2025-12-11 04:18:17 adding auth method 1494769728
+2025-12-11 04:18:17 adding auth method 1494769760
+2025-12-11 04:18:17 Sending 1 bytes
+2025-12-11 04:18:28 Listener on port 1080 
+2025-12-11 04:18:28 Users loaded successfully from src/server/users.txt
+2025-12-11 04:18:28 Listener on port 8080
+2025-12-11 04:18:30 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 40544 
+2025-12-11 04:18:30 Client connected to monitor!
+2025-12-11 04:18:30 Started monitor authentication. Username length: 4
+2025-12-11 04:18:30 Read username: jose
+2025-12-11 04:18:30 Password read: jose
+2025-12-11 04:18:30 User jose logged in successfully
+2025-12-11 04:18:30 ENTRE
+2025-12-11 04:18:30 adding auth method 0
+2025-12-11 04:18:30 adding auth method 1
+2025-12-11 04:18:30 adding auth method 2
+2025-12-11 04:18:30 Sending 1 bytes
+2025-12-11 04:19:06 Listener on port 1080 
+2025-12-11 04:19:06 Users loaded successfully from src/server/users.txt
+2025-12-11 04:19:06 Listener on port 8080
+2025-12-11 04:19:07 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 53036 
+2025-12-11 04:19:07 Client connected to monitor!
+2025-12-11 04:19:07 Started monitor authentication. Username length: 4
+2025-12-11 04:19:07 Read username: jose
+2025-12-11 04:19:07 Password read: jose
+2025-12-11 04:19:07 User jose logged in successfully
+2025-12-11 04:19:07 ENTRE
+2025-12-11 04:19:07 adding auth method 0
+2025-12-11 04:19:07 adding auth method 1
+2025-12-11 04:19:07 adding auth method 2
+2025-12-11 04:19:07 Sending 1 bytes
+2025-12-11 04:20:56 Listener on port 1080 
+2025-12-11 04:20:56 Users loaded successfully from src/server/users.txt
+2025-12-11 04:20:56 Listener on port 8080
+2025-12-11 04:20:58 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 45006 
+2025-12-11 04:20:58 Client connected to monitor!
+2025-12-11 04:20:58 Started monitor authentication. Username length: 4
+2025-12-11 04:20:58 Read username: jose
+2025-12-11 04:20:58 Password read: jose
+2025-12-11 04:20:58 User jose logged in successfully
+2025-12-11 04:21:16 Listener on port 1080 
+2025-12-11 04:21:16 Users loaded successfully from src/server/users.txt
+2025-12-11 04:21:16 Listener on port 8080
+2025-12-11 04:21:18 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 43028 
+2025-12-11 04:21:18 Client connected to monitor!
+2025-12-11 04:21:18 Started monitor authentication. Username length: 4
+2025-12-11 04:21:18 Read username: jose
+2025-12-11 04:21:18 Password read: jose
+2025-12-11 04:21:18 User jose logged in successfully
+2025-12-11 04:21:18 ENTRE
+2025-12-11 04:21:18 Sending 1 bytes
+2025-12-11 04:26:42 Listener on port 1080 
+2025-12-11 04:26:42 Users loaded successfully from src/server/users.txt
+2025-12-11 04:26:42 Listener on port 8080
+2025-12-11 04:26:43 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 32826 
+2025-12-11 04:26:43 Client connected to monitor!
+2025-12-11 04:26:43 Started monitor authentication. Username length: 4
+2025-12-11 04:26:43 Read username: jose
+2025-12-11 04:26:43 Password read: jose
+2025-12-11 04:26:43 User jose logged in successfully
+2025-12-11 04:26:43 ENTRE
+2025-12-11 04:26:43 Method 0 not supported
+2025-12-11 04:27:31 Listener on port 1080 
+2025-12-11 04:27:31 Users loaded successfully from src/server/users.txt
+2025-12-11 04:27:31 Listener on port 8080
+2025-12-11 04:27:32 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 58560 
+2025-12-11 04:27:32 Client connected to monitor!
+2025-12-11 04:27:32 Started monitor authentication. Username length: 4
+2025-12-11 04:27:32 Read username: jose
+2025-12-11 04:27:32 Password read: jose
+2025-12-11 04:27:32 User jose logged in successfully
+2025-12-11 04:27:32 Method 0 not supported
+2025-12-11 04:27:55 Listener on port 1080 
+2025-12-11 04:27:55 Users loaded successfully from src/server/users.txt
+2025-12-11 04:27:55 Listener on port 8080
+2025-12-11 04:27:56 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 42698 
+2025-12-11 04:27:56 Client connected to monitor!
+2025-12-11 04:27:56 Started monitor authentication. Username length: 4
+2025-12-11 04:27:56 Read username: jose
+2025-12-11 04:27:56 Password read: jose
+2025-12-11 04:27:56 User jose logged in successfully
+2025-12-11 04:27:56 Method 0 not supported
+2025-12-11 04:28:37 Listener on port 1080 
+2025-12-11 04:28:37 Users loaded successfully from src/server/users.txt
+2025-12-11 04:28:37 Listener on port 8080
+2025-12-11 04:28:38 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 43876 
+2025-12-11 04:28:38 Client connected to monitor!
+2025-12-11 04:28:38 Started monitor authentication. Username length: 4
+2025-12-11 04:28:38 Read username: jose
+2025-12-11 04:28:38 Password read: jose
+2025-12-11 04:28:38 User jose logged in successfully
+2025-12-11 04:28:38 Method 1 not supported
+2025-12-11 04:28:42 Listener on port 1080 
+2025-12-11 04:28:42 Users loaded successfully from src/server/users.txt
+2025-12-11 04:28:42 Listener on port 8080
+2025-12-11 04:28:45 New connection , socket fd is 6 , ip is : ::ffff:127.0.0.1 , port : 35116 
+2025-12-11 04:28:45 Client connected to monitor!
+2025-12-11 04:28:45 Started monitor authentication. Username length: 4
+2025-12-11 04:28:45 Read username: jose
+2025-12-11 04:28:45 Password read: jose
+2025-12-11 04:28:45 User jose logged in successfully
+2025-12-11 04:28:45 Sending 1 bytes
