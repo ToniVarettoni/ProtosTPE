@@ -610,7 +610,7 @@ unsigned request_write(struct selector_key *key) {
     index += sizeof(sin6->sin6_port);
   }
 
-  ssize_t n = send(key->fd, reply, index, 0);
+  ssize_t n = send(client->client_fd, reply, index, 0);
   if (n != (ssize_t)index) {
     selector_set_interest_key(key, OP_WRITE);
     client->err = 0x01;
