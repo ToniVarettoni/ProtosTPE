@@ -5,7 +5,7 @@
 #include "../../lib/selector/selector.h"
 
 #define HELLO_MAX_METHODS 255
-#define MAX_BUFFER 4096
+#define MAX_BUFFER 16384
 
 typedef enum {
   HELLO_STATE_VER = 0,  // waiting for VER field

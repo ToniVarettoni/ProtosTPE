@@ -40,6 +40,7 @@ void signal_handler(int signal) { running = false; }
 int main(int argc, char *argv[]) {
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_handler);
+  signal(SIGPIPE, SIG_IGN);
 
   struct socks5args args;
   parse_args(argc, argv, &args);

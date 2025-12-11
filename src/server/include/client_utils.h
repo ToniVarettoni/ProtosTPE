@@ -25,7 +25,7 @@ typedef enum {
   REQUEST_PARSER
 } parser_state_t;
 
-#define MAX_BUFFER 4096
+#define MAX_BUFFER 16384
 
 typedef struct {
   struct state_machine stm;

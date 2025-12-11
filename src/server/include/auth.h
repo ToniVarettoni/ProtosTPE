@@ -7,7 +7,7 @@
 #include "users.h"
 
 #define MAX_BUFFER_SIZE 255
-#define MAX_BUFFER 4096
+#define MAX_BUFFER 16384
 
 typedef enum {
   AUTH_STATE_VER = 0, // waiting for VER

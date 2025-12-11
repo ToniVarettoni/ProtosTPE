@@ -4,30 +4,27 @@
 #include "client_utils.h"
 #include <errno.h>
 
+static bool connection_finished(client_t *client) {
+    return client->client_closed && client->dest_closed &&
+           !buffer_can_read(&client->client_buffer) &&
+           !buffer_can_read(&client->destiny_buffer);
+}
 
 unsigned forward_write(struct selector_key *key) {    
     client_t *client = ATTACHMENT(key);
-    bool this_is_client = (key->fd == client->client_fd);
-    buffer * b = this_is_client? &client->destiny_buffer : &client->client_buffer;
+    bool to_client = (key->fd == client->client_fd);
+    buffer *b = to_client ? &client->destiny_buffer : &client->client_buffer;
+    bool source_closed = to_client ? client->dest_closed : client->client_closed;
 
     if (!buffer_can_read(b)) {
-        if (this_is_client){
-            if (client->client_closed){
-                return DONE;
-            }else{
-                shutdown(key->fd, SHUT_WR);
-                selector_set_interest(key->s, key->fd, OP_READ);
-                return FORWARDING;
-            }
-        } else{
-            if (client->dest_closed){
-                return DONE;
-            }else{
-                shutdown(key->fd, SHUT_WR);
-                selector_set_interest(key->s, key->fd, OP_READ);
-                return FORWARDING;
-            }
+        if (connection_finished(client)) {
+            return DONE;
         }
+        if (source_closed) {
+            shutdown(key->fd, SHUT_WR);
+        }
+        selector_set_interest(key->s, key->fd, OP_READ);
+        return FORWARDING;
     }
 
     size_t readable;
@@ -47,11 +44,18 @@ unsigned forward_write(struct selector_key *key) {
     add_transferred_bytes((size_t)n);
     log_to_stdout("Successfully sent %zd bytes to client %d\n", n, key->fd);
 
-    if (buffer_can_read(b)){
-        selector_set_interest(key->s, key->fd, OP_READ | OP_WRITE);
-    } else {
-        selector_set_interest(key->s, key->fd, OP_READ);
+    fd_interest interest = OP_READ;
+    if (buffer_can_read(b)) {
+        interest |= OP_WRITE;
+    } else if (source_closed) {
+        shutdown(key->fd, SHUT_WR);
     }
+    selector_set_interest(key->s, key->fd, interest);
+
+    if (connection_finished(client)) {
+        return DONE;
+    }
+
     return FORWARDING;
 }
 
