@@ -22,6 +22,10 @@ static char log_file_path[MAX_LOG_FILE_PATH_LENGTH];
 #define APPEND_MODE "a"
 
 static int log_fd = -1;
+static int log_file_fd = -1;
+
+static char *file_buffer = NULL;
+static size_t file_size = 0;
 
 static void get_datetime(char *buffer, size_t size) {
   time_t now = time(NULL);
@@ -84,16 +88,13 @@ static void logger_handle_write(struct selector_key *key) {
     return;
   }
 
-  FILE *log_file = fopen(log_file_path, APPEND_MODE);
-  if (log_file != NULL) {
-    size_t fw = fwrite(dated, 1, dated_size, log_file);
-    fclose(log_file);
-
-    if (fw < dated_size) {
-      memmove(dated, dated + fw, dated_size - fw);
-      dated_size -= fw;
-    } else {
-      /* Se escribió completo al archivo */
+  if (log_file_fd != -1) {
+    char *tmp_file = realloc(file_buffer, file_size + dated_size);
+    if (tmp_file != NULL) {
+      file_buffer = tmp_file;
+      memcpy(file_buffer + file_size, dated, dated_size);
+      file_size += dated_size;
+      selector_set_interest(selector, log_file_fd, OP_WRITE);
     }
   }
 
@@ -113,8 +114,7 @@ static void logger_handle_write(struct selector_key *key) {
       size = remain;
     }
   } else if (written == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-    /* No se pudo escribir ahora; intento en la próxima iteración */
-    /* dated será liberado más abajo; buffer se mantiene */
+    // no se pudo escribir, intento despues
   } else {
     perror("write");
   }
@@ -137,6 +137,47 @@ static fd_handler logger_handler = {
     .handle_block = NULL,
 };
 
+// escribe de manera no bloqueante en archivo
+static void logger_file_handle_write(struct selector_key *key) {
+  if (file_buffer == NULL || file_size == 0) {
+    selector_set_interest_key(key, OP_NOOP);
+    return;
+  }
+
+  ssize_t written = write(key->fd, file_buffer, file_size);
+
+  if (written > 0) {
+    if ((size_t)written == file_size) {
+      free(file_buffer);
+      file_buffer = NULL;
+      file_size = 0;
+
+      selector_set_interest_key(key, OP_NOOP);
+    } else {
+      size_t remain = file_size - (size_t)written;
+      memmove(file_buffer, file_buffer + written, remain);
+      file_size = remain;
+    }
+  } else if (written == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+    // no pude escribir, intento despues
+  } else {
+    perror("write to log file");
+  }
+}
+
+static void logger_file_handle_close(struct selector_key *key) {
+  free(file_buffer);
+  file_buffer = NULL;
+  file_size = 0;
+}
+
+static fd_handler logger_file_handler = {
+    .handle_write = logger_file_handle_write,
+    .handle_close = logger_file_handle_close,
+    .handle_read = NULL,
+    .handle_block = NULL,
+};
+
 void logger_initialize(fd_selector selector_param, char *file_path) {
   // duplico stdout para poder registrar y despues desregistrar una copia del FD
   // en vez de usarlo directamente
@@ -151,7 +192,17 @@ void logger_initialize(fd_selector selector_param, char *file_path) {
 
   strcpy(log_file_path, file_path);
 
+  // abro el archivo con flags no bloqueantes
+  log_file_fd = open(log_file_path, O_WRONLY | O_CREAT | O_APPEND | O_NONBLOCK, 0644);
+  if (log_file_fd == -1) {
+    perror("open log file");
+  }
+
   selector_register(selector, fd, &logger_handler, OP_NOOP, NULL);
+  
+  if (log_file_fd != -1) {
+    selector_register(selector, log_file_fd, &logger_file_handler, OP_NOOP, NULL);
+  }
 }
 
 void log_to_stdout(char *format, ...) {
@@ -198,4 +249,10 @@ void logger_destroy() {
     selector_unregister_fd(selector, log_fd);
   }
   log_fd = -1;
+  
+  if (log_file_fd != -1) {
+    close(log_file_fd);
+    selector_unregister_fd(selector, log_file_fd);
+  }
+  log_file_fd = -1;
 }
