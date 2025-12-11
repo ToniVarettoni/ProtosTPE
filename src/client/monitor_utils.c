@@ -3,14 +3,22 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <stdio.h>
+#include <arpa/inet.h>
 
 #define ACCESS_LEVEL_ARG_LENGTH 0x01
 
 #define ADD_USER_ACTION_TYPE 0x00
 #define DELETE_USER_ACTION_TYPE 0x01
 #define CHANGE_PASS_ACTION_TYPE 0x02
+#define GET_STATS_ACTION_TYPE 0x03
 
 #define TERMINATOR 0x00
+
+static uint64_t ntohll_u64(uint64_t x) {
+  uint32_t high = ntohl((uint32_t)(x >> 32));
+  uint32_t low = ntohl((uint32_t)(x & 0xFFFFFFFFULL));
+  return ((uint64_t)high << 32) | low;
+}
 
 size_t write_monitor_auth_request(uint8_t *buffer, size_t buffer_len,
                                   const user_t *login_user) {
@@ -143,4 +151,47 @@ size_t write_monitor_change_pass_request(uint8_t *buffer, size_t buffer_len,
   buffer[pos++] = TERMINATOR;
 
   return pos;
+}
+
+size_t write_monitor_get_stats_request(uint8_t *buffer, size_t buffer_len) {
+  if (buffer == NULL || buffer_len < 2) {
+    return 0;
+  }
+  buffer[0] = GET_STATS_ACTION_TYPE;
+  buffer[1] = TERMINATOR;
+  return 2;
+}
+
+bool read_monitor_stats_reply(int sockfd, stats_t *out_stats) {
+  if (out_stats == NULL) {
+    return false;
+  }
+  uint8_t status;
+  ssize_t n = recv(sockfd, &status, 1, 0);
+  if (n <= 0 || status != 0x00) {
+    printf("recv of status %d in stats reply failing. Read %ld bytes\n", status, n);
+    return false;
+  }
+
+  uint64_t values[3] = {0};
+  size_t needed = sizeof(values);
+  size_t read_total = 0;
+  uint8_t *ptr = (uint8_t *)values;
+  while (read_total < needed) {
+    n = recv(sockfd, ptr + read_total, needed - read_total, 0);
+    if (n <= 0) {
+      printf("recv of stats in stats reply failing. Read %ld bytes\n", n);
+      return false;
+    }
+    read_total += (size_t)n;
+  }
+
+  uint64_t hc = ntohll_u64(values[0]);
+  uint64_t bytes = ntohll_u64(values[1]);
+  uint64_t cc = ntohll_u64(values[2]);
+
+  out_stats->historic_connections = (size_t)hc;
+  out_stats->transferred_bytes = (size_t)bytes;
+  out_stats->current_connections = (size_t)cc;
+  return true;
 }

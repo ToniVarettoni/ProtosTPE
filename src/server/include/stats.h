@@ -7,7 +7,7 @@ typedef struct {
   size_t historic_connections;
   size_t current_connections;
   size_t transferred_bytes;
-} stats;
+} stats_t;
 
 void stats_init();
 
@@ -17,6 +17,6 @@ void decrement_current_connections();
 
 void add_transferred_bytes(size_t bytes_amount);
 
-stats *get_stats();
+stats_t *get_stats();
 
 #endif

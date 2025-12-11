@@ -31,7 +31,7 @@ monitor_req_status_t handle_request(struct selector_key *key) {
     log_to_stdout("Changed password for user %s\n", mrq->uname);
     break;
   case STATISTICS:
-    memcpy(&mrq->stats, get_stats(), sizeof(stats));
+    memcpy(&mrq->stats, get_stats(), sizeof(stats_t));
     break;
   default:
     return MONITOR_REQ_STATUS_ERR;
@@ -44,8 +44,8 @@ monitor_req_status_t handle_request(struct selector_key *key) {
 
 static uint64_t htonll(uint64_t x) {
   uint32_t high = htonl((uint32_t)(x >> 32));
-  uint32_t low = htonl((uint32_t)(x & 0xFFFFFFFFLL));
-  return ((uint64_t)low << 32) | high;
+  uint32_t low = htonl((uint32_t)(x & 0xFFFFFFFFULL));
+  return ((uint64_t)high << 32) | low;
 }
 
 static void write_u64(uint8_t *buf, uint64_t value) {

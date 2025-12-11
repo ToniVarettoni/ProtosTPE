@@ -1,5 +1,6 @@
 #include "forwarding.h"
 #include "../lib/logger/logger.h"
+#include "stats.h"
 #include "client_utils.h"
 
 
@@ -20,6 +21,7 @@ unsigned forward_write(struct selector_key *key) {
         return ERROR;
     }
     buffer_read_adv(b, n);
+    add_transferred_bytes((size_t)n);
     log_to_stdout("Successfully sent %d bytes to client %d\n", n, key->fd);
 
     if (buffer_can_read(b)){

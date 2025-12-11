@@ -21,8 +21,12 @@ void handle_write_client(struct selector_key *key) {
 }
 
 void handle_close_client(struct selector_key *key) {
-  stm_handler_close(&((client_t *)ATTACHMENT(key))->stm, key);
-  increment_current_connections();
+  client_t *client = ATTACHMENT(key);
+  stm_handler_close(&client->stm, key);
+
+  if (key->fd == client->client_fd) {
+    decrement_current_connections();
+  }
 }
 
 unsigned ignore_read(struct selector_key *key) {

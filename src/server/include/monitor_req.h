@@ -53,7 +53,7 @@ typedef struct {
   char uname[MAX_ARGUMENT_LENGTH + 1];
   char passwd[MAX_ARGUMENT_LENGTH + 1];
   access_level_t access_level;
-  stats stats;
+  stats_t stats;
 
   struct parser *p;
 } monitor_req_parser_t;

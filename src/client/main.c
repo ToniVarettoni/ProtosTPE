@@ -83,10 +83,9 @@ int main(int argc, char **argv) {
   } else if (args.action == ACTION_CHANGE_PASSWORD) {
     req_len = write_monitor_change_pass_request(req_buf, sizeof(req_buf),
                                                 &args.user_to_modify);
+  } else if (args.action == ACTION_STATS) {
+    req_len = write_monitor_get_stats_request(req_buf, sizeof(req_buf));
   }
-  // else if (args.action == ACTION_STATS) {
-  //   req_len = write_monitor_get_stats_request(req_buf, sizeof(req_buf));
-  // }
   if(req_len == 0) {
     fprintf(stderr, "Failed to build action request.\n");
     close(sockfd);
@@ -100,6 +99,18 @@ int main(int argc, char **argv) {
     return 1;
   }
   printf("Sent action request (%zd bytes)\n", req_sent);
+
+  if (args.action == ACTION_STATS) {
+    stats_t stats;
+    if (!read_monitor_stats_reply(sockfd, &stats)) {
+      fprintf(stderr, "Failed to read stats reply.\n");
+      close(sockfd);
+      return 1;
+    }
+    printf("Historic connections: %zu\n", stats.historic_connections);
+    printf("Current connections: %zu\n", stats.current_connections);
+    printf("Bytes transferred: %zu\n", stats.transferred_bytes);
+  }
 
   return 0;
 }

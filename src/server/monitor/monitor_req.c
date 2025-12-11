@@ -81,7 +81,7 @@ static const struct parser_definition monitor_req_parser_def = {
     .start_state = MONITOR_REQ_STATE_TYPE};
 
 static monitor_req_status_t monitor_req_parser_init(monitor_req_parser_t *mrq) {
-  memset(mrq, 0, sizeof(monitor_auth_parser_t));
+  memset(mrq, 0, sizeof(monitor_req_parser_t));
   mrq->p = parser_init(parser_no_classes(), &monitor_req_parser_def);
   if (mrq->p == NULL) {
     return MONITOR_REQ_STATUS_ERR;
@@ -128,20 +128,16 @@ unsigned monitor_req_read(struct selector_key *key) {
           if (mrq->arguments_read != max_arguments[mrq->type]) {
             return MONITOR_ERROR;
           }
-          if (handle_request(mrq) != MONITOR_REQ_STATUS_OK) {
+          mrq->req_status = handle_request(key);
+          if (mrq->req_status != MONITOR_REQ_STATUS_OK) {
             return MONITOR_ERROR;
           }
-          return MONITOR_DONE;
+          return MONITOR_REQ;
         }
-        if ((mrq->req_status = handle_request(key)) != MONITOR_REQ_STATUS_OK) {
-          return MONITOR_ERROR;
-        }
-        return MONITOR_REQ;
-      
-      mrq->current_argument_length = ev->data[0];
-      mrq->current_argument_read = 0;
-      mrq->arguments_read++;
-      break;
+        mrq->current_argument_length = ev->data[0];
+        mrq->current_argument_read = 0;
+        mrq->arguments_read++;
+        break;
       case MONITOR_REQ_EVENT_ARGUMENT:
       if (mrq->current_argument_read < mrq->current_argument_length) {
         switch (mrq->arguments_read) {

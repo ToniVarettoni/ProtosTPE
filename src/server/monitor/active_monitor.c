@@ -11,7 +11,6 @@ void handle_write_monitor(struct selector_key *key) {
 
 void handle_close_monitor(struct selector_key *key) {
   stm_handler_close(&((monitor_t *)ATTACHMENT(key))->stm, key);
-  decrement_current_connections();
 }
 
 unsigned ignore_read_monitor(struct selector_key *key) {
