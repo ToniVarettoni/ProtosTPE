@@ -87,7 +87,7 @@ void monitor_auth_init(const unsigned state, struct selector_key *key) {
   monitor_t *monitor = ATTACHMENT(key);
   if (monitor_auth_parser_init(&monitor->parser.auth_parser) !=
       MONITOR_AUTH_STATUS_OK) {
-    close_connection(key);
+    error_handler(MONITOR_AUTH, key);
   }
   monitor->active_parser = AUTH_PARSER;
 }

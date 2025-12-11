@@ -30,10 +30,10 @@ typedef enum {
 } monitor_error_t;
 
 typedef enum {
-  NO_PARSER = 0,
-  AUTH_PARSER,
+  NO_PARSER_MONITOR = 0,
+  AUTH_PARSER_MONITOR,
   REQ_PARSER
-} parser_state_t;
+} monitor_parser_state_t;
 
 typedef struct {
   struct state_machine stm;

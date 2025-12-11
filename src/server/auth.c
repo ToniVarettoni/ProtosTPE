@@ -94,6 +94,7 @@ auth_status_t auth_parser_init(auth_parser_t *ap) {
 
 void auth_read_init(const unsigned state, struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
+  destroy_active_parser(client);
   auth_status_t status = auth_parser_init(&client->parser.auth_parser);
   client->active_parser = AUTH_PARSER;
   if (status != AUTH_OK) {

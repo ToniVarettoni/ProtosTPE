@@ -1,9 +1,6 @@
 #ifndef _CLIENT_UTILS_
 #define _CLIENT_UTILS_
-#define __USE_XOPEN2K 1
-#define __USE_GNU
-#define __USE_MISC
-
+#include "../../lib/parser/parser.h"
 #include "../../lib/buffer/buffer.h"
 #include "../../lib/selector/selector.h"
 #include "../../lib/stm/stm.h"
@@ -15,17 +12,26 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <stdbool.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 
 typedef struct addrinfo addrinfo;
 
+typedef enum {
+  NO_PARSER = 0,
+  HELLO_PARSER,
+  AUTH_PARSER,
+  REQUEST_PARSER
+} parser_state_t;
+
 #define MAX_BUFFER 4096
 
 typedef struct {
   struct state_machine stm;
-  uint8_t client_fd;
-  uint8_t active_parser;
+  int client_fd;
+  int destination_fd;
+  parser_state_t active_parser;
   union {
     hello_parser_t hello_parser;
     auth_parser_t auth_parser;
@@ -35,20 +41,14 @@ typedef struct {
   buffer destiny_buffer;
   uint8_t client_buffer_storage[MAX_BUFFER];
   uint8_t destiny_buffer_storage[MAX_BUFFER];
-  int destination_fd;
   struct addrinfo *dest_addr;
-  struct gaicb * dns_req;
+  struct addrinfo *dest_addr_base;
+  struct gaicb *dns_req;
   uint8_t err;
   uint8_t client_closed;
   uint8_t dest_closed;
+  bool dest_addr_from_gai;
 } client_t;
-
-typedef enum {
-  NO_PARSER = 0,
-  HELLO_PARSER,
-  AUTH_PARSER,
-  REQUEST_PARSER
-} parser_state_t;
 
 typedef enum {
   HELLO_READ = 0,
@@ -92,5 +92,8 @@ const fd_interest get_client_interests();
 
 const fd_handler *get_client_handler();
 
+void destroy_active_parser(client_t *client);
+void free_destination(client_t *client);
+void free_dns_request(client_t *client);
 
 #endif

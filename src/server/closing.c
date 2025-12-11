@@ -11,28 +11,22 @@ void end_connection(const unsigned state, struct selector_key *key) {
     printf("cerrando conexion en el socket pair: %d - %d\n", client->client_fd,
            client->destination_fd);
 
+    destroy_active_parser(client);
+    free_dns_request(client);
+    free_destination(client);
+
     if (client->client_fd != -1) {
       close(client->client_fd);
+      selector_unregister_fd(key->s, client->client_fd);
+      client->client_fd = -1;
     }
 
     if (client->destination_fd != -1) {
       close(client->destination_fd);
+      selector_unregister_fd(key->s, client->destination_fd);
+      client->destination_fd = -1;
     }
 
-    if (client->active_parser == HELLO_PARSER) {
-      parser_destroy(client->parser.hello_parser.p);
-    }
-
-    if (client->active_parser == AUTH_PARSER) {
-      parser_destroy(client->parser.auth_parser.p);
-    }
-
-    if (client->active_parser == REQUEST_PARSER) {
-      parser_destroy(client->parser.request_parser.p);
-    }
-
-    selector_unregister_fd(key->s, client->client_fd);
-    selector_unregister_fd(key->s, client->destination_fd);
     free(key->data);
   }
 }
@@ -57,6 +51,9 @@ void error_handler(const unsigned state, struct selector_key *key) {
           client->client_fd);
     }
   }
+  destroy_active_parser(client);
+  free_dns_request(client);
+  free_destination(client);
   client->client_closed = true;
   client->dest_closed = true;
   client->client_buffer.read = client->client_buffer.write;

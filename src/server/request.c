@@ -1,4 +1,5 @@
 #define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE
 
 #include "request.h"
 #include "../lib/logger/logger.h"
@@ -168,6 +169,8 @@ static unsigned handle_request_fin(struct selector_key *key,
   case ATTYP_IPV4:
     log_to_stdout("Started IPv4 connection...\n");
     client->dest_addr = calloc(1, sizeof(addrinfo));
+    client->dest_addr_base = client->dest_addr;
+    client->dest_addr_from_gai = false;
     rp->sockAddress = (struct sockaddr_in){
         .sin_family = AF_INET,
         .sin_addr = rp->ipv4,
@@ -185,6 +188,8 @@ static unsigned handle_request_fin(struct selector_key *key,
   case ATTYP_IPV6:
     log_to_stdout("Started IPv6 connection...\n");
     client->dest_addr = calloc(1, sizeof(addrinfo));
+    client->dest_addr_base = client->dest_addr;
+    client->dest_addr_from_gai = false;
     rp->sockAddress6 = (struct sockaddr_in6){
         .sin6_family = AF_INET6,
         .sin6_addr = rp->ipv6,
@@ -219,6 +224,7 @@ request_status_t request_parser_init(request_parser_t *hp) {
 
 void request_read_init(const unsigned state, struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
+  destroy_active_parser(client);
   request_status_t status = request_parser_init(&client->parser.request_parser);
   client->active_parser = REQUEST_PARSER;
   if (status != REQUEST_OK) {
@@ -232,7 +238,7 @@ unsigned request_read(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
   request_parser_t *rp = &client->parser.request_parser;
   uint8_t buffer[1024];
-  size_t n;
+  ssize_t n;
 
   n = recv(key->fd, buffer, sizeof(buffer), 0);
 
@@ -248,10 +254,13 @@ unsigned request_read(struct selector_key *key) {
   }
 
   if (n == 0) {
-    log_to_stdout("client sent end of line\n");
+    log_to_stdout("Client closed connection before sending request\n");
+    selector_set_interest_key(key, OP_WRITE);
+    client->err = 0x01;
+    return ERROR;
   }
 
-  for (size_t i = 0; i < n; i++) {
+  for (ssize_t i = 0; i < n; i++) {
     const struct parser_event *e = parser_feed(rp->p, buffer[i]);
     if (e != NULL) {
       switch (e->type) {
@@ -401,6 +410,7 @@ unsigned setup_lookup(struct selector_key *key, char *addrname, uint8_t addrlen,
     free(service);
     free(hints);
     free(req);
+    client->dns_req = NULL;
     selector_set_interest_key(key, OP_WRITE);
     rp->reply_status = SOCKS_REPLY_HOST_UNREACHABLE;
     return REQUEST_WRITE;
@@ -453,6 +463,8 @@ unsigned dns_lookup(struct selector_key *key) {
   }
 
   client->dest_addr = client->dns_req->ar_result;
+  client->dest_addr_base = client->dest_addr;
+  client->dest_addr_from_gai = true;
 
   char host[NI_MAXHOST];
   if (client->dest_addr != NULL &&
@@ -556,11 +568,12 @@ unsigned try_connect(struct selector_key *key) {
 
 unsigned request_write(struct selector_key *key) {
   client_t *client = ATTACHMENT(key);
+  request_parser_t *rp = &client->parser.request_parser;
   uint8_t reply[4 + 16 + 2]; // VER REP RSV ATYP + ADDR + PORT
   size_t index = 0;
 
   reply[index++] = SOCKS_VERSION_5;
-  reply[index++] = 0x00; // success (per request)
+  reply[index++] = rp->reply_status; // result of the request
   reply[index++] = 0x00; // RSV
 
   struct sockaddr_storage socket_storage;
@@ -602,6 +615,16 @@ unsigned request_write(struct selector_key *key) {
     selector_set_interest_key(key, OP_WRITE);
     client->err = 0x01;
     return ERROR;
+  }
+
+  destroy_active_parser(client);
+  free_destination(client);
+
+  if (rp->reply_status != SOCKS_REPLY_SUCCESS || client->destination_fd == -1) {
+    client->client_closed = true;
+    client->dest_closed = true;
+    selector_set_interest_key(key, OP_NOOP);
+    return DONE;
   }
 
   selector_set_interest(key->s, client->client_fd, OP_READ);

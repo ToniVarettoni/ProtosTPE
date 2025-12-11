@@ -2,6 +2,7 @@
 #include "../lib/logger/logger.h"
 #include "stats.h"
 #include "client_utils.h"
+#include <errno.h>
 
 
 unsigned forward_write(struct selector_key *key) {    
@@ -44,7 +45,7 @@ unsigned forward_write(struct selector_key *key) {
     }
     buffer_read_adv(b, n);
     add_transferred_bytes((size_t)n);
-    log_to_stdout("Successfully sent %d bytes to client %d\n", n, key->fd);
+    log_to_stdout("Successfully sent %zd bytes to client %d\n", n, key->fd);
 
     if (buffer_can_read(b)){
         selector_set_interest(key->s, key->fd, OP_READ | OP_WRITE);
@@ -69,9 +70,8 @@ unsigned forward_read(struct selector_key *key) {
     size_t nbytes;
     uint8_t * write_ptr = buffer_write_ptr(b, &nbytes);
     errno = 0;
-    size_t n = recv(key->fd, write_ptr, nbytes, 0);
-    if (n <= 0) {
-        if (errno == 0 && n == 0){
+    ssize_t n = recv(key->fd, write_ptr, nbytes, 0);
+    if (n == 0) {
             if (from_client) {
                 client->client_closed = true;
                 if (client->dest_closed){
@@ -83,10 +83,15 @@ unsigned forward_read(struct selector_key *key) {
                     return DONE;
                 }
             }
-            selector_set_interest(key->s, (from_client ? client->destination_fd : client->client_fd), OP_WRITE);
+            int other_fd =
+                from_client ? client->destination_fd : client->client_fd;
+            if (other_fd >= 0) {
+                selector_set_interest(key->s, other_fd, OP_WRITE);
+            }
             selector_set_interest_key(key, OP_NOOP);
             return FORWARDING;
-        }
+    }
+    if (n < 0) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             errno = 0;
             return FORWARDING;
@@ -95,10 +100,14 @@ unsigned forward_read(struct selector_key *key) {
         selector_set_interest_key(key, OP_NOOP);
         return ERROR;
     }
-    log_to_stdout("Succesfully read %d bytes from client: %d\n", n, key->fd);
+    log_to_stdout("Succesfully read %zd bytes from client: %d\n", n, key->fd);
     buffer_write_adv(b, n);
 
-    selector_set_interest(key->s, (key->fd == client->client_fd)? client->destination_fd : client->client_fd, OP_READ | OP_WRITE);
+    int other_fd = (key->fd == client->client_fd) ? client->destination_fd
+                                                  : client->client_fd;
+    if (other_fd >= 0) {
+        selector_set_interest(key->s, other_fd, OP_READ | OP_WRITE);
+    }
     
     return FORWARDING;
     }

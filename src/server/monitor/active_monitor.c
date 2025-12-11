@@ -13,13 +13,13 @@ void handle_close_monitor(struct selector_key *key) {
   stm_handler_close(&((monitor_t *)ATTACHMENT(key))->stm, key);
 }
 
-void error_handler(unsigned state, struct selector_key * key){
+void monitor_error_handler(unsigned state, struct selector_key * key){
   monitor_t *monitor = ATTACHMENT(key);
   if (monitor->error != 0){
-    send(key->fd, monitor->error, 1, 0);
+    send(key->fd, &monitor->error, 1, 0);
   }
 
-  if (monitor->active_parser == AUTH_PARSER){
+  if (monitor->active_parser == AUTH_PARSER_MONITOR){
     parser_destroy(monitor->parser.auth_parser.p);
   }
   if (monitor->active_parser == REQ_PARSER){
