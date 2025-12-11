@@ -18,9 +18,28 @@ typedef enum {
   MONITOR_ERROR     // error during monitoring
 } monitor_state_t;
 
+typedef enum {
+  MONITOR_USER_NOT_FOUND = 1,
+  MONITOR_INVALID_USERNAME,
+  MONITOR_WRONG_PASSWORD,
+  MONITOR_LACKS_PRIVILEGE,
+  MONITOR_IO_ERROR,
+  MONITOR_INCORRECT_ARGUMENTS,
+  MONITOR_REQ_HANDLER_ERROR,
+  MONITOR_UNKNOWN_ERROR
+} monitor_error_t;
+
+typedef enum {
+  NO_PARSER = 0,
+  AUTH_PARSER,
+  REQ_PARSER
+} parser_state_t;
+
 typedef struct {
   struct state_machine stm;
   access_level_t user_access_level;
+  uint8_t error;
+  uint8_t active_parser;
   union {
     monitor_auth_parser_t auth_parser;
     monitor_req_parser_t req_parser;

@@ -48,6 +48,7 @@ void handle_read_passive_monitor(struct selector_key *key) {
   monitor->stm.initial = MONITOR_AUTH;
   monitor->stm.max_state = MONITOR_ERROR;
   monitor->stm.states = monitor_states;
+  monitor->active_parser = NO_PARSER;
   // TODO!
   //   buffer_init(&monitor->reading_buffer, MAX_BUFFER,
   //               monitor->reading_buffer_storage);
