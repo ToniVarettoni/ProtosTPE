@@ -31,6 +31,8 @@
 #define DEFAULT_MAX_CLIENTS 1000
 #define LISTEN_BACKLOG 512
 
+#define log_file "logs.txt"
+
 static int running = true;
 
 void signal_handler(int signal) { running = false; }
@@ -168,7 +170,7 @@ int main(int argc, char *argv[]) {
   }
 
   // initialize my logger with my selector
-  logger_initialize(fds);
+  logger_initialize(fds, log_file);
 
   if (user_init_status != USERS_OK) {
     log_to_stdout(

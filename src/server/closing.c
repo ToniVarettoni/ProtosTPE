@@ -8,8 +8,8 @@ void end_connection(const unsigned state, struct selector_key *key) {
   if (client->client_closed && client->dest_closed &&
       !buffer_can_read(&client->client_buffer) &&
       !buffer_can_read(&client->destiny_buffer)) {
-    printf("cerrando conexion en el socket pair: %d - %d\n", client->client_fd,
-           client->destination_fd);
+    log_to_stdout("cerrando conexion en el socket pair: %d - %d\n",
+                  client->client_fd, client->destination_fd);
 
     destroy_active_parser(client);
     free_dns_request(client);

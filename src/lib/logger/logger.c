@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "../selector/selector.h"
@@ -13,7 +14,59 @@ static char *buffer = NULL;
 static size_t size = 0;
 static fd_selector selector = NULL;
 
+#define MAX_LOG_FILE_PATH_LENGTH 255
+
+static char log_file_path[MAX_LOG_FILE_PATH_LENGTH];
+
+#define MAX_DATE_TIME_STRING_LENGTH 20
+#define APPEND_MODE "a"
+
 static int log_fd = -1;
+
+static void get_datetime(char *buffer, size_t size) {
+  time_t now = time(NULL);
+  struct tm tm_now;
+
+  localtime_r(&now, &tm_now);
+
+  strftime(buffer, size, "%Y-%m-%d %H:%M:%S", &tm_now);
+}
+
+static char *prepend_datetime_to_lines(const char *input, size_t in_size,
+                                       size_t *out_size) {
+  const char *p = input;
+  const char *end = input + in_size;
+
+  size_t max_extra = 20 * (in_size / 2 + 2);
+  size_t alloc_size = in_size + max_extra;
+
+  char *out = malloc(alloc_size);
+  if (!out)
+    return NULL;
+
+  char *w = out;
+
+  while (p < end) {
+    char dt[MAX_DATE_TIME_STRING_LENGTH];
+    get_datetime(dt, sizeof(dt));
+
+    size_t dt_len = strlen(dt);
+    memcpy(w, dt, dt_len);
+    w += dt_len;
+    *w++ = ' ';
+
+    while (p < end && *p != '\n') {
+      *w++ = *p++;
+    }
+
+    if (p < end && *p == '\n') {
+      *w++ = *p++;
+    }
+  }
+
+  *out_size = (size_t)(w - out);
+  return out;
+}
 
 // esta seria la funcion que en realidad escribe a STDOUT, manejada por el
 // selector
@@ -23,22 +76,50 @@ static void logger_handle_write(struct selector_key *key) {
     return;
   }
 
-  ssize_t written = write(key->fd, buffer, size);
+  size_t dated_size = 0;
+  char *dated = prepend_datetime_to_lines(buffer, size, &dated_size);
+
+  if (dated == NULL) {
+    perror("prepend_datetime_to_lines");
+    return;
+  }
+
+  FILE *log_file = fopen(log_file_path, APPEND_MODE);
+  if (log_file != NULL) {
+    size_t fw = fwrite(dated, 1, dated_size, log_file);
+    fclose(log_file);
+
+    if (fw < dated_size) {
+      memmove(dated, dated + fw, dated_size - fw);
+      dated_size -= fw;
+    } else {
+      /* Se escribió completo al archivo */
+    }
+  }
+
+  ssize_t written = write(key->fd, dated, dated_size);
+
   if (written > 0) {
-    if (written == size) {
-      // me aseguro de reiniciar mi buffer antes de otro log y setteo mi interes
+    if ((size_t)written == dated_size) {
       free(buffer);
       buffer = NULL;
       size = 0;
-      selector_set_interest_key(key, OP_NOOP);
-    } else if (written < size) { // manejo de write parcial
-      memmove(buffer, buffer + written, size - written);
-      size -= written;
-    }
 
+      selector_set_interest_key(key, OP_NOOP);
+    } else {
+      size_t remain = dated_size - (size_t)written;
+
+      memmove(buffer, buffer + (size - remain), remain);
+      size = remain;
+    }
   } else if (written == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-    return; // retorno dejando mi interes como para escribir
+    /* No se pudo escribir ahora; intento en la próxima iteración */
+    /* dated será liberado más abajo; buffer se mantiene */
+  } else {
+    perror("write");
   }
+
+  free(dated);
 }
 
 // libera y reinicia los recursos relevantes al logger con la excepcion del FD
@@ -56,7 +137,7 @@ static fd_handler logger_handler = {
     .handle_block = NULL,
 };
 
-void logger_initialize(fd_selector selector_param) {
+void logger_initialize(fd_selector selector_param, char *file_path) {
   // duplico stdout para poder registrar y despues desregistrar una copia del FD
   // en vez de usarlo directamente
   int fd = dup(STDOUT_FILENO);
@@ -67,6 +148,8 @@ void logger_initialize(fd_selector selector_param) {
 
   log_fd = fd;
   selector = selector_param;
+
+  strcpy(log_file_path, file_path);
 
   selector_register(selector, fd, &logger_handler, OP_NOOP, NULL);
 }

@@ -19,10 +19,10 @@
 void handle_read_passive_monitor(struct selector_key *key) {
   struct sockaddr_in address;
   int new_socket, addr_len = 0;
-  char *message = "ECHO Daemon v1.0 \r\n";
 
   do {
-    new_socket = accept(key->fd, (struct sockaddr *)&address, (socklen_t *)&addr_len);
+    new_socket =
+        accept(key->fd, (struct sockaddr *)&address, (socklen_t *)&addr_len);
     if (new_socket < 0) {
       if (errno == EINTR)
         continue;

@@ -5,7 +5,7 @@
 
 // Crea el logger a usar, cerando un FD nuevo (copia de STDOUT) no bloqueante
 // para poder escribir.
-void logger_initialize(fd_selector selector_param);
+void logger_initialize(fd_selector selector_param, char *file_path);
 
 // Logguea directamente en linea de comandos. Se usa como un reemplazador de
 // printf, pero asegurandose de no blockearse.
