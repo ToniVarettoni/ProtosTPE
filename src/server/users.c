@@ -263,8 +263,10 @@ user_status user_delete(char *user_username_to_delete) {
     log_to_stdout("user %s not found\n", user_username_to_delete);
     return USERS_INVALID_USERNAME;
   }
-  memmove(&users[to_delete_index], &users[to_delete_index],
-          (users_size - to_delete_index - 1) * sizeof(user_t));
+  if (to_delete_index < users_size - 1) {
+    memmove(&users[to_delete_index], &users[to_delete_index + 1],
+            (users_size - to_delete_index - 1) * sizeof(user_t));
+  }
   users_size--;
   return USERS_OK;
 }

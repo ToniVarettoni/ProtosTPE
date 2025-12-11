@@ -5,7 +5,7 @@
 #include "stats.h"
 #include "users.h"
 
-#define REQ_AMOUNT 4
+#define REQ_AMOUNT 5
 
 /* Possible requests:
 **  - ADD USER (parameters: <username> <password> <role>)
@@ -52,8 +52,7 @@ typedef struct {
   uint8_t current_argument_length;
   uint8_t current_argument_read;
   monitor_req_status_t req_status;
-  char uname[MAX_ARGUMENT_LENGTH + 1];
-  char passwd[MAX_ARGUMENT_LENGTH + 1];
+  uint8_t **arguments;
   access_level_t access_level;
   stats_t stats;
 

@@ -1,6 +1,7 @@
 #include "../include/monitor_req_utils.h"
 #include "../../lib/logger/logger.h"
 #include "../include/active_monitor.h"
+#include "auth_utils.h"
 
 monitor_req_status_t handle_request(struct selector_key *key) {
   monitor_req_parser_t *mrq =
@@ -9,29 +10,41 @@ monitor_req_status_t handle_request(struct selector_key *key) {
   if (mrq == NULL) {
     return MONITOR_REQ_STATUS_ERR;
   }
+  char *uname, *passwd, *access_level;
   switch (mrq->type) {
   case ADD_USER:
-    if (valid_user(mrq->uname, mrq->passwd) != USERS_OK &&
-        user_create(mrq->uname, mrq->passwd, mrq->access_level) != USERS_OK) {
+    uname = (char *)mrq->arguments[0];
+    passwd = (char *)mrq->arguments[1];
+    access_level = (char *)mrq->arguments[2];
+    if (valid_user(uname, passwd) != USERS_OK &&
+        user_create(uname, passwd, *access_level) != USERS_OK) {
       return MONITOR_REQ_STATUS_ERR;
     }
-    log_to_stdout("Created user with username %s and password %s\n", mrq->uname,
-                  mrq->passwd);
+    log_to_stdout("Created user with username %s and password %s\n", uname,
+                  passwd);
     break;
   case REMOVE_USER:
-    if (user_delete(mrq->uname) != USERS_OK) {
+    uname = (char *)mrq->arguments[0];
+    if (user_delete(uname) != USERS_OK) {
       return MONITOR_REQ_STATUS_ERR;
     }
-    log_to_stdout("Deleted user %s\n", mrq->uname);
+    log_to_stdout("Deleted user %s\n", uname);
     break;
   case CHANGE_PASSWD:
-    if (user_change_password(mrq->uname, mrq->passwd) != USERS_OK) {
+    uname = (char *)mrq->arguments[0];
+    passwd = (char *)mrq->arguments[1];
+    if (user_change_password(uname, passwd) != USERS_OK) {
       return MONITOR_REQ_STATUS_ERR;
     }
-    log_to_stdout("Changed password for user %s\n", mrq->uname);
+    log_to_stdout("Changed password for user %s\n", uname);
     break;
   case STATISTICS:
     memcpy(&mrq->stats, get_stats(), sizeof(stats_t));
+    break;
+  case CHANGE_AUTH_METHODS:
+    if (change_auth_methods(mrq->arguments) != AUTH_OK) {
+      return MONITOR_REQ_STATUS_ERR;
+    }
     break;
   default:
     return MONITOR_REQ_STATUS_ERR;

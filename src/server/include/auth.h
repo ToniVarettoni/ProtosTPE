@@ -3,8 +3,8 @@
 
 #include "../../lib/parser/parser.h"
 #include "../../lib/selector/selector.h"
-#include <stdbool.h>
 #include "users.h"
+#include <stdbool.h>
 
 #define MAX_BUFFER_SIZE 255
 #define MAX_BUFFER 16384
@@ -40,6 +40,9 @@ typedef struct {
   uint8_t plen;
   uint8_t passwd[MAX_BUFFER_SIZE];
   uint8_t passwd_read;
+
+  // null terminated
+  int8_t methods_accepted[MAX_BUFFER_SIZE];
 
   uint8_t auth_status;
   bool auth_done;

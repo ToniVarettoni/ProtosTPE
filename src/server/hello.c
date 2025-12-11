@@ -1,6 +1,7 @@
 #include "../include/hello.h"
 #include "../lib/logger/logger.h"
 #include "../lib/selector/selector.h"
+#include "include/auth_utils.h"
 #include "include/client_utils.h"
 
 #define HELLO_PROTOCOL_VERSION 0x05
@@ -128,13 +129,18 @@ unsigned hello_read(struct selector_key *key) {
         bool found = false;
         hp->method_selected = HELLO_AUTH_NO_METHOD_ACCEPTED;
 
-        for (int i = 0; i < hp->nmethods && !found; i++) {
-          if (hp->methods[i] == HELLO_AUTH_USER_PASS) {
-            hp->method_selected = HELLO_AUTH_USER_PASS;
+        for (int i = 0; i < hp->nmethods; i++) {
+          // last method that matches is good to go! (devs mindful decision)
+          if (accepted_method(hp->methods[i])) {
+            printf("ENTRE\n");
+            if (hp->method_selected == HELLO_AUTH_NO_METHOD_ACCEPTED ||
+                hp->method_selected < hp->methods[i]) {
+              hp->method_selected = hp->methods[i];
+            }
             found = true;
           }
         }
-
+        printf("AAA %d\n", hp->method_selected);
         if (!found) {
           hp->method_selected = HELLO_NO_ACCEPTABLE_METHODS;
         }
@@ -171,5 +177,8 @@ unsigned hello_write(struct selector_key *key) {
   }
 
   selector_set_interest_key(key, OP_READ);
+  if (hp->method_selected == HELLO_AUTH_NO_AUTH) {
+    return REQUEST_READ;
+  }
   return AUTH_READ;
 }
