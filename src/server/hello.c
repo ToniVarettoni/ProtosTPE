@@ -140,7 +140,6 @@ unsigned hello_read(struct selector_key *key) {
             found = true;
           }
         }
-        printf("AAA %d\n", hp->method_selected);
         if (!found) {
           hp->method_selected = HELLO_NO_ACCEPTABLE_METHODS;
         }

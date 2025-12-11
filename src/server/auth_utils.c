@@ -44,11 +44,10 @@ auth_status_t accepted_method(int8_t method) {
   bool found = false;
   int8_t current = accepted_methods[i++];
   while (current != -1 && !found) {
-    printf("%d & %d\n", current, method);
     if (method == current) {
       found = true;
     }
-    current = accepted_methods[i];
+    current = accepted_methods[i++];
   }
   return found;
 }
